@@ -1,0 +1,11 @@
+# vim: syn=tmux
+#
+neww -n app     'vi .'
+splitw -h -p 40 'bash -l'
+splitw -v -p 50 'bin/console'
+
+
+neww -n scm     'tig'
+splitw -h -p 60 'bash -l'
+
+selectw -t app

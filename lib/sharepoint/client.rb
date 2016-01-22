@@ -28,13 +28,21 @@ module Sharepoint
       @@client = client
     end
 
+    # Get the default client configuration
+    #
+    #
+    def self.config
+      raise "Default client and cofiguration not initialized" unless @@client
+      self.client.config
+    end
+
     # @return [OpenStruct] The current configuration.
     attr_reader :config
 
     # Initializes a new client with given options.
     #
     # @param [Hash] options The client options.
-    # @option options [String] :base_uri (DEFAULT_BASE_URI) The API base uri.
+    # @return [Sharepoint::Client] client object
     def initialize(config = {})
       @config = OpenStruct.new(config)
       raise "Username Configuration Error" if @config.username.nil? || @config.username == ""
@@ -52,16 +60,18 @@ module Sharepoint
     # @params path [String] the path to request the content
     # @return [Array] of OpenStructs with the info of the files in the path
     def self.documents_for path
+      raise "Default client and cofiguration not initialized" unless @@client
       client.send("_documents_for", path)
     end
 
     # Upload a file
     #
     # @param filename [String] the name of the file uploaded
-    # @param content [String or IO] the body of the file
+    # @param content [String] the body of the file
     # @param path [String] the path where to upload the file
     # @return [Fixnum] HTTP response code
     def self.upload filename, content, path
+      raise "Default client and cofiguration not initialized" unless @@client
       client.send("_upload", filename, content, path)
     end
 
@@ -72,6 +82,7 @@ module Sharepoint
     # @param path [String] the path where to upload the file
     # @return [Fixnum] HTTP response code
     def self.update_metadata filename, metadata, path
+      raise "Default client and cofiguration not initialized" unless @@client
       client.send("_update_metadata", filename, metadata, path)
     end
 

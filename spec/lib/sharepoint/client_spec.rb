@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Sharepoint::Client, :vcr do
   let(:config)    { { username: "user",
                       password: "password",
-                      uri: "http://www.mysharepoint.com" } }
+                      uri:      "http://www.mysharepoint.com" } }
   let(:client)    { described_class.new(config) }
 
   context "client undefined" do

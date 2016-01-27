@@ -51,9 +51,9 @@ module Sharepoint
       raise Errors::PasswordConfigurationError.new unless string_not_blank?(@config.password)
       raise Errors::UriConfigurationError.new      unless valid_config_uri?
 
-      @user =         @config.username
-      @password =     @config.password
-      @base_url =     @config.uri
+      @user         = @config.username
+      @password     = @config.password
+      @base_url     = @config.uri
       @base_api_url = "#{@base_url}/_api/web/"
     end
 

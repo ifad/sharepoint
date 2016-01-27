@@ -26,7 +26,7 @@ module Sharepoint
     # @param  [Sharepoint::Client] client The client to set.
     # @return [Sharepoint::Client] The new client.
     def self.client=(client)
-      raise Errors::InvalidSharepointClient.new unless client.is_a? Sharepoint::Client
+      raise Errors::InvalidClient.new unless client.is_a? Sharepoint::Client
       @@client = client
     end
 
@@ -185,12 +185,16 @@ module Sharepoint
     end
 
     def string_not_blank?(object)
-      !object.nil? && !object =! "" && object.is_a?(String)
+      !object.nil? && object != "" && object.is_a?(String)
     end
 
     def valid_config_uri?
-      uri = URI.parse(@config.uri)
-      uri.kind_of?(URI::HTTP) || uri.kind_of?(URI::HTTPS)
+      if @config.uri and @config.uri.is_a? String
+        uri = URI.parse(@config.uri)
+        uri.kind_of?(URI::HTTP) || uri.kind_of?(URI::HTTPS)
+      else
+        false
+      end
     end
   end
 end

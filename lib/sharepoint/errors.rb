@@ -5,7 +5,7 @@ module Sharepoint
         super "Default client and cofiguration not initialized"
       end
     end
-    class InvalidSharepointClient < StandardError
+    class InvalidClient < StandardError
       def initialize
         super "Assigned client is not a Sharepoint::Client"
       end

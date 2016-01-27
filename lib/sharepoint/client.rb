@@ -17,7 +17,8 @@ module Sharepoint
     #
     # @return [Sharepoint::Client] The current client.
     def self.client
-      @@client ||= new
+      raise Errors::ClientNotInitialized.new unless @@client
+      @@client
     end
 
     # Sets the current {@@client} to +client+.
@@ -25,6 +26,7 @@ module Sharepoint
     # @param  [Sharepoint::Client] client The client to set.
     # @return [Sharepoint::Client] The new client.
     def self.client=(client)
+      raise Errors::InvalidSharepointClient.new unless client.is_a? Sharepoint::Client
       @@client = client
     end
 
@@ -32,7 +34,7 @@ module Sharepoint
     #
     #
     def self.config
-      raise "Default client and cofiguration not initialized" unless @@client
+      raise Errors::ClientNotInitialized.new unless @@client
       self.client.config
     end
 
@@ -45,9 +47,9 @@ module Sharepoint
     # @return [Sharepoint::Client] client object
     def initialize(config = {})
       @config = OpenStruct.new(config)
-      raise "Username Configuration Error" if @config.username.nil? || @config.username == ""
-      raise "Password Configuration Error" if @config.password.nil? || @config.password == ""
-      raise "Uri Configuration Error"      if @config.uri.nil? || @config.uri == ""
+      raise Errors::UsernameConfigurationError.new unless string_not_blank?(@config.username)
+      raise Errors::PasswordConfigurationError.new unless string_not_blank?(@config.password)
+      raise Errors::UriConfigurationError.new      unless valid_config_uri?
 
       @user =         @config.username
       @password =     @config.password
@@ -60,7 +62,6 @@ module Sharepoint
     # @params path [String] the path to request the content
     # @return [Array] of OpenStructs with the info of the files in the path
     def self.documents_for path
-      raise "Default client and cofiguration not initialized" unless @@client
       client.send("_documents_for", path)
     end
 
@@ -71,7 +72,6 @@ module Sharepoint
     # @param path [String] the path where to upload the file
     # @return [Fixnum] HTTP response code
     def self.upload filename, content, path
-      raise "Default client and cofiguration not initialized" unless @@client
       client.send("_upload", filename, content, path)
     end
 
@@ -82,7 +82,6 @@ module Sharepoint
     # @param path [String] the path where to upload the file
     # @return [Fixnum] HTTP response code
     def self.update_metadata filename, metadata, path
-      raise "Default client and cofiguration not initialized" unless @@client
       client.send("_update_metadata", filename, metadata, path)
     end
 
@@ -183,6 +182,15 @@ module Sharepoint
 
         result += ", '#{key}': '#{value}'"
       } + " }"
+    end
+
+    def string_not_blank?(object)
+      !object.nil? && !object =! "" && object.is_a?(String)
+    end
+
+    def valid_config_uri?
+      uri = URI.parse(@config.uri)
+      uri.kind_of?(URI::HTTP) || uri.kind_of?(URI::HTTPS)
     end
   end
 end

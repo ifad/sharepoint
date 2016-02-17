@@ -10,6 +10,8 @@ module Sharepoint
     FILENAME_INVALID_CHARS = ['~','#', '%', '&' , '*', '{', '}',
                               '\\', ':', '<', '>', '?', '/', '|', '"']
 
+    FILENAME_INVALID_CHARS_REGEXP = /[\/\\~#%&*{}:<>?|"]/
+
     # The current active client.
     #
     # @return [Sharepoint::Client]
@@ -207,7 +209,7 @@ module Sharepoint
     end
 
     def valid_filename? name
-      (name.split(//) & FILENAME_INVALID_CHARS).empty?
+      (name =~ FILENAME_INVALID_CHARS_REGEXP).nil?
     end
   end
 end

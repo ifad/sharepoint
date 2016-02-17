@@ -7,6 +7,9 @@ require "time"
 
 module Sharepoint
   class Client
+    FILENAME_INVALID_CHARS = ['~','#', '%', '&' , '*', '{', '}',
+                              '\\', ':', '<', '>', '?', '/', '|', '"']
+
     # The current active client.
     #
     # @return [Sharepoint::Client]
@@ -122,6 +125,8 @@ module Sharepoint
     end
 
     def _upload filename, content, path
+      raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
+
       url = "#{@base_api_url}GetFolderByServerRelativeUrl('#{path}')" +
             "/Files/Add(url='#{filename.gsub("'", "`")}',overwrite=true)"
       url = URI.escape(url)
@@ -134,6 +139,8 @@ module Sharepoint
     end
 
     def _update_metadata filename, metadata, path
+      prepared_metadata = prepare_metadata(metadata, path)
+
       url = "#{@base_api_url}GetFileByServerRelativeUrl" +
             "('#{path}/#{filename.gsub("'", "`")}')/ListItemAllFields"
       easy = ethon_easy_json_requester
@@ -150,7 +157,7 @@ module Sharepoint
                        'If-Match' => "*" }
       easy.http_request(update_metadata_url,
                         :post,
-                        { body: prepare_metadata(metadata, path) })
+                        { body: prepared_metadata })
       easy.perform
       easy.response_code
     end
@@ -178,7 +185,9 @@ module Sharepoint
 
       metadata.inject("{ '__metadata': { 'type': 'SP.Data.#{folder_name.capitalize}Item' }"){ |result, element|
         key = element[0]
-        value = element[1].gsub("'", "`")
+        value = element[1]
+
+        raise Errors::InvalidMetadata.new if key.to_s.include?("'") || value.include?("'")
 
         result += ", '#{key}': '#{value}'"
       } + " }"
@@ -195,6 +204,10 @@ module Sharepoint
       else
         false
       end
+    end
+
+    def valid_filename? name
+      (name.split(//) & FILENAME_INVALID_CHARS).empty?
     end
   end
 end

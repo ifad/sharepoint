@@ -25,5 +25,17 @@ module Sharepoint
         super "Invalid Uri configuration"
       end
     end
+
+    class InvalidSharepointFilename < StandardError
+      def initialize
+        super "The file name contains an invalid character"
+      end
+    end
+
+    class InvalidMetadata < StandardError
+      def initialize
+        super "Invalid Metadata Value due to it contains single quote character(')"
+      end
+    end
   end
 end

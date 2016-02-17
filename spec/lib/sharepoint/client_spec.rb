@@ -145,5 +145,21 @@ describe Sharepoint::Client, :vcr do
                               .instance_variable_get(:@base_api_url)).to eql("http://www.mysharepoint.com/_api/web/")
       end
     end
+
+    describe ".upload" do
+      described_class::FILENAME_INVALID_CHARS.each do |char|
+        it "shoud raise invalid file name error if the filename contains the character " + char do
+          expect {
+            described_class.upload(char + "filename", "content", "path")
+          }.to raise_error(Sharepoint::Errors::InvalidSharepointFilename)
+        end
+      end
+      it "should upload the file correctly"
+    end
+
+    describe ".metadata" do
+      it "shoud raise invalid metadata if any metadata value or key include the single quote char"
+      it "should update the metadata correctly"
+    end
   end
 end

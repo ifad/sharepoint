@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require 'pathname'
+
+BASE=Pathname.new(__FILE__).realpath.parent.parent
+$: << BASE + 'lib'
+
+require "irb"
+require "sharepoint"
+
+IRB.start

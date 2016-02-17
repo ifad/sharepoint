@@ -1,6 +1,5 @@
 require "ostruct"
 require "ethon"
-require "byebug"
 require "uri"
 require "json"
 require "time"

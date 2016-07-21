@@ -1,9 +1,9 @@
 require 'spec_helper'
 
 describe Sharepoint::Client, :vcr do
-  let(:config)    { { username: "user",
-                      password: "password",
-                      uri:      "http://www.mysharepoint.com" } }
+  let(:config)    { { username: ENV['SP_USERNAME'],
+                      password: ENV['SP_PASSWORD'],
+                      uri:      ENV['SP_URL'] } }
   let(:client)    { described_class.new(config) }
 
   context "client undefined" do
@@ -127,22 +127,22 @@ describe Sharepoint::Client, :vcr do
     describe ".initialize" do
       it "define @user instance var in the client" do
         expect(described_class.client
-                              .instance_variable_get(:@user)).to eql("user")
+                              .instance_variable_get(:@user)).to eql(ENV['SP_USERNAME'])
       end
 
       it "define @password instance var in the client" do
         expect(described_class.client
-                              .instance_variable_get(:@password)).to eql("password")
+                              .instance_variable_get(:@password)).to eql(ENV['SP_PASSWORD'])
       end
 
       it "define @base_url instance var in the client" do
         expect(described_class.client
-                              .instance_variable_get(:@base_url)).to eql("http://www.mysharepoint.com")
+                              .instance_variable_get(:@base_url)).to eql(ENV['SP_URL'])
       end
 
       it "define @base_api_url instance var in the client" do
         expect(described_class.client
-                              .instance_variable_get(:@base_api_url)).to eql("http://www.mysharepoint.com/_api/web/")
+                              .instance_variable_get(:@base_api_url)).to eql(ENV['SP_URL']+'/_api/web/')
       end
     end
 

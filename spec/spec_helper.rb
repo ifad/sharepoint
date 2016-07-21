@@ -1,8 +1,10 @@
+require 'dotenv'
 require 'pathname'
 require 'byebug'
 require 'vcr'
 require 'filemagic/ext'
 
+Dotenv.load('.env')
 
 SPEC_BASE = Pathname.new(__FILE__).realpath.parent
 

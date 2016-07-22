@@ -4,6 +4,8 @@ require "uri"
 require "json"
 require "time"
 
+require 'active_support/core_ext/string/inflections'
+
 module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = ['~','#', '%', '&' , '*', '{', '}',

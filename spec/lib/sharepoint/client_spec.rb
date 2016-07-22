@@ -4,9 +4,10 @@ describe Sharepoint::Client do
   let(:config)    { { username: ENV['SP_USERNAME'],
                       password: ENV['SP_PASSWORD'],
                       uri:      ENV['SP_URL'] } }
-  let(:client)    { described_class.new(config) }
 
   context "client undefined" do
+    before { described_class.reset_client }
+
     describe ".client" do
       it "should raise client undefined error" do
         expect {
@@ -108,9 +109,8 @@ describe Sharepoint::Client do
   end
 
   context "client defined" do
-    before :each do
-      described_class.client = client
-    end
+    let(:client)    { described_class.new(config) }
+    before { described_class.client = client }
 
     describe ".client .client=" do
       it "return the default client" do

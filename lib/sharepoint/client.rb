@@ -34,6 +34,12 @@ module Sharepoint
       @@client = client
     end
 
+    # Resets the current {@@client} to +nil+.
+    # Needed when running test suite
+    def self.reset_client
+      @@client = nil
+    end
+
     # Get the default client configuration
     #
     #

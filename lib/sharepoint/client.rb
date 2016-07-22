@@ -78,6 +78,17 @@ module Sharepoint
       client.send("_documents_for", path)
     end
 
+    # Search in a List for all documents modified from some datetime on.
+    # Uses OData on Lists API endpoint
+    #
+    # @param datetime [DateTime] some moment in time
+    # @param list_name [String] The name of the SharePoint List you want to
+    #        search into. Please note: a Document Library is a List as well.
+    # @return [Array] of OpenStructs with all properties of search results
+    def self.list_modified_documents datetime, list_name
+      client.send("_list_modified_documents", datetime, list_name)
+    end
+
     # Upload a file
     #
     # @param filename [String] the name of the file uploaded
@@ -134,6 +145,34 @@ module Sharepoint
       end
       threads.each { |t| t.join }
       rv
+    end
+
+    def _list_modified_documents datetime, list_name
+      ethon = ethon_easy_json_requester
+      date_condition = "Modified ge datetime'#{datetime.utc.iso8601}'"
+      document_condition = "FileSystemObjectType eq 0"
+      ethon.url = "#{@base_api_web_url}Lists/GetByTitle('#{URI.escape list_name}')/Items?$expand=Folder,File&$filter=#{URI.escape date_condition}&filter=#{URI.escape document_condition}"
+      ethon.perform
+      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      _parse_list_response(ethon.response_body)
+    end
+
+    def _parse_list_response(response_body)
+      json_response = JSON.parse(response_body)
+      results = json_response['d']['results']
+      records = []
+      results.each do |result|
+        record = {}
+        %w( GUID Created Modified ).each do |key|
+          record[key.underscore.to_sym] = result[key]
+        end
+        file = result['File']
+        %w( Name ServerRelativeUrl Title ).each do |key|
+          record[key.underscore.to_sym] = file[key]
+        end
+        records << OpenStruct.new(record)
+      end
+      records
     end
 
     def _upload filename, content, path

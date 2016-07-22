@@ -66,7 +66,8 @@ module Sharepoint
       @user         = @config.username
       @password     = @config.password
       @base_url     = @config.uri
-      @base_api_url = "#{@base_url}/_api/web/"
+      @base_api_url = "#{@base_url}/_api/"
+      @base_api_web_url = "#{@base_api_url}web/"
     end
 
     # Get all the documents from path
@@ -101,7 +102,7 @@ module Sharepoint
 
     def _documents_for path
       ethon = ethon_easy_json_requester
-      ethon.url = "#{@base_api_url}GetFolderByServerRelativeUrl('#{URI.escape path}')/Files"
+      ethon.url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{URI.escape path}')/Files"
       ethon.perform
 
       raise "Unable to read ERMS folder, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
@@ -122,7 +123,7 @@ module Sharepoint
 
         threads << Thread.new {
           ethon2 = ethon_easy_json_requester
-          ethon2.url = "#{@base_api_url}GetFileByServerRelativeUrl('#{path}/#{URI.escape file['Name']}')/ListItemAllFields"
+          ethon2.url = "#{@base_api_web_url}GetFileByServerRelativeUrl('#{URI.escape path}/#{URI.escape file['Name']}')/ListItemAllFields"
           ethon2.perform
           rs = JSON.parse(ethon2.response_body)['d']
           file_struct.record_type = rs['Record_Type']
@@ -138,7 +139,7 @@ module Sharepoint
     def _upload filename, content, path
       raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
 
-      url = "#{@base_api_url}GetFolderByServerRelativeUrl('#{path}')" +
+      url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{path}')" +
             "/Files/Add(url='#{filename.gsub("'", "`")}',overwrite=true)"
       url = URI.escape(url)
       easy = ethon_easy_json_requester
@@ -152,7 +153,7 @@ module Sharepoint
     def _update_metadata filename, metadata, path
       prepared_metadata = prepare_metadata(metadata, path)
 
-      url = "#{@base_api_url}GetFileByServerRelativeUrl" +
+      url = "#{@base_api_web_url}GetFileByServerRelativeUrl" +
             "('#{path}/#{filename.gsub("'", "`")}')/ListItemAllFields"
       easy = ethon_easy_json_requester
       easy.url = URI.escape(url)
@@ -190,7 +191,7 @@ module Sharepoint
 
     def prepare_metadata(metadata, path)
       easy = ethon_easy_json_requester
-      easy.url = URI.escape("#{@base_api_url}GetFolderByServerRelativeUrl('#{path}')")
+      easy.url = URI.escape("#{@base_api_web_url}GetFolderByServerRelativeUrl('#{path}')")
       easy.perform
       folder_name = JSON.parse(easy.response_body)['d']['Name']
 

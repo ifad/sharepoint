@@ -10,7 +10,9 @@ Gem::Specification.new do |gem|
   gem.files             = `git ls-files`.split("\n")
   gem.require_paths     = ["lib"]
 
-  gem.add_dependency("ethon")
+  gem.add_dependency 'ethon'
+
+  gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'dotenv'
   gem.add_development_dependency 'webmock'

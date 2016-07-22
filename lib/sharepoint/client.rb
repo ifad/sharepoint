@@ -104,8 +104,10 @@ module Sharepoint
         file_struct = OpenStruct.new(
           title: file['Title'],
           path: file['ServerRelativeUrl'],
-          name: file['Name'], url: "#{@base_url}#{file['ServerRelativeUrl']}",
+          name: file['Name'],
+          url: "#{@base_url}#{file['ServerRelativeUrl']}",
           created_at: DateTime.parse(file['TimeCreated']),
+          updated_at: DateTime.parse(file['TimeLastModified']),
           record_type: nil,
           date_of_issue: nil,
         )

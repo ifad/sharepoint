@@ -1,0 +1,114 @@
+{
+   "d":{
+      "results":[
+         {
+            "__metadata":{
+               "id":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160725 FCO-BRI boarding-pass.pdf')",
+               "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160725%20FCO-BRI%20boarding-pass.pdf')",
+               "type":"SP.File"
+            },
+            "Author":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160725%20FCO-BRI%20boarding-pass.pdf')/Author"
+               }
+            },
+            "CheckedOutByUser":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160725%20FCO-BRI%20boarding-pass.pdf')/CheckedOutByUser"
+               }
+            },
+            "ListItemAllFields":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160725%20FCO-BRI%20boarding-pass.pdf')/ListItemAllFields"
+               }
+            },
+            "LockedByUser":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160725%20FCO-BRI%20boarding-pass.pdf')/LockedByUser"
+               }
+            },
+            "ModifiedBy":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160725%20FCO-BRI%20boarding-pass.pdf')/ModifiedBy"
+               }
+            },
+            "Versions":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160725%20FCO-BRI%20boarding-pass.pdf')/Versions"
+               }
+            },
+            "CheckInComment":"initial upload",
+            "CheckOutType":2,
+            "ContentTag":"{DC5F4142-12B0-4555-8FCC-0C6CA8B0E14A},3,1",
+            "CustomizedPageStatus":0,
+            "ETag":"\"{DC5F4142-12B0-4555-8FCC-0C6CA8B0E14A},3\"",
+            "Exists":true,
+            "Length":"110759",
+            "Level":1,
+            "MajorVersion":1,
+            "MinorVersion":0,
+            "Name":"20160725 FCO-BRI boarding-pass.pdf",
+            "ServerRelativeUrl":"/Documents/20160725 FCO-BRI boarding-pass.pdf",
+            "TimeCreated":"2016-07-22T08:44:21Z",
+            "TimeLastModified":"2016-07-22T08:47:34Z",
+            "Title":"Rome-Bari boarding pass",
+            "UIVersion":512,
+            "UIVersionLabel":"1.0"
+         },
+         {
+            "__metadata":{
+               "id":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160718 BRI-FCO boarding-pass.pdf')",
+               "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160718%20BRI-FCO%20boarding-pass.pdf')",
+               "type":"SP.File"
+            },
+            "Author":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160718%20BRI-FCO%20boarding-pass.pdf')/Author"
+               }
+            },
+            "CheckedOutByUser":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160718%20BRI-FCO%20boarding-pass.pdf')/CheckedOutByUser"
+               }
+            },
+            "ListItemAllFields":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160718%20BRI-FCO%20boarding-pass.pdf')/ListItemAllFields"
+               }
+            },
+            "LockedByUser":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160718%20BRI-FCO%20boarding-pass.pdf')/LockedByUser"
+               }
+            },
+            "ModifiedBy":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160718%20BRI-FCO%20boarding-pass.pdf')/ModifiedBy"
+               }
+            },
+            "Versions":{
+               "__deferred":{
+                  "uri":"http://win-jamsdpuujgc/_api/Web/GetFileByServerRelativeUrl('/Documents/20160718%20BRI-FCO%20boarding-pass.pdf')/Versions"
+               }
+            },
+            "CheckInComment":"minor changes",
+            "CheckOutType":2,
+            "ContentTag":"{4EEB8052-47AF-4700-A65F-5ED16A63C5E8},2,1",
+            "CustomizedPageStatus":0,
+            "ETag":"\"{4EEB8052-47AF-4700-A65F-5ED16A63C5E8},2\"",
+            "Exists":true,
+            "Length":"111058",
+            "Level":2,
+            "MajorVersion":0,
+            "MinorVersion":1,
+            "Name":"20160718 BRI-FCO boarding-pass.pdf",
+            "ServerRelativeUrl":"/Documents/20160718 BRI-FCO boarding-pass.pdf",
+            "TimeCreated":"2016-07-17T15:26:34Z",
+            "TimeLastModified":"2016-07-22T08:51:22Z",
+            "Title":"Bari-Rome boarding pass",
+            "UIVersion":1,
+            "UIVersionLabel":"0.1"
+         }
+      ]
+   }
+}

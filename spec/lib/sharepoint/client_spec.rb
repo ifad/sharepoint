@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Sharepoint::Client, :vcr do
+describe Sharepoint::Client do
   let(:config)    { { username: ENV['SP_USERNAME'],
                       password: ENV['SP_PASSWORD'],
                       uri:      ENV['SP_URL'] } }

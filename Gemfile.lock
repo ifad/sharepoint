@@ -32,7 +32,6 @@ GEM
     rspec-support (3.4.1)
     ruby-filemagic (0.7.1)
     safe_yaml (1.0.4)
-    vcr (3.0.1)
     webmock (1.22.6)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -47,7 +46,6 @@ DEPENDENCIES
   rspec
   ruby-filemagic
   sharepoint!
-  vcr
   webmock
 
 BUNDLED WITH

@@ -78,6 +78,18 @@ module Sharepoint
       client.send("_documents_for", path)
     end
 
+    # Search for all documents modified from some datetime on.
+    # Uses SharePoint Search API endpoint
+    #
+    # @param datetime [DateTime] some moment in time
+    # @param options [Hash] Supported options are:
+    #   - list_id: the GUID of the List you want returned documents to belong to
+    #   - web_id: the GUID of the Site you want returned documents to belong to
+    # @return [Array] of OpenStructs with all properties of search results
+    def self.search_modified_documents datetime, options={}
+      client.send("_search_modified_documents", datetime, options)
+    end
+
     # Search in a List for all documents modified from some datetime on.
     # Uses OData on Lists API endpoint
     #
@@ -145,6 +157,39 @@ module Sharepoint
       end
       threads.each { |t| t.join }
       rv
+    end
+
+    def _search_modified_documents datetime, options
+      ethon = ethon_easy_json_requester
+      filters = _build_search_filters(datetime, options)
+      ethon.url = "#{@base_api_url}search/query?querytext='*'&#{filters}"
+      ethon.perform
+      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      _parse_search_response(ethon.response_body)
+    end
+
+    def _build_search_filters(datetime, options)
+      filters = []
+      filters << "write:range(#{datetime.utc.iso8601},max,from=\"ge\")"
+      filters << "IsDocument:\"1\""
+      filters << "WebId:\"#{options[:web_id]}\"" unless options[:web_id].nil?
+      filters << "ListId:\"#{options[:list_id]}\"" unless options[:list_id].nil?
+      "refinementfilters='and(#{filters.join(',')})'"
+    end
+
+    def _parse_search_response(response_body)
+      json_response = JSON.parse(response_body)
+      search_results = json_response.dig('d', 'query', 'PrimaryQueryResult', 'RelevantResults', 'Table', 'Rows', 'results')
+      records = []
+      search_results.each do |result|
+        record = {}
+        result.dig('Cells', 'results').each do |result_attrs|
+          key = result_attrs['Key'].underscore.to_sym
+          record[key] = result_attrs['Value']
+        end
+        records << OpenStruct.new(record)
+      end
+      records
     end
 
     def _list_modified_documents datetime, list_name

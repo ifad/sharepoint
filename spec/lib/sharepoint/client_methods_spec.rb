@@ -15,7 +15,7 @@ describe Sharepoint::Client do
   describe '#documents_for' do
     let(:path) { '/Documents' }
     before { mock_responses('documents_for.json') }
-    subject { Sharepoint::Client.documents_for path }
+    subject { described_class.documents_for path }
     it 'returns documents with filled properties' do
       is_expected.not_to be_empty
       sample = subject.sample
@@ -48,6 +48,65 @@ describe Sharepoint::Client do
         expect(Time.parse(document.modified)).to be >= datetime
       end
     end
+  end
+
+  describe '#search_modified_documents' do
+    let(:datetime) { Time.parse('2016-07-22') }
+
+    context 'search whole SharePoint instance' do
+      before { mock_responses('search_modified_documents.json') }
+      subject { described_class.search_modified_documents datetime }
+      it { is_expected.not_to be_empty }
+      it 'returns document objects only' do
+        subject.each do |document|
+          expect(document.is_document).to eq 'true'
+        end
+      end
+      it 'returns documents modified after specified datetime' do
+        subject.each do |document|
+          expect(Time.parse(document.write)).to be >= datetime
+        end
+      end
+    end
+
+    context 'search specific Site' do
+      context 'when existing web_id is passed' do
+        before { mock_responses('search_modified_documents.json') }
+        let(:options) do
+          { web_id: 'b285c5ff-9256-4f30-99ba-26fc705a9f2d' }
+        end
+        subject { described_class.search_modified_documents datetime, options }
+        it { is_expected.not_to be_empty }
+      end
+      context 'when non-existing web_id is passed' do
+        before { mock_responses('search_noresults.json') }
+        let(:options) do
+          { web_id: 'a285c5ff-9256-4f30-99ba-26fc705a9f2e' }
+        end
+        subject { described_class.search_modified_documents datetime, options }
+        it { is_expected.to be_empty }
+      end
+    end
+
+    context 'search specific List' do
+      context 'when existing list_id is passed' do
+        before { mock_responses('search_modified_documents.json') }
+        let(:options) do
+          { list_id: '3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3' }
+        end
+        subject { described_class.search_modified_documents datetime, options }
+        it { is_expected.not_to be_empty }
+      end
+      context 'when non-existing list_id is passed' do
+        before { mock_responses('search_noresults.json') }
+        let(:options) do
+          { list_id: '2314c0cf-d5b0-4d1e-a5f1-9a10fca08bc4' }
+        end
+        subject { described_class.search_modified_documents datetime, options }
+        it { is_expected.to be_empty }
+      end
+    end
+
   end
 
 end

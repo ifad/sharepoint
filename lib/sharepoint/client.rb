@@ -163,7 +163,7 @@ module Sharepoint
       ethon = ethon_easy_json_requester
       filters = _build_search_filters(datetime, options)
       properties = _build_search_properties(options)
-      ethon.url = "#{@base_api_url}search/query?querytext='*'&#{filters}&#{properties}"
+      ethon.url = "#{@base_api_url}search/query?querytext='*'&#{filters}&#{properties}&clienttype='Custom'"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       _parse_search_response(ethon.response_body)

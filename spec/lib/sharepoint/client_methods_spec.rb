@@ -52,6 +52,9 @@ describe Sharepoint::Client do
 
   describe '#search_modified_documents' do
     let(:datetime) { Time.parse('2016-07-22') }
+    let(:default_properties) do
+      %w( write is_document list_id web_id title author size path )
+    end
 
     context 'search whole SharePoint instance' do
       before { mock_responses('search_modified_documents.json') }
@@ -65,6 +68,13 @@ describe Sharepoint::Client do
       it 'returns documents modified after specified datetime' do
         subject.each do |document|
           expect(Time.parse(document.write)).to be >= datetime
+        end
+      end
+      it 'returns default properties' do
+        sample = subject.sample
+        default_properties.each do |property|
+          expect(sample).to respond_to property
+          expect(sample.send(property)).not_to be_nil
         end
       end
     end

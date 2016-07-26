@@ -162,7 +162,8 @@ module Sharepoint
     def _search_modified_documents datetime, options
       ethon = ethon_easy_json_requester
       filters = _build_search_filters(datetime, options)
-      ethon.url = "#{@base_api_url}search/query?querytext='*'&#{filters}"
+      properties = _build_search_properties(options)
+      ethon.url = "#{@base_api_url}search/query?querytext='*'&#{filters}&#{properties}"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       _parse_search_response(ethon.response_body)
@@ -175,6 +176,16 @@ module Sharepoint
       filters << "WebId:\"#{options[:web_id]}\"" unless options[:web_id].nil?
       filters << "ListId:\"#{options[:list_id]}\"" unless options[:list_id].nil?
       "refinementfilters='and(#{filters.join(',')})'"
+    end
+
+    def _build_search_properties(options)
+      default_properties = %w(
+        Write IsDocument ListId WebId
+        Title Author Size Path
+      )
+      properties = options[:properties] || []
+      properties += default_properties
+      "selectproperties='#{properties.join(',')}'"
     end
 
     def _parse_search_response(response_body)

@@ -13,18 +13,24 @@ And then execute:
 
 ## Usage
 
-  # client configuration
+### Client initialization
 
-    Sharepoint::Client.client = Sharepoint::Client.new({username: "username", password: "password", uri: "http://sharepoint_url"})
+You can instantiate a number of SharePoint clients in your application:
 
-  # get documents of a folder
+    client = Sharepoint::Client.new({
+      username: "username",
+      password: "password",
+      uri: "http://sharepoint_url"
+    })
 
-    Sharepoint::Client.documents_for path
+### Get documents of a folder
 
-  # upload document
+    client.documents_for path
 
-    Sharepoint::Client.upload filename, content, path
+### Upload a document
 
-  # update document metadata
+    client.upload filename, content, path
 
-    Sharepoint::Client.update_metadata filename, metadata, path
+### Update document metadata
+
+    client.update_metadata filename, metadata, path

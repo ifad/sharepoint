@@ -11,43 +11,6 @@ module Sharepoint
 
     FILENAME_INVALID_CHARS_REGEXP = /[\/\\~#%&*{}:<>?|"]/
 
-    # The current active client.
-    #
-    # @return [Sharepoint::Client]
-    # @private
-    @@client = nil
-
-    # Lazy-initializes and return the current {@@client}.
-    #
-    # @return [Sharepoint::Client] The current client.
-    def self.client
-      raise Errors::ClientNotInitialized.new unless @@client
-      @@client
-    end
-
-    # Sets the current {@@client} to +client+.
-    #
-    # @param  [Sharepoint::Client] client The client to set.
-    # @return [Sharepoint::Client] The new client.
-    def self.client=(client)
-      raise Errors::InvalidClient.new unless client.is_a? Sharepoint::Client
-      @@client = client
-    end
-
-    # Resets the current {@@client} to +nil+.
-    # Needed when running test suite
-    def self.reset_client
-      @@client = nil
-    end
-
-    # Get the default client configuration
-    #
-    #
-    def self.config
-      raise Errors::ClientNotInitialized.new unless @@client
-      self.client.config
-    end
-
     # @return [OpenStruct] The current configuration.
     attr_reader :config
 
@@ -71,33 +34,7 @@ module Sharepoint
     #
     # @params path [String] the path to request the content
     # @return [Array] of OpenStructs with the info of the files in the path
-    def self.documents_for path
-      client.send("_documents_for", path)
-    end
-
-    # Upload a file
-    #
-    # @param filename [String] the name of the file uploaded
-    # @param content [String] the body of the file
-    # @param path [String] the path where to upload the file
-    # @return [Fixnum] HTTP response code
-    def self.upload filename, content, path
-      client.send("_upload", filename, content, path)
-    end
-
-    # Update metadata of  a file
-    #
-    # @param filename [String] the name of the file uploaded
-    # @param metadata [Hash] the metadata to change
-    # @param path [String] the path where to upload the file
-    # @return [Fixnum] HTTP response code
-    def self.update_metadata filename, metadata, path
-      client.send("_update_metadata", filename, metadata, path)
-    end
-
-    private
-
-    def _documents_for path
+    def documents_for path
       ethon = ethon_easy_json_requester
       ethon.url = "#{@base_api_url}GetFolderByServerRelativeUrl('#{URI.escape path}')/Files"
       ethon.perform
@@ -133,7 +70,13 @@ module Sharepoint
       rv
     end
 
-    def _upload filename, content, path
+    # Upload a file
+    #
+    # @param filename [String] the name of the file uploaded
+    # @param content [String] the body of the file
+    # @param path [String] the path where to upload the file
+    # @return [Fixnum] HTTP response code
+    def upload filename, content, path
       raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
 
       url = "#{@base_api_url}GetFolderByServerRelativeUrl('#{path}')" +
@@ -147,7 +90,13 @@ module Sharepoint
       easy.response_code
     end
 
-    def _update_metadata filename, metadata, path
+    # Update metadata of  a file
+    #
+    # @param filename [String] the name of the file uploaded
+    # @param metadata [Hash] the metadata to change
+    # @param path [String] the path where to upload the file
+    # @return [Fixnum] HTTP response code
+    def update_metadata filename, metadata, path
       prepared_metadata = prepare_metadata(metadata, path)
 
       url = "#{@base_api_url}GetFileByServerRelativeUrl" +
@@ -170,6 +119,8 @@ module Sharepoint
       easy.perform
       easy.response_code
     end
+
+    private
 
     def ethon_easy_json_requester
       easy          = Ethon::Easy.new(httpauth: :ntlm )

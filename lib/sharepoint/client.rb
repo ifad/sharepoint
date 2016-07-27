@@ -13,43 +13,6 @@ module Sharepoint
 
     FILENAME_INVALID_CHARS_REGEXP = /[\/\\~#%&*{}:<>?|"]/
 
-    # The current active client.
-    #
-    # @return [Sharepoint::Client]
-    # @private
-    @@client = nil
-
-    # Lazy-initializes and return the current {@@client}.
-    #
-    # @return [Sharepoint::Client] The current client.
-    def self.client
-      raise Errors::ClientNotInitialized.new unless @@client
-      @@client
-    end
-
-    # Sets the current {@@client} to +client+.
-    #
-    # @param  [Sharepoint::Client] client The client to set.
-    # @return [Sharepoint::Client] The new client.
-    def self.client=(client)
-      raise Errors::InvalidClient.new unless client.is_a? Sharepoint::Client
-      @@client = client
-    end
-
-    # Resets the current {@@client} to +nil+.
-    # Needed when running test suite
-    def self.reset_client
-      @@client = nil
-    end
-
-    # Get the default client configuration
-    #
-    #
-    def self.config
-      raise Errors::ClientNotInitialized.new unless @@client
-      self.client.config
-    end
-
     # @return [OpenStruct] The current configuration.
     attr_reader :config
 
@@ -74,56 +37,7 @@ module Sharepoint
     #
     # @params path [String] the path to request the content
     # @return [Array] of OpenStructs with the info of the files in the path
-    def self.documents_for path
-      client.send("_documents_for", path)
-    end
-
-    # Search for all documents modified from some datetime on.
-    # Uses SharePoint Search API endpoint
-    #
-    # @param datetime [DateTime] some moment in time
-    # @param options [Hash] Supported options are:
-    #   - list_id: the GUID of the List you want returned documents to belong to
-    #   - web_id: the GUID of the Site you want returned documents to belong to
-    # @return [Array] of OpenStructs with all properties of search results
-    def self.search_modified_documents datetime, options={}
-      client.send("_search_modified_documents", datetime, options)
-    end
-
-    # Search in a List for all documents modified from some datetime on.
-    # Uses OData on Lists API endpoint
-    #
-    # @param datetime [DateTime] some moment in time
-    # @param list_name [String] The name of the SharePoint List you want to
-    #        search into. Please note: a Document Library is a List as well.
-    # @return [Array] of OpenStructs with all properties of search results
-    def self.list_modified_documents datetime, list_name
-      client.send("_list_modified_documents", datetime, list_name)
-    end
-
-    # Upload a file
-    #
-    # @param filename [String] the name of the file uploaded
-    # @param content [String] the body of the file
-    # @param path [String] the path where to upload the file
-    # @return [Fixnum] HTTP response code
-    def self.upload filename, content, path
-      client.send("_upload", filename, content, path)
-    end
-
-    # Update metadata of  a file
-    #
-    # @param filename [String] the name of the file uploaded
-    # @param metadata [Hash] the metadata to change
-    # @param path [String] the path where to upload the file
-    # @return [Fixnum] HTTP response code
-    def self.update_metadata filename, metadata, path
-      client.send("_update_metadata", filename, metadata, path)
-    end
-
-    private
-
-    def _documents_for path
+    def documents_for path
       ethon = ethon_easy_json_requester
       ethon.url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{URI.escape path}')/Files"
       ethon.perform
@@ -159,79 +73,48 @@ module Sharepoint
       rv
     end
 
-    def _search_modified_documents datetime, options
+    # Search for all documents modified from some datetime on.
+    # Uses SharePoint Search API endpoint
+    #
+    # @param datetime [DateTime] some moment in time
+    # @param options [Hash] Supported options are:
+    #   - list_id: the GUID of the List you want returned documents to belong to
+    #   - web_id: the GUID of the Site you want returned documents to belong to
+    # @return [Array] of OpenStructs with all properties of search results
+    def search_modified_documents datetime, options={}
       ethon = ethon_easy_json_requester
-      filters = _build_search_filters(datetime, options)
-      properties = _build_search_properties(options)
+      filters = build_search_filters(datetime, options)
+      properties = build_search_properties(options)
       ethon.url = "#{@base_api_url}search/query?querytext='*'&#{filters}&#{properties}&clienttype='Custom'"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
-      _parse_search_response(ethon.response_body)
+      parse_search_response(ethon.response_body)
     end
 
-    def _build_search_filters(datetime, options)
-      filters = []
-      filters << "write:range(#{datetime.utc.iso8601},max,from=\"ge\")"
-      filters << "IsDocument:\"1\""
-      filters << "WebId:\"#{options[:web_id]}\"" unless options[:web_id].nil?
-      filters << "ListId:\"#{options[:list_id]}\"" unless options[:list_id].nil?
-      "refinementfilters='and(#{filters.join(',')})'"
-    end
-
-    def _build_search_properties(options)
-      default_properties = %w(
-        Write IsDocument ListId WebId
-        Title Author Size Path
-      )
-      properties = options[:properties] || []
-      properties += default_properties
-      "selectproperties='#{properties.join(',')}'"
-    end
-
-    def _parse_search_response(response_body)
-      json_response = JSON.parse(response_body)
-      search_results = json_response.dig('d', 'query', 'PrimaryQueryResult', 'RelevantResults', 'Table', 'Rows', 'results')
-      records = []
-      search_results.each do |result|
-        record = {}
-        result.dig('Cells', 'results').each do |result_attrs|
-          key = result_attrs['Key'].underscore.to_sym
-          record[key] = result_attrs['Value']
-        end
-        records << OpenStruct.new(record)
-      end
-      records
-    end
-
-    def _list_modified_documents datetime, list_name
+    # Search in a List for all documents modified from some datetime on.
+    # Uses OData on Lists API endpoint
+    #
+    # @param datetime [DateTime] some moment in time
+    # @param list_name [String] The name of the SharePoint List you want to
+    #        search into. Please note: a Document Library is a List as well.
+    # @return [Array] of OpenStructs with all properties of search results
+    def list_modified_documents datetime, list_name
       ethon = ethon_easy_json_requester
       date_condition = "Modified ge datetime'#{datetime.utc.iso8601}'"
       document_condition = "FileSystemObjectType eq 0"
       ethon.url = "#{@base_api_web_url}Lists/GetByTitle('#{URI.escape list_name}')/Items?$expand=Folder,File&$filter=#{URI.escape date_condition}&filter=#{URI.escape document_condition}"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
-      _parse_list_response(ethon.response_body)
+      parse_list_response(ethon.response_body)
     end
 
-    def _parse_list_response(response_body)
-      json_response = JSON.parse(response_body)
-      results = json_response['d']['results']
-      records = []
-      results.each do |result|
-        record = {}
-        %w( GUID Created Modified ).each do |key|
-          record[key.underscore.to_sym] = result[key]
-        end
-        file = result['File']
-        %w( Name ServerRelativeUrl Title ).each do |key|
-          record[key.underscore.to_sym] = file[key]
-        end
-        records << OpenStruct.new(record)
-      end
-      records
-    end
-
-    def _upload filename, content, path
+    # Upload a file
+    #
+    # @param filename [String] the name of the file uploaded
+    # @param content [String] the body of the file
+    # @param path [String] the path where to upload the file
+    # @return [Fixnum] HTTP response code
+    def upload filename, content, path
       raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
 
       url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{path}')" +
@@ -245,7 +128,13 @@ module Sharepoint
       easy.response_code
     end
 
-    def _update_metadata filename, metadata, path
+    # Update metadata of  a file
+    #
+    # @param filename [String] the name of the file uploaded
+    # @param metadata [Hash] the metadata to change
+    # @param path [String] the path where to upload the file
+    # @return [Fixnum] HTTP response code
+    def update_metadata filename, metadata, path
       prepared_metadata = prepare_metadata(metadata, path)
 
       url = "#{@base_api_web_url}GetFileByServerRelativeUrl" +
@@ -268,6 +157,8 @@ module Sharepoint
       easy.perform
       easy.response_code
     end
+
+    private
 
     def ethon_easy_json_requester
       easy          = Ethon::Easy.new(httpauth: :ntlm )
@@ -316,5 +207,58 @@ module Sharepoint
     def valid_filename? name
       (name =~ FILENAME_INVALID_CHARS_REGEXP).nil?
     end
+
+    def build_search_filters(datetime, options)
+      filters = []
+      filters << "write:range(#{datetime.utc.iso8601},max,from=\"ge\")"
+      filters << "IsDocument:\"1\""
+      filters << "WebId:\"#{options[:web_id]}\"" unless options[:web_id].nil?
+      filters << "ListId:\"#{options[:list_id]}\"" unless options[:list_id].nil?
+      "refinementfilters='and(#{filters.join(',')})'"
+    end
+
+    def build_search_properties(options)
+      default_properties = %w(
+        Write IsDocument ListId WebId
+        Title Author Size Path
+      )
+      properties = options[:properties] || []
+      properties += default_properties
+      "selectproperties='#{properties.join(',')}'"
+    end
+
+    def parse_search_response(response_body)
+      json_response = JSON.parse(response_body)
+      search_results = json_response.dig('d', 'query', 'PrimaryQueryResult', 'RelevantResults', 'Table', 'Rows', 'results')
+      records = []
+      search_results.each do |result|
+        record = {}
+        result.dig('Cells', 'results').each do |result_attrs|
+          key = result_attrs['Key'].underscore.to_sym
+          record[key] = result_attrs['Value']
+        end
+        records << OpenStruct.new(record)
+      end
+      records
+    end
+
+    def parse_list_response(response_body)
+      json_response = JSON.parse(response_body)
+      results = json_response['d']['results']
+      records = []
+      results.each do |result|
+        record = {}
+        %w( GUID Created Modified ).each do |key|
+          record[key.underscore.to_sym] = result[key]
+        end
+        file = result['File']
+        %w( Name ServerRelativeUrl Title ).each do |key|
+          record[key.underscore.to_sym] = file[key]
+        end
+        records << OpenStruct.new(record)
+      end
+      records
+    end
+
   end
 end

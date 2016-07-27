@@ -10,12 +10,11 @@ describe Sharepoint::Client do
     }
   end
   let(:client) { described_class.new(config) }
-  before { described_class.client = client }
 
   describe '#documents_for' do
     let(:path) { '/Documents' }
     before { mock_responses('documents_for.json') }
-    subject { described_class.documents_for path }
+    subject { client.documents_for path }
     it 'returns documents with filled properties' do
       is_expected.not_to be_empty
       sample = subject.sample
@@ -32,7 +31,7 @@ describe Sharepoint::Client do
     before { mock_responses('list_modified_documents.json') }
     let(:list_name) { 'Documents' }
     let(:datetime) { Time.parse('2016-07-22') }
-    subject { described_class.list_modified_documents datetime, list_name }
+    subject { client.list_modified_documents datetime, list_name }
     it 'returns documents with filled properties' do
       is_expected.not_to be_empty
       sample = subject.sample
@@ -58,7 +57,7 @@ describe Sharepoint::Client do
 
     context 'search whole SharePoint instance' do
       before { mock_responses('search_modified_documents.json') }
-      subject { described_class.search_modified_documents datetime }
+      subject { client.search_modified_documents datetime }
       it { is_expected.not_to be_empty }
       it 'returns document objects only' do
         subject.each do |document|
@@ -117,6 +116,24 @@ describe Sharepoint::Client do
       end
     end
 
+  end
+
+  describe '#upload' do
+    described_class::FILENAME_INVALID_CHARS.each do |char|
+      it "shoud raise invalid file name error if the filename contains the character " + char do
+        expect {
+          client.upload(char + "filename", "content", "path")
+        }.to raise_error(Sharepoint::Errors::InvalidSharepointFilename)
+      end
+    end
+    # TODO
+    it "should upload the file correctly"
+  end
+
+  # TODO
+  describe ".update_metadata" do
+    it "shoud raise invalid metadata if any metadata value or key include the single quote char"
+    it "should update the metadata correctly"
   end
 
 end

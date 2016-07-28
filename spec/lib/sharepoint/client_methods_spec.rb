@@ -69,7 +69,7 @@ describe Sharepoint::Client do
           expect(Time.parse(document.write)).to be >= datetime
         end
       end
-      it 'returns default properties' do
+      it 'returns default properties with values' do
         sample = subject.sample
         default_properties.each do |property|
           expect(sample).to respond_to property

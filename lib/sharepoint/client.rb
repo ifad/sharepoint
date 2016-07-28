@@ -83,9 +83,9 @@ module Sharepoint
     # @return [Array] of OpenStructs with all properties of search results
     def search_modified_documents datetime, options={}
       ethon = ethon_easy_json_requester
-      filters = build_search_filters(datetime, options)
+      query = URI.escape build_search_kql_conditions(datetime, options)
       properties = build_search_properties(options)
-      ethon.url = "#{@base_api_url}search/query?querytext='*'&#{filters}&#{properties}&clienttype='Custom'"
+      ethon.url = "#{@base_api_url}search/query?querytext=#{query}&#{properties}&clienttype='Custom'"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       parse_search_response(ethon.response_body)
@@ -208,13 +208,13 @@ module Sharepoint
       (name =~ FILENAME_INVALID_CHARS_REGEXP).nil?
     end
 
-    def build_search_filters(datetime, options)
-      filters = []
-      filters << "write:range(#{datetime.utc.iso8601},max,from=\"ge\")"
-      filters << "IsDocument:\"1\""
-      filters << "WebId:\"#{options[:web_id]}\"" unless options[:web_id].nil?
-      filters << "ListId:\"#{options[:list_id]}\"" unless options[:list_id].nil?
-      "refinementfilters='and(#{filters.join(',')})'"
+    def build_search_kql_conditions(datetime, options)
+      conditions = []
+      conditions << "write>=#{datetime.utc.iso8601}"
+      conditions << "IsDocument=1"
+      conditions << "WebId=#{options[:web_id]}" unless options[:web_id].nil?
+      conditions << "ListId:#{options[:list_id]}" unless options[:list_id].nil?
+      "'#{conditions.join('+')}'"
     end
 
     def build_search_properties(options)

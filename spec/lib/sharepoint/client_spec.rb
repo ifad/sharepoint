@@ -44,6 +44,12 @@ describe Sharepoint::Client do
       it "defines @base_api_url instance var in the client" do
         expect(
           subject.instance_variable_get(:@base_api_url)
+        ).to eql(ENV['SP_URL']+'/_api/')
+      end
+
+      it "defines @base_api_web_url instance var in the client" do
+        expect(
+          subject.instance_variable_get(:@base_api_web_url)
         ).to eql(ENV['SP_URL']+'/_api/web/')
       end
     end

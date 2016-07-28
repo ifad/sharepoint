@@ -79,12 +79,12 @@ describe Sharepoint::Client do
     end
 
     context 'search specific Site' do
+      subject { client.search_modified_documents datetime, options }
       context 'when existing web_id is passed' do
         before { mock_responses('search_modified_documents.json') }
         let(:options) do
           { web_id: 'b285c5ff-9256-4f30-99ba-26fc705a9f2d' }
         end
-        subject { described_class.search_modified_documents datetime, options }
         it { is_expected.not_to be_empty }
       end
       context 'when non-existing web_id is passed' do
@@ -92,18 +92,17 @@ describe Sharepoint::Client do
         let(:options) do
           { web_id: 'a285c5ff-9256-4f30-99ba-26fc705a9f2e' }
         end
-        subject { described_class.search_modified_documents datetime, options }
         it { is_expected.to be_empty }
       end
     end
 
     context 'search specific List' do
+      subject { client.search_modified_documents datetime, options }
       context 'when existing list_id is passed' do
         before { mock_responses('search_modified_documents.json') }
         let(:options) do
           { list_id: '3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3' }
         end
-        subject { described_class.search_modified_documents datetime, options }
         it { is_expected.not_to be_empty }
       end
       context 'when non-existing list_id is passed' do
@@ -111,7 +110,6 @@ describe Sharepoint::Client do
         let(:options) do
           { list_id: '2314c0cf-d5b0-4d1e-a5f1-9a10fca08bc4' }
         end
-        subject { described_class.search_modified_documents datetime, options }
         it { is_expected.to be_empty }
       end
     end

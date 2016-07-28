@@ -21,4 +21,5 @@ Dir[File.join(SPEC_BASE, "support/**/*.rb")].each { |f| require f }
 RSpec::configure do |rspec|
   rspec.tty = true
   rspec.color = true
+  rspec.include Sharepoint::SpecHelpers
 end

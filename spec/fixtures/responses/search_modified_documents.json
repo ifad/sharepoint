@@ -1,329 +1,335 @@
 {
-   "d":{
-      "query":{
-         "__metadata":{
-            "type":"Microsoft.Office.Server.Search.REST.SearchResult"
-         },
-         "ElapsedTime":6187,
-         "PrimaryQueryResult":{
-            "__metadata":{
-               "type":"Microsoft.Office.Server.Search.REST.QueryResult"
+  "d": {
+    "query": {
+      "__metadata": {
+        "type": "Microsoft.Office.Server.Search.REST.SearchResult"
+      },
+      "ElapsedTime": 6359,
+      "PrimaryQueryResult": {
+        "__metadata": {
+          "type": "Microsoft.Office.Server.Search.REST.QueryResult"
+        },
+        "CustomResults": null,
+        "QueryId": "ac89d8da-262a-4edb-9024-f3a7d13d5b42",
+        "QueryRuleId": "00000000-0000-0000-0000-000000000000",
+        "RefinementResults": null,
+        "RelevantResults": {
+          "__metadata": {
+            "type": "Microsoft.Office.Server.Search.REST.RelevantResults"
+          },
+          "GroupTemplateId": null,
+          "ItemTemplateId": null,
+          "Properties": {
+            "results": [
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "GenerationId",
+                "Value": "9223372036854775806",
+                "ValueType": "Edm.Int64"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "ExecutionTimeMs",
+                "Value": "1078",
+                "ValueType": "Edm.Int32"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "QueryModification",
+                "Value": "write>=2016-07-21T22:00:00Z IsDocument=1 -ContentClass=urn:content-class:SPSPeople",
+                "ValueType": "Edm.String"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "RenderTemplateId",
+                "Value": "~sitecollection/_catalogs/masterpage/Display Templates/Search/Group_Default.js",
+                "ValueType": "Edm.String"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "piPageImpressionBlockType",
+                "Value": "2",
+                "ValueType": "Edm.Byte"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "StartRecord",
+                "Value": "0",
+                "ValueType": "Edm.Int32"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "IsLastBlockInSubstrate",
+                "Value": "true",
+                "ValueType": "Edm.Boolean"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "IsFirstBlockInSubstrate",
+                "Value": "false",
+                "ValueType": "Edm.Boolean"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "IsFirstPinnedResultBlock",
+                "Value": "false",
+                "ValueType": "Edm.Boolean"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "IsLastPinnedResultBlock",
+                "Value": "false",
+                "ValueType": "Edm.Boolean"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "IsFirstRankedResultBlock",
+                "Value": "true",
+                "ValueType": "Edm.Boolean"
+              },
+              {
+                "__metadata": {
+                  "type": "SP.KeyValue"
+                },
+                "Key": "IsLastRankedResultBlock",
+                "Value": "true",
+                "ValueType": "Edm.Boolean"
+              }
+            ]
+          },
+          "ResultTitle": null,
+          "ResultTitleUrl": null,
+          "RowCount": 1,
+          "Table": {
+            "__metadata": {
+              "type": "SP.SimpleDataTable"
             },
-            "CustomResults":null,
-            "QueryId":"c7cc8d22-4a4a-4bba-9b8f-685f95b4a18b",
-            "QueryRuleId":"00000000-0000-0000-0000-000000000000",
-            "RefinementResults":null,
-            "RelevantResults":{
-               "__metadata":{
-                  "type":"Microsoft.Office.Server.Search.REST.RelevantResults"
-               },
-               "GroupTemplateId":null,
-               "ItemTemplateId":null,
-               "Properties":{
-                  "results":[
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"GenerationId",
-                        "Value":"9223372036854775806",
-                        "ValueType":"Edm.Int64"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"ExecutionTimeMs",
-                        "Value":"2219",
-                        "ValueType":"Edm.Int32"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"QueryModification",
-                        "Value":"* -ContentClass=urn:content-class:SPSPeople",
-                        "ValueType":"Edm.String"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"RenderTemplateId",
-                        "Value":"~sitecollection/_catalogs/masterpage/Display Templates/Search/Group_Default.js",
-                        "ValueType":"Edm.String"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"piPageImpressionBlockType",
-                        "Value":"2",
-                        "ValueType":"Edm.Byte"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"StartRecord",
-                        "Value":"0",
-                        "ValueType":"Edm.Int32"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"IsLastBlockInSubstrate",
-                        "Value":"true",
-                        "ValueType":"Edm.Boolean"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"IsFirstBlockInSubstrate",
-                        "Value":"false",
-                        "ValueType":"Edm.Boolean"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"IsFirstPinnedResultBlock",
-                        "Value":"false",
-                        "ValueType":"Edm.Boolean"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"IsLastPinnedResultBlock",
-                        "Value":"false",
-                        "ValueType":"Edm.Boolean"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"IsFirstRankedResultBlock",
-                        "Value":"true",
-                        "ValueType":"Edm.Boolean"
-                     },
-                     {
-                        "__metadata":{
-                           "type":"SP.KeyValue"
-                        },
-                        "Key":"IsLastRankedResultBlock",
-                        "Value":"true",
-                        "ValueType":"Edm.Boolean"
-                     }
-                  ]
-               },
-               "ResultTitle":null,
-               "ResultTitleUrl":null,
-               "RowCount":1,
-               "Table":{
-                  "__metadata":{
-                     "type":"SP.SimpleDataTable"
+            "Rows": {
+              "results": [
+                {
+                  "__metadata": {
+                    "type": "SP.SimpleDataRow"
                   },
-                  "Rows":{
-                     "results":[
-                        {
-                           "__metadata":{
-                              "type":"SP.SimpleDataRow"
-                           },
-                           "Cells":{
-                              "results":[
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"Rank",
-                                    "Value":"6.76681900024414",
-                                    "ValueType":"Edm.Double"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"DocId",
-                                    "Value":"69",
-                                    "ValueType":"Edm.Int64"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"Write",
-                                    "Value":"2016-07-25T12:45:18.0000000Z",
-                                    "ValueType":"Edm.DateTime"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"IsDocument",
-                                    "Value":"true",
-                                    "ValueType":"Edm.Boolean"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"ListId",
-                                    "Value":"{3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3}",
-                                    "ValueType":"Edm.String"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"WebId",
-                                    "Value":"b285c5ff-9256-4f30-99ba-26fc705a9f2d",
-                                    "ValueType":"Edm.String"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"Title",
-                                    "Value":"Bari-Rome boarding-pass",
-                                    "ValueType":"Edm.String"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"Author",
-                                    "Value":"0#.w|win-jamsdpuujgc\\administrator",
-                                    "ValueType":"Edm.String"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"Size",
-                                    "Value":"111058",
-                                    "ValueType":"Edm.Int64"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"Path",
-                                    "Value":"http://win-jamsdpuujgc/Documents/20160718 BRI-FCO boarding-pass.pdf",
-                                    "ValueType":"Edm.String"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"OriginalPath",
-                                    "Value":"http://win-jamsdpuujgc/Documents/20160718 BRI-FCO boarding-pass.pdf",
-                                    "ValueType":"Edm.String"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"PartitionId",
-                                    "Value":"0c37852b-34d0-418e-91c6-2ac25af4be5b",
-                                    "ValueType":"Edm.Guid"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"UrlZone",
-                                    "Value":"0",
-                                    "ValueType":"Edm.Int32"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"AAMEnabledManagedProperties",
-                                    "Value":"AttachmentURI;deeplinks;DefaultEncodingURL;ExternalMediaURL;HierarchyUrl;OrgParentUrls;OrgUrls;OriginalPath;ParentLink;Path;PictureThumbnailURL;PictureURL;PublishingImage;recommendedfor;ServerRedirectedEmbedURL;ServerRedirectedPreviewURL;ServerRedirectedURL;SiteLogo;SitePath;SPSiteURL;UserEncodingURL",
-                                    "ValueType":"Edm.String"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"RenderTemplateId",
-                                    "Value":"~sitecollection/_catalogs/masterpage/Display Templates/Search/Item_Default.js",
-                                    "ValueType":"Edm.String"
-                                 },
-                                 {
-                                    "__metadata":{
-                                       "type":"SP.KeyValue"
-                                    },
-                                    "Key":"piSearchResultId",
-                                    "Value":"0_1",
-                                    "ValueType":"Edm.String"
-                                 }
-                              ]
-                           }
-                        }
-                     ]
+                  "Cells": {
+                    "results": [
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "Rank",
+                        "Value": "6.82140731811523",
+                        "ValueType": "Edm.Double"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "DocId",
+                        "Value": "69",
+                        "ValueType": "Edm.Int64"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "Write",
+                        "Value": "2016-07-25T12:45:18.0000000Z",
+                        "ValueType": "Edm.DateTime"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "IsDocument",
+                        "Value": "true",
+                        "ValueType": "Edm.Boolean"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "ListId",
+                        "Value": "{3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3}",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "WebId",
+                        "Value": "b285c5ff-9256-4f30-99ba-26fc705a9f2d",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "Created",
+                        "Value": "2016-07-17T15:26:35.0000000Z",
+                        "ValueType": "Edm.DateTime"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "Title",
+                        "Value": "Bari-Rome boarding-pass",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "Author",
+                        "Value": "0#.w|win-jamsdpuujgc\\administrator",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "Size",
+                        "Value": "111058",
+                        "ValueType": "Edm.Int64"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "Path",
+                        "Value": "http://win-jamsdpuujgc/Documents/20160718 BRI-FCO boarding-pass.pdf",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "OriginalPath",
+                        "Value": "http://win-jamsdpuujgc/Documents/20160718 BRI-FCO boarding-pass.pdf",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "PartitionId",
+                        "Value": "0c37852b-34d0-418e-91c6-2ac25af4be5b",
+                        "ValueType": "Edm.Guid"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "UrlZone",
+                        "Value": "0",
+                        "ValueType": "Edm.Int32"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "AAMEnabledManagedProperties",
+                        "Value": "AttachmentURI;deeplinks;DefaultEncodingURL;ExternalMediaURL;HierarchyUrl;OrgParentUrls;OrgUrls;OriginalPath;ParentLink;Path;PictureThumbnailURL;PictureURL;PublishingImage;recommendedfor;ServerRedirectedEmbedURL;ServerRedirectedPreviewURL;ServerRedirectedURL;SiteLogo;SitePath;SPSiteURL;UserEncodingURL",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "RenderTemplateId",
+                        "Value": "~sitecollection/_catalogs/masterpage/Display Templates/Search/Item_Default.js",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
+                        "Key": "piSearchResultId",
+                        "Value": "0_1",
+                        "ValueType": "Edm.String"
+                      }
+                    ]
                   }
-               },
-               "TotalRows":1,
-               "TotalRowsIncludingDuplicates":2
+                }
+              ]
+            }
+          },
+          "TotalRows": 1,
+          "TotalRowsIncludingDuplicates": 2
+        },
+        "SpecialTermResults": null
+      },
+      "Properties": {
+        "results": [
+          {
+            "__metadata": {
+              "type": "SP.KeyValue"
             },
-            "SpecialTermResults":null
-         },
-         "Properties":{
-            "results":[
-               {
-                  "__metadata":{
-                     "type":"SP.KeyValue"
-                  },
-                  "Key":"RowLimit",
-                  "Value":"10",
-                  "ValueType":"Edm.Int32"
-               },
-               {
-                  "__metadata":{
-                     "type":"SP.KeyValue"
-                  },
-                  "Key":"SourceId",
-                  "Value":"8413cd39-2156-4e00-b54d-11efd9abdb89",
-                  "ValueType":"Edm.Guid"
-               },
-               {
-                  "__metadata":{
-                     "type":"SP.KeyValue"
-                  },
-                  "Key":"EnableInterleaving",
-                  "Value":"true",
-                  "ValueType":"Edm.Boolean"
-               },
-               {
-                  "__metadata":{
-                     "type":"SP.KeyValue"
-                  },
-                  "Key":"piPageImpression",
-                  "Value":"7000_379_1033",
-                  "ValueType":"Edm.String"
-               },
-               {
-                  "__metadata":{
-                     "type":"SP.KeyValue"
-                  },
-                  "Key":"SerializedQuery",
-                  "Value":"<Query Culture=\"en-US\" EnableStemming=\"True\" EnablePhonetic=\"False\" EnableNicknames=\"False\" IgnoreAllNoiseQuery=\"True\" SummaryLength=\"180\" MaxSnippetLength=\"180\" DesiredSnippetLength=\"90\" KeywordInclusion=\"0\" QueryText=\"*\" QueryTemplate=\"\" TrimDuplicates=\"True\" Site=\"9e7e74be-4e59-4fc7-aaf9-bc094fa1f0d6\" Web=\"b285c5ff-9256-4f30-99ba-26fc705a9f2d\" KeywordType=\"True\" HiddenConstraints=\"\" />",
-                  "ValueType":"Edm.String"
-               }
-            ]
-         },
-         "SecondaryQueryResults":null,
-         "SpellingSuggestion":"",
-         "TriggeredRules":{
-            "results":[
-
-            ]
-         }
+            "Key": "RowLimit",
+            "Value": "10",
+            "ValueType": "Edm.Int32"
+          },
+          {
+            "__metadata": {
+              "type": "SP.KeyValue"
+            },
+            "Key": "SourceId",
+            "Value": "8413cd39-2156-4e00-b54d-11efd9abdb89",
+            "ValueType": "Edm.Guid"
+          },
+          {
+            "__metadata": {
+              "type": "SP.KeyValue"
+            },
+            "Key": "EnableInterleaving",
+            "Value": "true",
+            "ValueType": "Edm.Boolean"
+          },
+          {
+            "__metadata": {
+              "type": "SP.KeyValue"
+            },
+            "Key": "piPageImpression",
+            "Value": "9000_2816_1033",
+            "ValueType": "Edm.String"
+          },
+          {
+            "__metadata": {
+              "type": "SP.KeyValue"
+            },
+            "Key": "SerializedQuery",
+            "Value": "<Query Culture=\"en-US\" EnableStemming=\"True\" EnablePhonetic=\"False\" EnableNicknames=\"False\" IgnoreAllNoiseQuery=\"True\" SummaryLength=\"180\" MaxSnippetLength=\"180\" DesiredSnippetLength=\"90\" KeywordInclusion=\"0\" QueryText=\"write&gt;=2016-07-21T22:00:00Z IsDocument=1\" QueryTemplate=\"\" TrimDuplicates=\"True\" Site=\"9e7e74be-4e59-4fc7-aaf9-bc094fa1f0d6\" Web=\"b285c5ff-9256-4f30-99ba-26fc705a9f2d\" KeywordType=\"True\" HiddenConstraints=\"\" />",
+            "ValueType": "Edm.String"
+          }
+        ]
+      },
+      "SecondaryQueryResults": null,
+      "SpellingSuggestion": "",
+      "TriggeredRules": {
+        "results": []
       }
-   }
+    }
+  }
 }

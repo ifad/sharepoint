@@ -52,7 +52,7 @@ describe Sharepoint::Client do
   describe '#search_modified_documents' do
     let(:datetime) { Time.parse('2016-07-22') }
     let(:default_properties) do
-      %w( write is_document list_id web_id title author size path )
+      %w( write is_document list_id web_id created title author size path )
     end
 
     context 'search whole SharePoint instance' do

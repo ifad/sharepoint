@@ -73,13 +73,30 @@ module Sharepoint
       rv
     end
 
+    # Get a document's metadata
+    #
+    # @params file_path [String] the file path, without the site path if any
+    # @params site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @params custom_properties [Array] of String with names of custom properties to be returned
+    # @return [OpenStruct] with both default and custom metadata
+    def get_document file_path, site_path=nil, custom_properties=[]
+      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      server_relative_url = "#{site_path}#{file_path}"
+      ethon = ethon_easy_json_requester
+      ethon.url = "#{url}GetFileByServerRelativeUrl('#{URI.escape server_relative_url}')/ListItemAllFields"
+      ethon.perform
+      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      parse_get_document_response(ethon.response_body, custom_properties)
+    end
+
     # Search for all documents modified from some datetime on.
     # Uses SharePoint Search API endpoint
     #
     # @param datetime [DateTime] some moment in time
     # @param options [Hash] Supported options are:
-    #   - list_id: the GUID of the List you want returned documents to belong to
-    #   - web_id: the GUID of the Site you want returned documents to belong to
+    #   - list_id [String] the GUID of the List you want returned documents to belong to
+    #   - web_id [String] the GUID of the Site you want returned documents to belong to
+    #   - custom_properties [Array] of String with names of custom properties to be returned
     # @return [Array] of OpenStructs with all properties of search results
     def search_modified_documents datetime, options={}
       ethon = ethon_easy_json_requester
@@ -258,6 +275,17 @@ module Sharepoint
         records << OpenStruct.new(record)
       end
       records
+    end
+
+    def parse_get_document_response(response_body, custom_properties)
+      all_props = JSON.parse(response_body)['d']
+      default_properties = %w( GUID Title Created Modified )
+      keys = default_properties + custom_properties
+      props = {}
+      keys.each do |key|
+        props[key.underscore.to_sym] = all_props[key]
+      end
+      OpenStruct.new(props)
     end
 
   end

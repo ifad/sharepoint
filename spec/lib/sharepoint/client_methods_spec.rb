@@ -27,6 +27,19 @@ describe Sharepoint::Client do
     end
   end
 
+  describe '#get_document' do
+    let(:path) { '/Documents/20160718 BRI-FCO boarding-pass.pdf' }
+    before { mock_responses('get_document.json') }
+    subject { client.get_document path }
+    it { is_expected.to be_a OpenStruct }
+    it 'returns expected document properties' do
+      %w(guid title created modified).each do |property|
+        expect(subject).to respond_to property
+        expect(subject.send(property)).not_to be_nil
+      end
+    end
+  end
+
   describe '#list_modified_documents' do
     before { mock_responses('list_modified_documents.json') }
     let(:list_name) { 'Documents' }

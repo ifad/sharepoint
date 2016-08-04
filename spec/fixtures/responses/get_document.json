@@ -1,0 +1,83 @@
+{
+  "d": {
+    "__metadata": {
+      "id": "Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)",
+      "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)",
+      "etag": "\"4\"",
+      "type": "SP.Data.DocumentsItem"
+    },
+    "FirstUniqueAncestorSecurableObject": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/FirstUniqueAncestorSecurableObject"
+      }
+    },
+    "RoleAssignments": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/RoleAssignments"
+      }
+    },
+    "AttachmentFiles": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/AttachmentFiles"
+      }
+    },
+    "ContentType": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/ContentType"
+      }
+    },
+    "FieldValuesAsHtml": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/FieldValuesAsHtml"
+      }
+    },
+    "FieldValuesAsText": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/FieldValuesAsText"
+      }
+    },
+    "FieldValuesForEdit": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/FieldValuesForEdit"
+      }
+    },
+    "File": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/File"
+      }
+    },
+    "Folder": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/Folder"
+      }
+    },
+    "ParentList": {
+      "__deferred": {
+        "uri": "http://win-jamsdpuujgc/_api/Web/Lists(guid'3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3')/Items(6)/ParentList"
+      }
+    },
+    "FileSystemObjectType": 0,
+    "Id": 6,
+    "ContentTypeId": "0x0101002E97C997BC5CAC4785AA3F57D34080E3",
+    "Title": "Bari-Rome boarding-pass",
+    "OData__dlc_DocId": "QHWH36P2KKT2-1-6",
+    "OData__dlc_DocIdUrl": {
+      "__metadata": {
+        "type": "SP.FieldUrlValue"
+      },
+      "Description": "QHWH36P2KKT2-1-6",
+      "Url": "http://win-jamsdpuujgc/_layouts/15/DocIdRedir.aspx?ID=QHWH36P2KKT2-1-6"
+    },
+    "URL": null,
+    "DocumentSetDescription": null,
+    "EditorId": 1,
+    "ID": 6,
+    "Created": "2016-07-17T08:26:35",
+    "AuthorId": 1,
+    "Modified": "2016-07-25T05:45:18",
+    "OData__CopySource": null,
+    "CheckoutUserId": null,
+    "OData__UIVersionString": "0.2",
+    "GUID": "e35ac090-3f54-46aa-8ffd-fb14a0aa1610"
+  }
+}

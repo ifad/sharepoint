@@ -125,6 +125,22 @@ module Sharepoint
       parse_list_response(ethon.response_body)
     end
 
+    # Get a document's file contents
+    #
+    # @params file_path [String] the file path, without the site path if any
+    # @params site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @return [String] with the file contents
+    def download file_path, site_path=nil
+      ethon = ethon_easy_requester
+      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      server_relative_url = "#{site_path}#{file_path}"
+      ethon = ethon_easy_requester
+      ethon.url = "#{url}GetFileByServerRelativeUrl('#{URI.escape server_relative_url}')/$value"
+      ethon.perform
+      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      ethon.response_body
+    end
+
     # Upload a file
     #
     # @param filename [String] the name of the file uploaded
@@ -178,10 +194,15 @@ module Sharepoint
     private
 
     def ethon_easy_json_requester
-      easy          = Ethon::Easy.new(httpauth: :ntlm )
+      easy = ethon_easy_requester
+      easy.headers  = { 'accept'=> 'application/json;odata=verbose' }
+      easy
+    end
+
+    def ethon_easy_requester
+      easy = Ethon::Easy.new(httpauth: :ntlm)
       easy.username = @user
       easy.password = @password
-      easy.headers  = { 'accept'=> 'application/json;odata=verbose' }
       easy
     end
 

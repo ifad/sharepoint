@@ -129,6 +129,14 @@ describe Sharepoint::Client do
 
   end
 
+  describe '#download' do
+    let(:file_path) { '/Documents/document.docx' }
+    let(:expected_content) { File.open('spec/fixtures/responses/document.docx').read }
+    before { mock_responses('document.docx') }
+    subject { client.download file_path }
+    it { is_expected.to eq expected_content }
+  end
+
   describe '#upload' do
     described_class::FILENAME_INVALID_CHARS.each do |char|
       it "shoud raise invalid file name error if the filename contains the character " + char do

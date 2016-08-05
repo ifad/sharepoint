@@ -96,13 +96,14 @@ module Sharepoint
     # @param options [Hash] Supported options are:
     #   - list_id [String] the GUID of the List you want returned documents to belong to
     #   - web_id [String] the GUID of the Site you want returned documents to belong to
-    #   - custom_properties [Array] of String with names of custom properties to be returned
+    #   - properties [Array] of String with names of custom properties to be returned
     # @return [Array] of OpenStructs with all properties of search results
     def search_modified_documents datetime, options={}
       ethon = ethon_easy_json_requester
       query = URI.escape build_search_kql_conditions(datetime, options)
       properties = build_search_properties(options)
-      ethon.url = "#{@base_api_url}search/query?querytext=#{query}&#{properties}&clienttype='Custom'&rowlimit=500"
+      filters = build_search_fql_conditions(datetime)
+      ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&clienttype='Custom'&rowlimit=500"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       parse_search_response(ethon.response_body)
@@ -248,11 +249,14 @@ module Sharepoint
 
     def build_search_kql_conditions(datetime, options)
       conditions = []
-      conditions << "write>=#{datetime.utc.iso8601}"
       conditions << "IsDocument=1"
       conditions << "WebId=#{options[:web_id]}" unless options[:web_id].nil?
       conditions << "ListId:#{options[:list_id]}" unless options[:list_id].nil?
       "'#{conditions.join('+')}'"
+    end
+
+    def build_search_fql_conditions(datetime)
+      "'write:range(#{datetime.utc.iso8601},max,from=\"ge\")'"
     end
 
     def build_search_properties(options)

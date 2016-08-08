@@ -39,7 +39,7 @@ module Sharepoint
     # @return [Array] of OpenStructs with the info of the files in the path
     def documents_for path
       ethon = ethon_easy_json_requester
-      ethon.url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{URI.escape path}')/Files"
+      ethon.url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
       ethon.perform
 
       raise "Unable to read ERMS folder, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
@@ -60,7 +60,8 @@ module Sharepoint
 
         threads << Thread.new {
           ethon2 = ethon_easy_json_requester
-          ethon2.url = "#{@base_api_web_url}GetFileByServerRelativeUrl('#{URI.escape path}/#{URI.escape file['Name']}')/ListItemAllFields"
+          server_relative_url = "#{path}/#{file['Name']}"
+          ethon2.url = "#{@base_api_web_url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
           ethon2.perform
           rs = JSON.parse(ethon2.response_body)['d']
           file_struct.record_type = rs['Record_Type']
@@ -83,7 +84,7 @@ module Sharepoint
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       server_relative_url = "#{site_path}#{file_path}"
       ethon = ethon_easy_json_requester
-      ethon.url = "#{url}GetFileByServerRelativeUrl('#{URI.escape server_relative_url}')/ListItemAllFields"
+      ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       parse_get_document_response(ethon.response_body, custom_properties)
@@ -100,7 +101,7 @@ module Sharepoint
     # @return [Array] of OpenStructs with all properties of search results
     def search_modified_documents datetime, options={}
       ethon = ethon_easy_json_requester
-      query = URI.escape build_search_kql_conditions(datetime, options)
+      query = uri_escape build_search_kql_conditions(datetime, options)
       properties = build_search_properties(options)
       filters = build_search_fql_conditions(datetime)
       ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&clienttype='Custom'&rowlimit=500"
@@ -120,7 +121,7 @@ module Sharepoint
       ethon = ethon_easy_json_requester
       date_condition = "Modified ge datetime'#{datetime.utc.iso8601}'"
       document_condition = "FileSystemObjectType eq 0"
-      ethon.url = "#{@base_api_web_url}Lists/GetByTitle('#{URI.escape list_name}')/Items?$expand=Folder,File&$filter=#{URI.escape date_condition}&filter=#{URI.escape document_condition}"
+      ethon.url = uri_escape "#{@base_api_web_url}Lists/GetByTitle('#{list_name}')/Items?$expand=Folder,File&$filter=#{date_condition}&filter=#{document_condition}"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       parse_list_response(ethon.response_body)
@@ -136,7 +137,7 @@ module Sharepoint
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       server_relative_url = "#{site_path}#{file_path}"
       ethon = ethon_easy_requester
-      ethon.url = "#{url}GetFileByServerRelativeUrl('#{URI.escape server_relative_url}')/$value"
+      ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/$value"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       ethon.response_body
@@ -241,6 +242,11 @@ module Sharepoint
       else
         false
       end
+    end
+
+    # Waiting for RFC 3986 to be implemented, we need to escape square brackets
+    def uri_escape(uri)
+      URI.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
     end
 
     def valid_filename? name

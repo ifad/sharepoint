@@ -148,16 +148,16 @@ module Sharepoint
     # @param filename [String] the name of the file uploaded
     # @param content [String] the body of the file
     # @param path [String] the path where to upload the file
+    # @params site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     # @return [Fixnum] HTTP response code
-    def upload filename, content, path
+    def upload filename, content, path, site_path=nil
       raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
-
-      url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{path}')" +
-            "/Files/Add(url='#{filename.gsub("'", "`")}',overwrite=true)"
-      url = URI.escape(url)
+      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      path = path[1..-1] if path[0].eql?('/')
+      url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{filename.gsub("'", "`")}',overwrite=true)"
       easy = ethon_easy_json_requester
       easy.headers = { 'accept' => 'application/json;odata=verbose',
-                       'X-RequestDigest' => xrequest_digest }
+                       'X-RequestDigest' => xrequest_digest(site_path) }
       easy.http_request(url, :post, { body: content })
       easy.perform
       easy.response_code
@@ -208,9 +208,10 @@ module Sharepoint
       easy
     end
 
-    def xrequest_digest
+    def xrequest_digest(site_path=nil)
       easy = ethon_easy_json_requester
-      easy.http_request("#{@base_url}/_api/contextinfo", :post, { body: '' })
+      url = site_path.nil? ? @base_api_url : "#{@base_url}#{site_path}/_api"
+      easy.http_request("#{url}/contextinfo", :post, { body: '' })
       easy.perform
       JSON.parse(easy.response_body)['d']["GetContextWebInformation"]["FormDigestValue"]
     end

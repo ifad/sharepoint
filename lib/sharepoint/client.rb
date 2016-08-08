@@ -165,31 +165,33 @@ module Sharepoint
 
     # Update metadata of  a file
     #
-    # @param filename [String] the name of the file uploaded
+    # @param filename [String] the name of the file
     # @param metadata [Hash] the metadata to change
-    # @param path [String] the path where to upload the file
+    # @param path [String] the path where the file is stored
+    # @params site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     # @return [Fixnum] HTTP response code
-    def update_metadata filename, metadata, path
-      prepared_metadata = prepare_metadata(metadata, path)
-
-      url = "#{@base_api_web_url}GetFileByServerRelativeUrl" +
-            "('#{path}/#{filename.gsub("'", "`")}')/ListItemAllFields"
+    def update_metadata filename, metadata, path, site_path=nil
+      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      server_relative_url = "#{site_path}#{path}/#{filename.gsub("'", "`")}"
       easy = ethon_easy_json_requester
-      easy.url = URI.escape(url)
+      easy.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
       easy.perform
 
-      update_metadata_url = JSON.parse(easy.response_body)['d']['__metadata']['uri']
+      __metadata = JSON.parse(easy.response_body)['d']['__metadata']
+      update_metadata_url = __metadata['uri']
+      prepared_metadata = prepare_metadata(metadata, __metadata['type'])
 
       easy = ethon_easy_json_requester
       easy.headers = { 'accept' =>  'application/json;odata=verbose',
                        'content-type' =>  'application/json;odata=verbose',
-                       'X-RequestDigest' =>  xrequest_digest,
+                       'X-RequestDigest' =>  xrequest_digest(site_path),
                        'X-Http-Method' =>  'PATCH',
                        'If-Match' => "*" }
       easy.http_request(update_metadata_url,
                         :post,
                         { body: prepared_metadata })
       easy.perform
+      raise "Request failed, received #{easy.response_code}" unless (200..299).include? easy.response_code
       easy.response_code
     end
 
@@ -216,18 +218,11 @@ module Sharepoint
       JSON.parse(easy.response_body)['d']["GetContextWebInformation"]["FormDigestValue"]
     end
 
-    def prepare_metadata(metadata, path)
-      easy = ethon_easy_json_requester
-      easy.url = URI.escape("#{@base_api_web_url}GetFolderByServerRelativeUrl('#{path}')")
-      easy.perform
-      folder_name = JSON.parse(easy.response_body)['d']['Name']
-
-      metadata.inject("{ '__metadata': { 'type': 'SP.Data.#{folder_name.capitalize}Item' }"){ |result, element|
+    def prepare_metadata(metadata, type)
+      metadata.inject("{ '__metadata': { 'type': '#{type}' }"){ |result, element|
         key = element[0]
         value = element[1]
-
         raise Errors::InvalidMetadata.new if key.to_s.include?("'") || value.include?("'")
-
         result += ", '#{key}': '#{value}'"
       } + " }"
     end

@@ -35,7 +35,7 @@ module Sharepoint
 
     # Get all the documents from path
     #
-    # @params path [String] the path to request the content
+    # @param path [String] the path to request the content
     # @return [Array] of OpenStructs with the info of the files in the path
     def documents_for path
       ethon = ethon_easy_json_requester
@@ -76,9 +76,9 @@ module Sharepoint
 
     # Get a document's metadata
     #
-    # @params file_path [String] the file path, without the site path if any
-    # @params site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
-    # @params custom_properties [Array] of String with names of custom properties to be returned
+    # @param file_path [String] the file path, without the site path if any
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @param custom_properties [Array] of String with names of custom properties to be returned
     # @return [OpenStruct] with both default and custom metadata
     def get_document file_path, site_path=nil, custom_properties=[]
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
@@ -129,8 +129,8 @@ module Sharepoint
 
     # Get a document's file contents
     #
-    # @params file_path [String] the file path, without the site path if any
-    # @params site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @param file_path [String] the file path, without the site path if any
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     # @return [String] with the file contents
     def download file_path, site_path=nil
       ethon = ethon_easy_requester
@@ -148,7 +148,7 @@ module Sharepoint
     # @param filename [String] the name of the file uploaded
     # @param content [String] the body of the file
     # @param path [String] the path where to upload the file
-    # @params site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     # @return [Fixnum] HTTP response code
     def upload filename, content, path, site_path=nil
       raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
@@ -168,7 +168,7 @@ module Sharepoint
     # @param filename [String] the name of the file
     # @param metadata [Hash] the metadata to change
     # @param path [String] the path where the file is stored
-    # @params site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     # @return [Fixnum] HTTP response code
     def update_metadata filename, metadata, path, site_path=nil
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"

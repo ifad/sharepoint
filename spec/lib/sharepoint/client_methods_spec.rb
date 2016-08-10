@@ -43,56 +43,76 @@ describe Sharepoint::Client do
   describe '#list_modified_documents' do
     before { mock_responses('list_modified_documents.json') }
     let(:list_name) { 'Documents' }
-    let(:datetime) { Time.parse('2016-07-22') }
-    subject { client.list_modified_documents datetime, list_name }
-    it 'returns documents with filled properties' do
-      is_expected.not_to be_empty
-      sample = subject.sample
-      %w(
-        guid created modified name server_relative_url title
-      ).each do |property|
-        expect(sample).to respond_to property
-        expect(sample.send(property)).not_to be_nil
-      end
+    let(:time) { Time.parse('2016-07-22') }
+    subject { client.list_modified_documents time, list_name }
+    it 'returns Hash with expected keys' do
+      expect(subject).to be_a Hash
+      expect(subject[:server_responded_at]).to be_a Time
+      expect(subject[:results]).to be_a Array
     end
-    it 'returns documents modified after specified datetime' do
-      subject.each do |document|
-        expect(Time.parse(document.modified)).to be >= datetime
+    context 'results' do
+      let(:results) { subject[:results] }
+      it 'is not empty' do
+        expect(results).not_to be_empty
+      end
+      it 'return documents with filled properties' do
+        sample = results.sample
+        %w(
+          guid created modified name server_relative_url title
+        ).each do |property|
+          expect(sample).to respond_to property
+          expect(sample.send(property)).not_to be_nil
+        end
+      end
+      it 'return documents modified after specified time' do
+        results.each do |document|
+          expect(Time.parse(document.modified)).to be >= time
+        end
       end
     end
   end
 
   describe '#search_modified_documents' do
-    let(:datetime) { Time.parse('2016-07-22') }
+    let(:time) { Time.parse('2016-07-22') }
     let(:default_properties) do
       %w( write is_document list_id web_id created title author size path )
     end
 
     context 'search whole SharePoint instance' do
       before { mock_responses('search_modified_documents.json') }
-      subject { client.search_modified_documents datetime }
-      it { is_expected.not_to be_empty }
-      it 'returns document objects only' do
-        subject.each do |document|
-          expect(document.is_document).to eq 'true'
-        end
+      subject { client.search_modified_documents time }
+      it 'returns Hash with expected keys' do
+        expect(subject).to be_a Hash
+        expect(subject[:server_responded_at]).to be_a Time
+        expect(subject[:results]).to be_a Array
       end
-      it 'returns documents modified after specified datetime' do
-        subject.each do |document|
-          expect(Time.parse(document.write)).to be >= datetime
+      context 'results' do
+        let(:results) { subject[:results] }
+        it 'is not empty' do
+          expect(results).not_to be_empty
         end
-      end
-      it 'returns default properties with values' do
-        sample = subject.sample
-        default_properties.each do |property|
-          expect(sample).to respond_to property
-          expect(sample.send(property)).not_to be_nil
+        it 'return document objects only' do
+          results.each do |document|
+            expect(document.is_document).to eq 'true'
+          end
+        end
+        it 'return documents modified after specified time' do
+          results.each do |document|
+            expect(Time.parse(document.write)).to be >= time
+          end
+        end
+        it 'return default properties with values' do
+          sample = results.sample
+          default_properties.each do |property|
+            expect(sample).to respond_to property
+            expect(sample.send(property)).not_to be_nil
+          end
         end
       end
     end
 
     context 'search specific Site' do
-      subject { client.search_modified_documents datetime, options }
+      subject { client.search_modified_documents(time, options)[:results] }
       context 'when existing web_id is passed' do
         before { mock_responses('search_modified_documents.json') }
         let(:options) do
@@ -110,7 +130,7 @@ describe Sharepoint::Client do
     end
 
     context 'search specific List' do
-      subject { client.search_modified_documents datetime, options }
+      subject { client.search_modified_documents(time, options)[:results] }
       context 'when existing list_id is passed' do
         before { mock_responses('search_modified_documents.json') }
         let(:options) do

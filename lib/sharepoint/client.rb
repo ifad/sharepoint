@@ -52,8 +52,8 @@ module Sharepoint
           path: file['ServerRelativeUrl'],
           name: file['Name'],
           url: "#{@base_url}#{file['ServerRelativeUrl']}",
-          created_at: DateTime.parse(file['TimeCreated']),
-          updated_at: DateTime.parse(file['TimeLastModified']),
+          created_at: Time.parse(file['TimeCreated']),
+          updated_at: Time.parse(file['TimeLastModified']),
           record_type: nil,
           date_of_issue: nil,
         )
@@ -90,10 +90,10 @@ module Sharepoint
       parse_get_document_response(ethon.response_body, custom_properties)
     end
 
-    # Search for all documents modified from some datetime on.
+    # Search for all documents modified from some time on.
     # Uses SharePoint Search API endpoint
     #
-    # @param datetime [DateTime] some moment in time
+    # @param time [Time] some moment in time
     # @param options [Hash] Supported options are:
     #   - list_id [String] the GUID of the List you want returned documents to belong to
     #   - web_id [String] the GUID of the Site you want returned documents to belong to
@@ -101,25 +101,25 @@ module Sharepoint
     # @return [Array] of OpenStructs with all properties of search results
     def search_modified_documents datetime, options={}
       ethon = ethon_easy_json_requester
-      query = uri_escape build_search_kql_conditions(datetime, options)
+      query = uri_escape build_search_kql_conditions(time, options)
       properties = build_search_properties(options)
-      filters = build_search_fql_conditions(datetime)
+      filters = build_search_fql_conditions(time)
       ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&clienttype='Custom'&rowlimit=500"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       parse_search_response(ethon.response_body)
     end
 
-    # Search in a List for all documents modified from some datetime on.
+    # Search in a List for all documents modified from some time on.
     # Uses OData on Lists API endpoint
     #
-    # @param datetime [DateTime] some moment in time
+    # @param time [Time] some moment in time
     # @param list_name [String] The name of the SharePoint List you want to
     #        search into. Please note: a Document Library is a List as well.
     # @return [Array] of OpenStructs with all properties of search results
     def list_modified_documents datetime, list_name
       ethon = ethon_easy_json_requester
-      date_condition = "Modified ge datetime'#{datetime.utc.iso8601}'"
+      date_condition = "Modified ge datetime'#{time.utc.iso8601}'"
       document_condition = "FileSystemObjectType eq 0"
       ethon.url = uri_escape "#{@base_api_web_url}Lists/GetByTitle('#{list_name}')/Items?$expand=Folder,File&$filter=#{date_condition}&filter=#{document_condition}"
       ethon.perform
@@ -249,7 +249,7 @@ module Sharepoint
       (name =~ FILENAME_INVALID_CHARS_REGEXP).nil?
     end
 
-    def build_search_kql_conditions(datetime, options)
+    def build_search_kql_conditions(time, options)
       conditions = []
       conditions << "IsDocument=1"
       conditions << "WebId=#{options[:web_id]}" unless options[:web_id].nil?
@@ -257,8 +257,8 @@ module Sharepoint
       "'#{conditions.join('+')}'"
     end
 
-    def build_search_fql_conditions(datetime)
-      "'write:range(#{datetime.utc.iso8601},max,from=\"ge\")'"
+    def build_search_fql_conditions(time)
+      "'write:range(#{time.utc.iso8601},max,from=\"ge\")'"
     end
 
     def build_search_properties(options)

@@ -36,6 +36,7 @@ module Sharepoint
     # Get all the documents from path
     #
     # @param path [String] the path to request the content
+    #
     # @return [Array] of OpenStructs with the info of the files in the path
     def documents_for path
       ethon = ethon_easy_json_requester
@@ -79,6 +80,7 @@ module Sharepoint
     # @param file_path [String] the file path, without the site path if any
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     # @param custom_properties [Array] of String with names of custom properties to be returned
+    #
     # @return [OpenStruct] with both default and custom metadata
     def get_document file_path, site_path=nil, custom_properties=[]
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
@@ -94,10 +96,11 @@ module Sharepoint
     # Uses SharePoint Search API endpoint
     #
     # @param time [Time] some moment in time
-    # @param options [Hash] Supported options are:
+    # @param options [Hash] Optional; supported options are:
     #   * list_id [String] the GUID of the List you want returned documents to belong to
     #   * web_id [String] the GUID of the Site you want returned documents to belong to
     #   * properties [Array] of String with names of custom properties to be returned
+    #
     # @return [Hash] with the following keys:
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
@@ -116,26 +119,33 @@ module Sharepoint
       }
     end
 
-    # Search in a List for all documents modified from some time on.
-    # Uses OData on Lists API endpoint
+    # Search in a List for all documents matching the passed conditions.
     #
-    # @param time [Time] some moment in time
     # @param list_name [String] The name of the SharePoint List you want to
     #        search into. Please note: a Document Library is a List as well.
+    # @param conditions [Array] of String containing OData conditions that
+    #        returned documents should verify.
+    # @param site_path [String] if the SP instance contains sites, the site path,
+    #        e.g. "/sites/my-site"
+    # @param properties [Array] of String with names of custom properties to be returned
+    #
     # @return [Hash] with the following keys:
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
-    def list_modified_documents time, list_name
+    def list_documents list_name, conditions, site_path=nil, properties=[]
+      raise ArgumentError.new('One condition should be passed at least') if conditions.nil? || conditions.empty?
+      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      conditions_str = conditions.map { |c| "(#{c})" }.join(' and ')
+      filter_param = "$filter=#{conditions_str}"
+      expand_param = '$expand=Folder,File'
       ethon = ethon_easy_json_requester
-      date_condition = "Modified ge datetime'#{time.utc.iso8601}'"
-      document_condition = "FileSystemObjectType eq 0"
-      ethon.url = uri_escape "#{@base_api_web_url}Lists/GetByTitle('#{list_name}')/Items?$expand=Folder,File&$filter=#{date_condition}&filter=#{document_condition}"
+      ethon.url = uri_escape "#{url}Lists/GetByTitle('#{list_name}')/Items?#{expand_param}&#{filter_param}"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       server_responded_at = Time.now
       {
         server_responded_at: server_responded_at,
-        results: parse_list_response(ethon.response_body)
+        results: parse_list_response(ethon.response_body, properties)
       }
     end
 
@@ -143,6 +153,7 @@ module Sharepoint
     #
     # @param file_path [String] the file path, without the site path if any
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
     # @return [String] with the file contents
     def download file_path, site_path=nil
       ethon = ethon_easy_requester
@@ -161,6 +172,7 @@ module Sharepoint
     # @param content [String] the body of the file
     # @param path [String] the path where to upload the file
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
     # @return [Fixnum] HTTP response code
     def upload filename, content, path, site_path=nil
       raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
@@ -181,6 +193,7 @@ module Sharepoint
     # @param metadata [Hash] the metadata to change
     # @param path [String] the path where the file is stored
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
     # @return [Fixnum] HTTP response code
     def update_metadata filename, metadata, path, site_path=nil
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
@@ -298,17 +311,20 @@ module Sharepoint
       records
     end
 
-    def parse_list_response(response_body)
+    def parse_list_response(response_body, custom_properties)
       json_response = JSON.parse(response_body)
       results = json_response['d']['results']
       records = []
       results.each do |result|
+        # Skip folders
+        next unless result['FileSystemObjectType'].eql? 0
         record = {}
-        %w( GUID Created Modified ).each do |key|
+        default_properties = %w( GUID Created Modified Title )
+        (default_properties + custom_properties).each do |key|
           record[key.underscore.to_sym] = result[key]
         end
         file = result['File']
-        %w( Name ServerRelativeUrl Title ).each do |key|
+        %w( Name ServerRelativeUrl ).each do |key|
           record[key.underscore.to_sym] = file[key]
         end
         records << OpenStruct.new(record)

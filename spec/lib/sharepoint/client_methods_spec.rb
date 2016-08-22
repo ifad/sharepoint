@@ -40,11 +40,12 @@ describe Sharepoint::Client do
     end
   end
 
-  describe '#list_modified_documents' do
+  describe '#list_documents' do
     before { mock_responses('list_modified_documents.json') }
     let(:list_name) { 'Documents' }
     let(:time) { Time.parse('2016-07-22') }
-    subject { client.list_modified_documents time, list_name }
+    let(:conditions) { ["Modified ge datetime'#{time.utc.iso8601}'"] }
+    subject { client.list_documents list_name, conditions }
     it 'returns Hash with expected keys' do
       expect(subject).to be_a Hash
       expect(subject[:server_responded_at]).to be_a Time
@@ -64,7 +65,7 @@ describe Sharepoint::Client do
           expect(sample.send(property)).not_to be_nil
         end
       end
-      it 'return documents modified after specified time' do
+      it 'return documents verifying custom conditions' do
         results.each do |document|
           expect(Time.parse(document.modified)).to be >= time
         end

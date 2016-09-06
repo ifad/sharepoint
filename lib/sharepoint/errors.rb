@@ -22,10 +22,5 @@ module Sharepoint
       end
     end
 
-    class InvalidMetadata < StandardError
-      def initialize
-        super "Invalid Metadata Value due to it contains single quote character(')"
-      end
-    end
   end
 end

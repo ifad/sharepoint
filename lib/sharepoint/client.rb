@@ -247,9 +247,12 @@ module Sharepoint
       metadata.inject("{ '__metadata': { 'type': '#{type}' }"){ |result, element|
         key = element[0]
         value = element[1]
-        raise Errors::InvalidMetadata.new if key.to_s.include?("'") || value.include?("'")
-        result += ", '#{key}': '#{value}'"
+        result += ", '#{escape_single_quote(key.to_s)}': '#{escape_single_quote(value.to_s)}'"
       } + " }"
+    end
+
+    def escape_single_quote(s)
+      s.gsub("'", %q(\\\'))
     end
 
     def string_not_blank?(object)

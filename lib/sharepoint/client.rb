@@ -115,6 +115,35 @@ module Sharepoint
       properties = build_search_properties(options)
       filters = build_search_fql_conditions(options)
       ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&clienttype='Custom'&rowlimit=500"
+      puts ethon.url
+      ethon.perform
+      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      server_responded_at = Time.now
+      {
+        server_responded_at: server_responded_at,
+        results: parse_search_response(ethon.response_body)
+      }
+    end
+
+    # Dumb wrapper of SharePoint Search API endpoint.
+    #
+    # @param options [Hash] All key => values in this hash will be passed to
+    #  the `/search/query` endpoint as param=value in the querystring.
+    #  Some very useful ones are:
+    #  * `:querytext` [String] A valid KQL query. See:
+    #    https://msdn.microsoft.com/en-us/library/office/ee558911.aspx
+    #  * `:refinementfilters` [String] A valid query using OData syntax. See:
+    #    https://msdn.microsoft.com/en-us/library/office/fp142385.aspx
+    #  * `:selectProperties` [String] A comma-separated list of properties
+    #    whose values you want returned for your results
+    #  * `:rowlimit` [Number] The number of results to be returned (max 500)
+    def search(options={})
+      params = []
+      options.each do |key, value|
+        params << "#{key}=#{value}"
+      end
+      ethon = ethon_easy_json_requester
+      ethon.url = uri_escape("#{@base_api_url}search/query?#{params.join('&')}")
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       server_responded_at = Time.now

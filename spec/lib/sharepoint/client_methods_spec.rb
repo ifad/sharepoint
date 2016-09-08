@@ -163,6 +163,24 @@ describe Sharepoint::Client do
 
   end
 
+
+  describe '#search' do
+    before { mock_responses('search_modified_documents.json') }
+
+    let(:options) do
+      {
+        querytext: "'IsDocument=1'",
+        refinementfilters: "'write:range(2016-07-23T22:00:00Z,max,from=\"ge\")'",
+        selectproperties: "'Write,IsDocument,ListId,WebId,Created,Title,Author,Size,Path'",
+        rowlimit: 500
+      }
+    end
+
+    subject { client.search(options) }
+
+    it { is_expected.not_to be_empty }
+  end
+
   describe '#download' do
     let(:file_path) { '/Documents/document.docx' }
     let(:expected_content) { File.open('spec/fixtures/responses/document.docx').read }

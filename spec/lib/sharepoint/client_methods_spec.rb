@@ -74,14 +74,15 @@ describe Sharepoint::Client do
   end
 
   describe '#search_modified_documents' do
-    let(:time) { Time.parse('2016-07-22') }
+    let(:start_at) { Time.parse('2016-07-24') }
+    let(:end_at) { nil }
     let(:default_properties) do
       %w( write is_document list_id web_id created title author size path )
     end
 
     context 'search whole SharePoint instance' do
       before { mock_responses('search_modified_documents.json') }
-      subject { client.search_modified_documents time }
+      subject { client.search_modified_documents( { start_at: start_at, end_at: end_at } ) }
       it 'returns Hash with expected keys' do
         expect(subject).to be_a Hash
         expect(subject[:server_responded_at]).to be_a Time
@@ -97,9 +98,9 @@ describe Sharepoint::Client do
             expect(document.is_document).to eq 'true'
           end
         end
-        it 'return documents modified after specified time' do
+        it 'return documents modified after start_at' do
           results.each do |document|
-            expect(Time.parse(document.write)).to be >= time
+            expect(Time.parse(document.write)).to be >= start_at
           end
         end
         it 'return default properties with values' do
@@ -109,40 +110,52 @@ describe Sharepoint::Client do
             expect(sample.send(property)).not_to be_nil
           end
         end
+        context 'with range end' do
+          let(:end_at) { Time.parse('2016-07-26') }
+          it 'return documents modified between start_at and end_at' do
+            results.each do |document|
+              modified_at = Time.parse(document.write)
+              expect(modified_at).to be >= start_at
+              expect(modified_at).to be <= end_at
+            end
+          end
+        end
       end
     end
 
     context 'search specific Site' do
-      subject { client.search_modified_documents(time, options)[:results] }
+      let(:options) { { start_at: start_at } }
+      subject { client.search_modified_documents(options)[:results] }
       context 'when existing web_id is passed' do
-        before { mock_responses('search_modified_documents.json') }
-        let(:options) do
-          { web_id: 'b285c5ff-9256-4f30-99ba-26fc705a9f2d' }
+        before do
+          mock_responses('search_modified_documents.json')
+          options.merge!( { web_id: 'b285c5ff-9256-4f30-99ba-26fc705a9f2d' } )
         end
         it { is_expected.not_to be_empty }
       end
       context 'when non-existing web_id is passed' do
-        before { mock_responses('search_noresults.json') }
-        let(:options) do
-          { web_id: 'a285c5ff-9256-4f30-99ba-26fc705a9f2e' }
+        before do
+          mock_responses('search_noresults.json')
+          options.merge!( { web_id: 'a285c5ff-9256-4f30-99ba-26fc705a9f2e' } )
         end
         it { is_expected.to be_empty }
       end
     end
 
     context 'search specific List' do
-      subject { client.search_modified_documents(time, options)[:results] }
+      let(:options) { { start_at: start_at } }
+      subject { client.search_modified_documents(options)[:results] }
       context 'when existing list_id is passed' do
-        before { mock_responses('search_modified_documents.json') }
-        let(:options) do
-          { list_id: '3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3' }
+        before do
+          mock_responses('search_modified_documents.json')
+          options.merge!( { list_id: '3314c0cf-d5b0-4d1e-a5f1-9a10fca08bc3' } )
         end
         it { is_expected.not_to be_empty }
       end
       context 'when non-existing list_id is passed' do
-        before { mock_responses('search_noresults.json') }
-        let(:options) do
-          { list_id: '2314c0cf-d5b0-4d1e-a5f1-9a10fca08bc4' }
+        before do
+          mock_responses('search_noresults.json')
+          options.merge!( { list_id: '2314c0cf-d5b0-4d1e-a5f1-9a10fca08bc4' } )
         end
         it { is_expected.to be_empty }
       end

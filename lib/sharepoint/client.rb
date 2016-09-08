@@ -92,23 +92,28 @@ module Sharepoint
       parse_get_document_response(ethon.response_body, custom_properties)
     end
 
-    # Search for all documents modified from some time on.
-    # Uses SharePoint Search API endpoint
+    # Search for all documents modified in a given time range,
+    # boundaries included. Uses SharePoint Search API endpoint
     #
-    # @param time [Time] some moment in time
-    # @param options [Hash] Optional; supported options are:
-    #   * list_id [String] the GUID of the List you want returned documents to belong to
-    #   * web_id [String] the GUID of the Site you want returned documents to belong to
-    #   * properties [Array] of String with names of custom properties to be returned
+    # @param options [Hash] Supported options are:
+    #   * start_at [Time] Range start time (mandatory)
+    #   * end_at [Time] Range end time (optional). If null, documents modified
+    #     after start_at will be returned
+    #   * list_id [String] the GUID of the List you want returned documents
+    #     to belong to (optional)
+    #   * web_id [String] the GUID of the Site you want returned documents
+    #     to belong to (optional)
+    #   * properties [Array] of String with names of custom properties
+    #     to be returned (optional)
     #
     # @return [Hash] with the following keys:
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
-    def search_modified_documents time, options={}
+    def search_modified_documents(options={})
       ethon = ethon_easy_json_requester
-      query = uri_escape build_search_kql_conditions(time, options)
+      query = uri_escape build_search_kql_conditions(options)
       properties = build_search_properties(options)
-      filters = build_search_fql_conditions(time)
+      filters = build_search_fql_conditions(options)
       ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&clienttype='Custom'&rowlimit=500"
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
@@ -124,7 +129,8 @@ module Sharepoint
     # @param list_name [String] The name of the SharePoint List you want to
     #        search into. Please note: a Document Library is a List as well.
     # @param conditions [String] containing OData conditions that
-    #        returned documents should verify.
+    #        returned documents should verify. See:
+    #        https://msdn.microsoft.com/en-us/library/office/fp142385.aspx
     # @param site_path [String] if the SP instance contains sites, the site path,
     #        e.g. "/sites/my-site"
     # @param properties [Array] of String with names of custom properties to be returned
@@ -276,7 +282,7 @@ module Sharepoint
       (name =~ FILENAME_INVALID_CHARS_REGEXP).nil?
     end
 
-    def build_search_kql_conditions(time, options)
+    def build_search_kql_conditions(options)
       conditions = []
       conditions << "IsDocument=1"
       conditions << "WebId=#{options[:web_id]}" unless options[:web_id].nil?
@@ -284,8 +290,14 @@ module Sharepoint
       "'#{conditions.join('+')}'"
     end
 
-    def build_search_fql_conditions(time)
-      "'write:range(#{time.utc.iso8601},max,from=\"ge\")'"
+    def build_search_fql_conditions(options)
+      start_at = options[:start_at]
+      end_at = options[:end_at]
+      if end_at.nil?
+        "'write:range(#{start_at.utc.iso8601},max,from=\"ge\")'"
+      else
+        "'write:range(#{start_at.utc.iso8601},#{end_at.utc.iso8601},from=\"ge\",to=\"le\")'"
+      end
     end
 
     def build_search_properties(options)

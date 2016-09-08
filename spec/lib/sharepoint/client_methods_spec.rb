@@ -44,7 +44,7 @@ describe Sharepoint::Client do
     before { mock_responses('list_modified_documents.json') }
     let(:list_name) { 'Documents' }
     let(:time) { Time.parse('2016-07-22') }
-    let(:conditions) { ["Modified ge datetime'#{time.utc.iso8601}'"] }
+    let(:conditions) { "Modified ge datetime'#{time.utc.iso8601}'" }
     subject { client.list_documents list_name, conditions }
     it 'returns Hash with expected keys' do
       expect(subject).to be_a Hash

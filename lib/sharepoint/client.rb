@@ -38,7 +38,7 @@ module Sharepoint
     # @param path [String] the path to request the content
     #
     # @return [Array] of OpenStructs with the info of the files in the path
-    def documents_for path
+    def documents_for(path)
       ethon = ethon_easy_json_requester
       ethon.url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
       ethon.perform
@@ -82,7 +82,7 @@ module Sharepoint
     # @param custom_properties [Array] of String with names of custom properties to be returned
     #
     # @return [OpenStruct] with both default and custom metadata
-    def get_document file_path, site_path=nil, custom_properties=[]
+    def get_document(file_path, site_path=nil, custom_properties=[])
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       server_relative_url = "#{site_path}#{file_path}"
       ethon = ethon_easy_json_requester
@@ -138,7 +138,7 @@ module Sharepoint
     # @return [Hash] with the following keys:
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
-    def list_documents list_name, conditions, site_path=nil, properties=[]
+    def list_documents(list_name, conditions, site_path=nil, properties=[])
       raise ArgumentError.new('One condition should be passed at least') if conditions.nil? || conditions.empty?
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       filter_param = "$filter=#{conditions}"
@@ -160,7 +160,7 @@ module Sharepoint
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return [String] with the file contents
-    def download file_path, site_path=nil
+    def download(file_path, site_path=nil)
       ethon = ethon_easy_requester
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       server_relative_url = "#{site_path}#{file_path}"
@@ -179,7 +179,7 @@ module Sharepoint
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return [Fixnum] HTTP response code
-    def upload filename, content, path, site_path=nil
+    def upload(filename, content, path, site_path=nil)
       raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       path = path[1..-1] if path[0].eql?('/')
@@ -200,7 +200,7 @@ module Sharepoint
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return [Fixnum] HTTP response code
-    def update_metadata filename, metadata, path, site_path=nil
+    def update_metadata(filename, metadata, path, site_path=nil)
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       server_relative_url = "#{site_path}#{path}/#{filename.gsub("'", "`")}"
       easy = ethon_easy_json_requester
@@ -278,7 +278,7 @@ module Sharepoint
       URI.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
     end
 
-    def valid_filename? name
+    def valid_filename?(name)
       (name =~ FILENAME_INVALID_CHARS_REGEXP).nil?
     end
 

@@ -157,8 +157,8 @@ module Sharepoint
     #
     # @param list_name [String] The name of the SharePoint List you want to
     #        search into. Please note: a Document Library is a List as well.
-    # @param conditions [String] containing OData conditions that
-    #        returned documents should verify. See:
+    # @param conditions [String] OData conditions that returned documents
+    #        should verify, or nil if you want all documents. See:
     #        https://msdn.microsoft.com/en-us/library/office/fp142385.aspx
     # @param site_path [String] if the SP instance contains sites, the site path,
     #        e.g. "/sites/my-site"
@@ -172,8 +172,10 @@ module Sharepoint
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       filter_param = "$filter=#{conditions}"
       expand_param = '$expand=Folder,File'
+      url = "#{url}Lists/GetByTitle('#{list_name}')/Items?#{expand_param}"
+      url += "&#{filter_param}" unless conditions.nil?
       ethon = ethon_easy_json_requester
-      ethon.url = uri_escape "#{url}Lists/GetByTitle('#{list_name}')/Items?#{expand_param}&#{filter_param}"
+      ethon.url = uri_escape url
       ethon.perform
       raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       server_responded_at = Time.now

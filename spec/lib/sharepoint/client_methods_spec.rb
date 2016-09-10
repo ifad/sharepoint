@@ -77,7 +77,7 @@ describe Sharepoint::Client do
     let(:start_at) { Time.parse('2016-07-24') }
     let(:end_at) { nil }
     let(:default_properties) do
-      %w( write is_document list_id web_id created title author size path )
+      %w( write is_document list_id web_id created title author size path unique_id )
     end
 
     context 'search whole SharePoint instance' do

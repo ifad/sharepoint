@@ -226,6 +226,14 @@
                         "__metadata": {
                           "type": "SP.KeyValue"
                         },
+                        "Key": "UniqueId",
+                        "Value": "{76E2547E-DEA1-4ACD-B188-F7CA20FC902B}",
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
                         "Key": "OriginalPath",
                         "Value": "http://win-jamsdpuujgc/Documents/20160718 BRI-FCO boarding-pass.pdf",
                         "ValueType": "Edm.String"

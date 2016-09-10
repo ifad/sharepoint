@@ -172,7 +172,8 @@ module Sharepoint
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       filter_param = "$filter=#{conditions}"
       expand_param = '$expand=Folder,File'
-      url = "#{url}Lists/GetByTitle('#{list_name}')/Items?#{expand_param}"
+      escaped_list_name = list_name.gsub("'","''")
+      url = "#{url}Lists/GetByTitle('#{escaped_list_name}')/Items?#{expand_param}"
       url += "&#{filter_param}" unless conditions.nil?
       ethon = ethon_easy_json_requester
       ethon.url = uri_escape url

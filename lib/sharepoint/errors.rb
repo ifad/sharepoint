@@ -16,11 +16,5 @@ module Sharepoint
       end
     end
 
-    class InvalidSharepointFilename < StandardError
-      def initialize
-        super "The file name contains an invalid character"
-      end
-    end
-
   end
 end

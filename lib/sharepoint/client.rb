@@ -8,10 +8,7 @@ require 'active_support/core_ext/string/inflections'
 
 module Sharepoint
   class Client
-    FILENAME_INVALID_CHARS = ['~','#', '%', '&' , '*', '{', '}',
-                              '\\', ':', '<', '>', '?', '/', '|', '"']
-
-    FILENAME_INVALID_CHARS_REGEXP = /[\/\\~#%&*{}:<>?|"]/
+    FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}.'
 
     # @return [OpenStruct] The current configuration.
     attr_reader :config
@@ -212,10 +209,10 @@ module Sharepoint
     #
     # @return [Fixnum] HTTP response code
     def upload(filename, content, path, site_path=nil)
-      raise Errors::InvalidSharepointFilename.new unless valid_filename? filename
+      sanitized_filename = sanitize_filename(filename)
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       path = path[1..-1] if path[0].eql?('/')
-      url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{filename.gsub("'", "`")}',overwrite=true)"
+      url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
       easy.headers = { 'accept' => 'application/json;odata=verbose',
                        'X-RequestDigest' => xrequest_digest(site_path) }
@@ -310,8 +307,11 @@ module Sharepoint
       URI.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
     end
 
-    def valid_filename?(name)
-      (name =~ FILENAME_INVALID_CHARS_REGEXP).nil?
+    def sanitize_filename(filename)
+      escaped = Regexp.escape(FILENAME_INVALID_CHARS)
+      regexp = Regexp.new("[#{escaped}]")
+      sanitized_filename = filename.gsub(regexp, '-')
+      escape_single_quote(sanitized_filename)
     end
 
     def build_search_kql_conditions(options)

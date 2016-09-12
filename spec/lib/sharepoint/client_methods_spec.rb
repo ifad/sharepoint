@@ -190,13 +190,6 @@ describe Sharepoint::Client do
   end
 
   describe '#upload' do
-    described_class::FILENAME_INVALID_CHARS.each do |char|
-      it "shoud raise invalid file name error if the filename contains the character " + char do
-        expect {
-          client.upload(char + "filename", "content", "path")
-        }.to raise_error(Sharepoint::Errors::InvalidSharepointFilename)
-      end
-    end
     # TODO
     it "should upload the file correctly"
   end

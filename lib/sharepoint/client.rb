@@ -8,7 +8,7 @@ require 'active_support/core_ext/string/inflections'
 
 module Sharepoint
   class Client
-    FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}.'
+    FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
     # @return [OpenStruct] The current configuration.
     attr_reader :config

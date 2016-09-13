@@ -169,8 +169,7 @@ module Sharepoint
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       filter_param = "$filter=#{conditions}"
       expand_param = '$expand=Folder,File'
-      escaped_list_name = list_name.gsub("'","''")
-      url = "#{url}Lists/GetByTitle('#{escaped_list_name}')/Items?#{expand_param}"
+      url = "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Items?#{expand_param}"
       url += "&#{filter_param}" unless conditions.nil?
       ethon = ethon_easy_json_requester
       ethon.url = uri_escape url
@@ -235,7 +234,7 @@ module Sharepoint
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       server_relative_url = "#{site_path}#{path}/#{sanitized_filename}"
       easy = ethon_easy_json_requester
-      easy.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
+      easy.url = uri_escape "#{url}GetFileByServerRelativeUrl('#{server_relative_url}')/ListItemAllFields"
       easy.perform
 
       __metadata = JSON.parse(easy.response_body)['d']['__metadata']
@@ -289,12 +288,16 @@ module Sharepoint
       metadata.inject("{ '__metadata': { 'type': '#{type}' }"){ |result, element|
         key = element[0]
         value = element[1]
-        result += ", '#{escape_single_quote(key.to_s)}': '#{escape_single_quote(value.to_s)}'"
+        result += ", '#{json_escape_single_quote(key.to_s)}': '#{json_escape_single_quote(value.to_s)}'"
       } + " }"
     end
 
-    def escape_single_quote(s)
+    def json_escape_single_quote(s)
       s.gsub("'", %q(\\\'))
+    end
+
+    def odata_escape_single_quote(s)
+      s.gsub("'","''")
     end
 
     def string_not_blank?(object)
@@ -319,7 +322,7 @@ module Sharepoint
       escaped = Regexp.escape(FILENAME_INVALID_CHARS)
       regexp = Regexp.new("[#{escaped}]")
       sanitized_filename = filename.gsub(regexp, '-')
-      escape_single_quote(sanitized_filename)
+      odata_escape_single_quote(sanitized_filename)
     end
 
     def build_search_kql_conditions(options)

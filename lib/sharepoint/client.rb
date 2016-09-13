@@ -231,8 +231,9 @@ module Sharepoint
     #
     # @return [Fixnum] HTTP response code
     def update_metadata(filename, metadata, path, site_path=nil)
+      sanitized_filename = sanitize_filename(filename)
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
-      server_relative_url = "#{site_path}#{path}/#{filename.gsub("'", "`")}"
+      server_relative_url = "#{site_path}#{path}/#{sanitized_filename}"
       easy = ethon_easy_json_requester
       easy.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
       easy.perform

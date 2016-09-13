@@ -39,8 +39,8 @@ module Sharepoint
       ethon = ethon_easy_json_requester
       ethon.url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
       ethon.perform
+      check_and_raise_failure(ethon)
 
-      raise "Unable to read ERMS folder, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
       threads = []
       rv = []
       result = JSON.parse( ethon.response_body )
@@ -85,7 +85,7 @@ module Sharepoint
       ethon = ethon_easy_json_requester
       ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
       ethon.perform
-      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      check_and_raise_failure(ethon)
       parse_get_document_response(ethon.response_body, custom_properties)
     end
 
@@ -114,7 +114,7 @@ module Sharepoint
       ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&clienttype='Custom'&rowlimit=500"
       puts ethon.url
       ethon.perform
-      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      check_and_raise_failure(ethon)
       server_responded_at = Time.now
       {
         server_responded_at: server_responded_at,
@@ -142,7 +142,7 @@ module Sharepoint
       ethon = ethon_easy_json_requester
       ethon.url = uri_escape("#{@base_api_url}search/query?#{params.join('&')}")
       ethon.perform
-      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      check_and_raise_failure(ethon)
       server_responded_at = Time.now
       {
         server_responded_at: server_responded_at,
@@ -175,7 +175,7 @@ module Sharepoint
       ethon = ethon_easy_json_requester
       ethon.url = uri_escape url
       ethon.perform
-      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      check_and_raise_failure(ethon)
       server_responded_at = Time.now
       {
         server_responded_at: server_responded_at,
@@ -196,7 +196,7 @@ module Sharepoint
       ethon = ethon_easy_requester
       ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/$value"
       ethon.perform
-      raise "Request failed, received #{ethon.response_code}" unless (200..299).include? ethon.response_code
+      check_and_raise_failure(ethon)
       ethon.response_body
     end
 
@@ -218,6 +218,7 @@ module Sharepoint
                        'X-RequestDigest' => xrequest_digest(site_path) }
       easy.http_request(url, :post, { body: content })
       easy.perform
+      check_and_raise_failure(ethon)
       easy.response_code
     end
 
@@ -250,7 +251,7 @@ module Sharepoint
                         :post,
                         { body: prepared_metadata })
       easy.perform
-      raise "Request failed, received #{easy.response_code}" unless (200..299).include? easy.response_code
+      check_and_raise_failure(easy)
       easy.response_code
     end
 
@@ -275,6 +276,12 @@ module Sharepoint
       easy.http_request("#{url}/contextinfo", :post, { body: '' })
       easy.perform
       JSON.parse(easy.response_body)['d']["GetContextWebInformation"]["FormDigestValue"]
+    end
+
+    def check_and_raise_failure(ethon)
+      unless (200..299).include? ethon.response_code
+        raise "Request failed, received #{ethon.response_code}:\n#{ethon.url}\n#{ethon.response_body}"
+      end
     end
 
     def prepare_metadata(metadata, type)

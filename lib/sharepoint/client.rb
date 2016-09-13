@@ -218,7 +218,7 @@ module Sharepoint
                        'X-RequestDigest' => xrequest_digest(site_path) }
       easy.http_request(url, :post, { body: content })
       easy.perform
-      check_and_raise_failure(ethon)
+      check_and_raise_failure(easy)
       easy.response_code
     end
 

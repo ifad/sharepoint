@@ -322,7 +322,7 @@ module Sharepoint
       escaped = Regexp.escape(FILENAME_INVALID_CHARS)
       regexp = Regexp.new("[#{escaped}]")
       sanitized_filename = filename.gsub(regexp, '-')
-      odata_escape_single_quote(sanitized_filename)
+      odata_escape_single_quote(sanitized_filename)[0..127]
     end
 
     def build_search_kql_conditions(options)

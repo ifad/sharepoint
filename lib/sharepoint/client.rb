@@ -191,7 +191,7 @@ module Sharepoint
     def download(file_path, site_path=nil)
       ethon = ethon_easy_requester
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
-      server_relative_url = "#{site_path}#{file_path}"
+      server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
       ethon = ethon_easy_requester
       ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/$value"
       ethon.perform

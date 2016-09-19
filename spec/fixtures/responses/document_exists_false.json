@@ -1,0 +1,14 @@
+{
+  "error": {
+    "code": "-2146232832, Microsoft.SharePoint.SPException",
+    "message": {
+      "lang": "en-US",
+      "value": "The file /sites/APRop/Lists/AFG/foo/bar/dummy.doc does not exist."
+    },
+    "innererror": {
+      "message": "The file /sites/APRop/Lists/AFG/foo/bar/dummy.doc does not exist.",
+      "type": "Microsoft.SharePoint.SPException",
+      "stacktrace": "   at Microsoft.SharePoint.SPWeb.GetFileByServerRelativeUrl_Client(String serverRelativeUrl)\r\n   at Microsoft.SharePoint.ServerStub.SPWebServerStub.InvokeMethod(Object target, String methodName, ClientValueCollection xmlargs, ProxyContext proxyContext, Boolean& isVoid)\r\n   at Microsoft.SharePoint.Client.ServerStub.InvokeMethodWithMonitoredScope(Object target, String methodName, ClientValueCollection args, ProxyContext proxyContext, Boolean& isVoid)\r\n   at Microsoft.SharePoint.Client.Rest.RestRequestProcessor.InvokeMethod(Boolean mainRequestPath, Object value, ServerStub serverProxy, EdmParserNode node, Boolean resourceEndpoint, MethodInformation methodInfo, Boolean isExtensionMethod, Boolean isIndexerMethod)\r\n   at Microsoft.SharePoint.Client.Rest.RestRequestProcessor.GetObjectFromPathMember(Boolean mainRequestPath, String path, Object value, EdmParserNode node, Boolean resourceEndpoint, MethodInformation& methodInfo)\r\n   at Microsoft.SharePoint.Client.Rest.RestRequestProcessor.GetObjectFromPath(Boolean mainRequestPath, String path, String pathForErrorMessage)\r\n   at Microsoft.SharePoint.Client.Rest.RestRequestProcessor.Process()\r\n   at Microsoft.SharePoint.Client.Rest.RestRequestProcessor.ProcessRequest()\r\n   at Microsoft.SharePoint.Client.Rest.RestService.ProcessQuery(Stream inputStream, IList`1 pendingDisposableContainer)"
+    }
+  }
+}

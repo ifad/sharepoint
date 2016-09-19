@@ -40,6 +40,49 @@ describe Sharepoint::Client do
     end
   end
 
+  describe '#document_exists' do
+    let(:file_path) { "#{list_path}#{folder_path}/#{file_name}" }
+    let(:site_path) { '/sites/APRop' }
+
+    subject { client.document_exists? file_path, site_path }
+
+    context "when list exists" do
+      let(:list_path) { "/Lists/AFG" }
+
+      context "and folder exists" do
+        let(:folder_path) { "/1100001460/Design Report" }
+
+        context "and file exists" do
+          before { mock_responses('document_exists_true.json') }
+          let(:file_name) { "design_completion_part_1 without map.doc" }
+          it { is_expected.to eq true }
+        end
+
+        context "and file doesn't exist" do
+          before { mock_responses('document_exists_false.json') }
+          let(:file_name) { "dummy.doc" }
+          it { is_expected.to eq false }
+        end
+      end
+
+      context "and folder doesn't exist" do
+        before { mock_responses('document_exists_false.json') }
+        let(:folder_path) { "/foo/bar" }
+        let(:file_name) { "dummy.doc" }
+        it { is_expected.to eq false }
+      end
+    end
+
+    context "when list doesn't exist" do
+      before { mock_responses('document_exists_false.json') }
+      let(:list_path) { "/Lists/foobar" }
+      let(:folder_path) { "/1100001460/Design Report" }
+      let(:file_name) { "design_completion_part_1 without map.doc" }
+      it { is_expected.to eq false }
+    end
+  end
+
+
   describe '#list_documents' do
     before { mock_responses('list_modified_documents.json') }
     let(:list_name) { 'Documents' }

@@ -72,6 +72,29 @@ module Sharepoint
       rv
     end
 
+    # Checks whether a document exists with the given path
+    #
+    # @param file_path [String] the file path, without the site path if any
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
+    # @return `true` if document exists, false otherwise.
+    def document_exists?(file_path, site_path=nil)
+      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      server_relative_url = "#{site_path}#{file_path}"
+      ethon = ethon_easy_json_requester
+      ethon.url = uri_escape "#{url}GetFileByServerRelativeUrl('#{odata_escape_single_quote server_relative_url}')"
+      ethon.perform
+      exists = false
+      if ethon.response_code.eql? 200
+        json_response = JSON.parse(ethon.response_body)
+        if json_response['d'] &&
+           json_response['d']['ServerRelativeUrl'].eql?(server_relative_url)
+          exists = true
+        end
+      end
+      return exists
+    end
+
     # Get a document's metadata
     #
     # @param file_path [String] the file path, without the site path if any
@@ -81,7 +104,7 @@ module Sharepoint
     # @return [OpenStruct] with both default and custom metadata
     def get_document(file_path, site_path=nil, custom_properties=[])
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
-      server_relative_url = "#{site_path}#{file_path}"
+      server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
       ethon = ethon_easy_json_requester
       ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
       ethon.perform

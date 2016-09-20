@@ -79,8 +79,10 @@ module Sharepoint
     #
     # @return `true` if document exists, false otherwise.
     def document_exists?(file_path, site_path=nil)
+      file = split_path(file_path)
+      sanitized_filename = sanitize_filename(file[:name])
+      server_relative_url = "#{site_path}#{file[:path]}/#{sanitized_filename}"
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
-      server_relative_url = "#{site_path}#{file_path}"
       ethon = ethon_easy_json_requester
       ethon.url = uri_escape "#{url}GetFileByServerRelativeUrl('#{odata_escape_single_quote server_relative_url}')"
       ethon.perform
@@ -324,6 +326,14 @@ module Sharepoint
 
     def odata_escape_single_quote(s)
       s.gsub("'","''")
+    end
+
+    def split_path(file_path)
+      last_slash_pos = file_path.rindex('/')
+      {
+        path: file_path[0..last_slash_pos-1],
+        name: file_path[last_slash_pos+1..-1]
+      }
     end
 
     def string_not_blank?(object)

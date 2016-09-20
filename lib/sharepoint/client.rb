@@ -192,7 +192,10 @@ module Sharepoint
       url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
       filter_param = "$filter=#{conditions}"
       expand_param = '$expand=Folder,File'
-      url = "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Items?#{expand_param}"
+      default_properties = %w( FileSystemObjectType UniqueId Title Created Modified File )
+      all_properties = default_properties + properties
+      select_param = "$select=#{all_properties.join(',')}"
+      url = "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Items?#{expand_param}&#{select_param}"
       url += "&#{filter_param}" unless conditions.nil?
       ethon = ethon_easy_json_requester
       ethon.url = uri_escape url
@@ -201,7 +204,7 @@ module Sharepoint
       server_responded_at = Time.now
       {
         server_responded_at: server_responded_at,
-        results: parse_list_response(ethon.response_body, properties)
+        results: parse_list_response(ethon.response_body, all_properties)
       }
     end
 
@@ -401,7 +404,7 @@ module Sharepoint
       records
     end
 
-    def parse_list_response(response_body, custom_properties)
+    def parse_list_response(response_body, all_properties)
       json_response = JSON.parse(response_body)
       results = json_response['d']['results']
       records = []
@@ -409,8 +412,7 @@ module Sharepoint
         # Skip folders
         next unless result['FileSystemObjectType'].eql? 0
         record = {}
-        default_properties = %w( GUID Created Modified Title )
-        (default_properties + custom_properties).each do |key|
+        all_properties.each do |key|
           record[key.underscore.to_sym] = result[key]
         end
         file = result['File']

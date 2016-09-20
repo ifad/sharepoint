@@ -102,7 +102,7 @@ describe Sharepoint::Client do
       it 'return documents with filled properties' do
         sample = results.sample
         %w(
-          guid created modified name server_relative_url title
+          unique_id title created modified name server_relative_url
         ).each do |property|
           expect(sample).to respond_to property
           expect(sample.send(property)).not_to be_nil

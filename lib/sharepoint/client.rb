@@ -129,6 +129,7 @@ module Sharepoint
     #     to be returned (optional)
     #
     # @return [Hash] with the following keys:
+    #   * `:requested_url` [String] the URL requested to the SharePoint server
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
     def search_modified_documents(options={})
@@ -137,11 +138,11 @@ module Sharepoint
       properties = build_search_properties(options)
       filters = build_search_fql_conditions(options)
       ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&clienttype='Custom'&rowlimit=500"
-      puts ethon.url
       ethon.perform
       check_and_raise_failure(ethon)
       server_responded_at = Time.now
       {
+        requested_url: ethon.url,
         server_responded_at: server_responded_at,
         results: parse_search_response(ethon.response_body)
       }
@@ -159,6 +160,10 @@ module Sharepoint
     #  * `:selectProperties` [String] A comma-separated list of properties
     #    whose values you want returned for your results
     #  * `:rowlimit` [Number] The number of results to be returned (max 500)
+    # @return [Hash] with the following keys:
+    #   * `:requested_url` [String] the URL requested to the SharePoint server
+    #   * `:server_responded_at` [Time] the time when server returned its response
+    #   * `:results` [Array] of OpenStructs with all properties of search results
     def search(options={})
       params = []
       options.each do |key, value|
@@ -170,6 +175,7 @@ module Sharepoint
       check_and_raise_failure(ethon)
       server_responded_at = Time.now
       {
+        requested_url: ethon.url,
         server_responded_at: server_responded_at,
         results: parse_search_response(ethon.response_body)
       }
@@ -187,6 +193,7 @@ module Sharepoint
     # @param properties [Array] of String with names of custom properties to be returned
     #
     # @return [Hash] with the following keys:
+    #   * `:requested_url` [String] the URL requested to the SharePoint server
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
     def list_documents(list_name, conditions, site_path=nil, properties=[])
@@ -205,6 +212,7 @@ module Sharepoint
       check_and_raise_failure(ethon)
       server_responded_at = Time.now
       {
+        requested_url: ethon.url,
         server_responded_at: server_responded_at,
         results: parse_list_response(ethon.response_body, all_properties)
       }

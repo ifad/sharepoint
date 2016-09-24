@@ -127,17 +127,27 @@ module Sharepoint
     #     to belong to (optional)
     #   * properties [Array] of String with names of custom properties
     #     to be returned (optional)
+    #   * max_results [Integer] the maximum number of results to be returned;
+    #     defaults to 500 which is the default `MaxRowLimit` in SharePoint 2013.
+    #     If you have increased that in your on-premise SP instance, then that's
+    #     your limit for `max_results` param as well
+    #   * start_result [Integer] the offset for results to be returned; defaults to 0.
+    #     Useful when more than `max_results` documents have been modified in your
+    #     time range, so you can iterate to fetch'em all.
     #
     # @return [Hash] with the following keys:
     #   * `:requested_url` [String] the URL requested to the SharePoint server
     #   * `:server_responded_at` [Time] the time when server returned its response
-    #   * `:results` [Array] of OpenStructs with all properties of search results
+    #   * `:results` [Array] of OpenStructs with all properties of search results,
+    #      sorted by last modified date (`write`)
     def search_modified_documents(options={})
       ethon = ethon_easy_json_requester
       query = uri_escape build_search_kql_conditions(options)
       properties = build_search_properties(options)
       filters = build_search_fql_conditions(options)
-      ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&clienttype='Custom'&rowlimit=500"
+      sorting = "sortlist='write:ascending'"
+      paging = build_search_paging(options)
+      ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&#{sorting}&#{paging}&clienttype='Custom'"
       ethon.perform
       check_and_raise_failure(ethon)
       server_responded_at = Time.now
@@ -405,6 +415,12 @@ module Sharepoint
       properties = options[:properties] || []
       properties += default_properties
       "selectproperties='#{properties.join(',')}'"
+    end
+
+    def build_search_paging(options)
+      start = options[:start_result] || 0
+      max = options[:max_results] || 500
+      "startrow=#{start}&rowlimit=#{max}"
     end
 
     def parse_search_response(response_body)

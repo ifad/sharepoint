@@ -450,7 +450,7 @@ module Sharepoint
           record[key.underscore.to_sym] = result[key]
         end
         file = result['File']
-        %w( Name ServerRelativeUrl ).each do |key|
+        %w( Name ServerRelativeUrl Length).each do |key|
           record[key.underscore.to_sym] = file[key]
         end
         records << OpenStruct.new(record)

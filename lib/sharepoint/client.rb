@@ -478,6 +478,7 @@ module Sharepoint
       keys.each do |key|
         props[key.underscore.to_sym] = all_props[key]
       end
+      props[:url] = all_props['URL'].nil? ? nil : all_props['URL']['Url']
       OpenStruct.new(props)
     end
 

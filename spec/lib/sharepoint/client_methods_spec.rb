@@ -38,6 +38,7 @@ describe Sharepoint::Client do
         expect(subject.send(property)).not_to be_nil
       end
     end
+    it { is_expected.to respond_to(:url) }
   end
 
   describe '#document_exists' do

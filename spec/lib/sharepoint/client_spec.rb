@@ -23,34 +23,16 @@ describe Sharepoint::Client do
         end
       end
 
-      it "defines @user instance var in the client" do
-        expect(
-          subject.instance_variable_get(:@user)
-        ).to eql(ENV['SP_USERNAME'])
+      it "sets base_url in the client" do
+        expect(subject.send :base_url).to eql(ENV['SP_URL'])
       end
 
-      it "defines @password instance var in the client" do
-        expect(
-          subject.instance_variable_get(:@password)
-        ).to eql(ENV['SP_PASSWORD'])
+      it "sets base_api_url in the client" do
+        expect(subject.send :base_api_url).to eql(ENV['SP_URL']+'/_api/')
       end
 
-      it "defines @base_url instance var in the client" do
-        expect(
-          subject.instance_variable_get(:@base_url)
-        ).to eql(ENV['SP_URL'])
-      end
-
-      it "defines @base_api_url instance var in the client" do
-        expect(
-          subject.instance_variable_get(:@base_api_url)
-        ).to eql(ENV['SP_URL']+'/_api/')
-      end
-
-      it "defines @base_api_web_url instance var in the client" do
-        expect(
-          subject.instance_variable_get(:@base_api_web_url)
-        ).to eql(ENV['SP_URL']+'/_api/web/')
+      it "sets base_api_web_url in the client" do
+        expect(subject.send :base_api_web_url).to eql(ENV['SP_URL']+'/_api/web/')
       end
     end
 

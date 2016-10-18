@@ -15,19 +15,14 @@ module Sharepoint
 
     # Initializes a new client with given options.
     #
-    # @param [Hash] options The client options.
+    # @param [Hash] options The client options:
+    #  - `:uri` The SharePoint server's root url
+    #  - `:username` self-explanatory
+    #  - `:password` self-explanatory
     # @return [Sharepoint::Client] client object
     def initialize(config = {})
       @config = OpenStruct.new(config)
-      raise Errors::UsernameConfigurationError.new unless string_not_blank?(@config.username)
-      raise Errors::PasswordConfigurationError.new unless string_not_blank?(@config.password)
-      raise Errors::UriConfigurationError.new      unless valid_config_uri?
-
-      @user         = @config.username
-      @password     = @config.password
-      @base_url     = @config.uri
-      @base_api_url = "#{@base_url}/_api/"
-      @base_api_web_url = "#{@base_api_url}web/"
+      validate_config!
     end
 
     # Get all the documents from path
@@ -37,7 +32,7 @@ module Sharepoint
     # @return [Array] of OpenStructs with the info of the files in the path
     def documents_for(path)
       ethon = ethon_easy_json_requester
-      ethon.url = "#{@base_api_web_url}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
+      ethon.url = "#{base_api_web_url}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
       ethon.perform
       check_and_raise_failure(ethon)
 
@@ -49,7 +44,7 @@ module Sharepoint
           title: file['Title'],
           path: file['ServerRelativeUrl'],
           name: file['Name'],
-          url: "#{@base_url}#{file['ServerRelativeUrl']}",
+          url: "#{base_url}#{file['ServerRelativeUrl']}",
           created_at: Time.parse(file['TimeCreated']),
           updated_at: Time.parse(file['TimeLastModified']),
           record_type: nil,
@@ -59,7 +54,7 @@ module Sharepoint
         threads << Thread.new {
           ethon2 = ethon_easy_json_requester
           server_relative_url = "#{path}/#{file['Name']}"
-          ethon2.url = "#{@base_api_web_url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
+          ethon2.url = "#{base_api_web_url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
           ethon2.perform
           rs = JSON.parse(ethon2.response_body)['d']
           file_struct.record_type = rs['Record_Type']
@@ -82,7 +77,7 @@ module Sharepoint
       file = split_path(file_path)
       sanitized_filename = sanitize_filename(file[:name])
       server_relative_url = "#{site_path}#{file[:path]}/#{sanitized_filename}"
-      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
       ethon = ethon_easy_json_requester
       ethon.url = uri_escape "#{url}GetFileByServerRelativeUrl('#{odata_escape_single_quote server_relative_url}')"
       ethon.perform
@@ -105,7 +100,7 @@ module Sharepoint
     #
     # @return [OpenStruct] with both default and custom metadata
     def get_document(file_path, site_path=nil, custom_properties=[])
-      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
       server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
       ethon = ethon_easy_json_requester
       ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
@@ -147,7 +142,7 @@ module Sharepoint
       filters = build_search_fql_conditions(options)
       sorting = "sortlist='write:ascending'"
       paging = build_search_paging(options)
-      ethon.url = "#{@base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&#{sorting}&#{paging}&clienttype='Custom'"
+      ethon.url = "#{base_api_url}search/query?querytext=#{query}&refinementfilters=#{filters}&#{properties}&#{sorting}&#{paging}&clienttype='Custom'"
       ethon.perform
       check_and_raise_failure(ethon)
       server_responded_at = Time.now
@@ -180,7 +175,7 @@ module Sharepoint
         params << "#{key}=#{value}"
       end
       ethon = ethon_easy_json_requester
-      ethon.url = uri_escape("#{@base_api_url}search/query?#{params.join('&')}")
+      ethon.url = uri_escape("#{base_api_url}search/query?#{params.join('&')}")
       ethon.perform
       check_and_raise_failure(ethon)
       server_responded_at = Time.now
@@ -208,7 +203,7 @@ module Sharepoint
     #   * `:results` [Array] of OpenStructs with all properties of search results
     def list_documents(list_name, conditions, site_path=nil, properties=[])
       raise ArgumentError.new('One condition should be passed at least') if conditions.nil? || conditions.empty?
-      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
       filter_param = "$filter=#{conditions}"
       expand_param = '$expand=Folder,File'
       default_properties = %w( FileSystemObjectType UniqueId Title Created Modified File )
@@ -255,7 +250,7 @@ module Sharepoint
     # @return [Fixnum] HTTP response code
     def upload(filename, content, path, site_path=nil)
       sanitized_filename = sanitize_filename(filename)
-      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
@@ -277,7 +272,7 @@ module Sharepoint
     # @return [Fixnum] HTTP response code
     def update_metadata(filename, metadata, path, site_path=nil)
       sanitized_filename = sanitize_filename(filename)
-      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
+      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
       server_relative_url = "#{site_path}#{path}/#{sanitized_filename}"
       easy = ethon_easy_json_requester
       easy.url = uri_escape "#{url}GetFileByServerRelativeUrl('#{server_relative_url}')/ListItemAllFields"
@@ -303,6 +298,16 @@ module Sharepoint
 
     private
 
+    def base_url
+      config.uri
+    end
+    def base_api_url
+      "#{base_url}/_api/"
+    end
+    def base_api_web_url
+      "#{base_api_url}web/"
+    end
+
     def ethon_easy_json_requester
       easy = ethon_easy_requester
       easy.headers  = { 'accept'=> 'application/json;odata=verbose' }
@@ -318,7 +323,7 @@ module Sharepoint
 
     def xrequest_digest(site_path=nil)
       easy = ethon_easy_json_requester
-      url = site_path.nil? ? @base_api_url : "#{@base_url}#{site_path}/_api"
+      url = site_path.nil? ? base_api_url : "#{base_url}#{site_path}/_api"
       easy.http_request("#{url}/contextinfo", :post, { body: '' })
       easy.perform
       JSON.parse(easy.response_body)['d']["GetContextWebInformation"]["FormDigestValue"]
@@ -352,6 +357,12 @@ module Sharepoint
         path: file_path[0..last_slash_pos-1],
         name: file_path[last_slash_pos+1..-1]
       }
+    end
+
+    def validate_config!
+      raise Errors::UsernameConfigurationError.new unless string_not_blank?(@config.username)
+      raise Errors::PasswordConfigurationError.new unless string_not_blank?(@config.password)
+      raise Errors::UriConfigurationError.new      unless valid_config_uri?
     end
 
     def string_not_blank?(object)

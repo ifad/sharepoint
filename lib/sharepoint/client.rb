@@ -420,7 +420,7 @@ module Sharepoint
 
     def build_search_properties(options)
       default_properties = %w(
-        Write IsDocument ListId WebId
+        Write IsDocument ListId WebId URL
         Created Title Author Size Path UniqueId
       )
       properties = options[:properties] || []

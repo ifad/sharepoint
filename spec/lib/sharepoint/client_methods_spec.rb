@@ -153,6 +153,11 @@ describe Sharepoint::Client do
             expect(sample.send(property)).not_to be_nil
           end
         end
+        it 'documents respond to url method' do
+          results.each do |document|
+            expect(document).to respond_to :url
+          end
+        end
         context 'with range end' do
           let(:end_at) { Time.parse('2016-07-26') }
           it 'return documents modified between start_at and end_at' do

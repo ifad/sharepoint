@@ -186,6 +186,14 @@
                         "__metadata": {
                           "type": "SP.KeyValue"
                         },
+                        "Key": "URL",
+                        "Value": null,
+                        "ValueType": "Edm.String"
+                      },
+                      {
+                        "__metadata": {
+                          "type": "SP.KeyValue"
+                        },
                         "Key": "Created",
                         "Value": "2016-07-17T15:26:35.0000000Z",
                         "ValueType": "Edm.DateTime"

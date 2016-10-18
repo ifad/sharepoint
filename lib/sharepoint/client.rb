@@ -315,7 +315,7 @@ module Sharepoint
     end
 
     def ethon_easy_requester
-      easy = Ethon::Easy.new(httpauth: :ntlm)
+      easy = Ethon::Easy.new(httpauth: :ntlm, followlocation: 1, maxredirs: 3)
       easy.username = config.username
       easy.password = config.password
       easy

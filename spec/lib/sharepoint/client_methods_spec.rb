@@ -113,6 +113,11 @@ describe Sharepoint::Client do
           expect(Time.parse(document.modified)).to be >= time
         end
       end
+      it 'documents respond to url method' do
+        results.each do |document|
+          expect(document).to respond_to :url
+        end
+      end
     end
   end
 

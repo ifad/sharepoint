@@ -457,13 +457,14 @@ module Sharepoint
         # Skip folders
         next unless result['FileSystemObjectType'].eql? 0
         record = {}
-        all_properties.each do |key|
+        (all_properties - ['File', 'URL']).each do |key|
           record[key.underscore.to_sym] = result[key]
         end
         file = result['File']
         %w( Name ServerRelativeUrl Length).each do |key|
           record[key.underscore.to_sym] = file[key]
         end
+        record[:url] = result['URL'].nil? ? nil : result['URL']['Url']
         records << OpenStruct.new(record)
       end
       records

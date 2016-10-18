@@ -84,7 +84,7 @@ describe Sharepoint::Client do
 
 
   describe '#list_documents' do
-    before { mock_responses('list_modified_documents.json') }
+    before { mock_responses('list_documents.json') }
     let(:list_name) { 'Documents' }
     let(:time) { Time.parse('2016-07-22') }
     let(:conditions) { "Modified ge datetime'#{time.utc.iso8601}'" }

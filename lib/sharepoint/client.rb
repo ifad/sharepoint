@@ -469,7 +469,8 @@ module Sharepoint
 
     def build_search_kql_conditions(options)
       conditions = []
-      conditions << "IsDocument=1"
+      conditions << "IsContainer<>true"
+      conditions << "contentclass<>STS_List_DocumentLibrary"
       conditions << "WebId=#{options[:web_id]}" unless options[:web_id].nil?
       conditions << "ListId:#{options[:list_id]}" unless options[:list_id].nil?
       "'#{conditions.join('+')}'"
@@ -487,8 +488,8 @@ module Sharepoint
 
     def build_search_properties(options)
       default_properties = %w(
-        Write IsDocument ListId WebId URL
-        Created Title Author Size Path UniqueId
+        Write IsDocument IsContainer ListId WebId URL
+        Created Title Author Size Path UniqueId contentclass
       )
       properties = options[:properties] || []
       properties += default_properties

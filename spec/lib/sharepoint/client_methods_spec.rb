@@ -236,11 +236,20 @@ describe Sharepoint::Client do
   end
 
   describe '#download' do
+    let(:document_json) { File.open('spec/fixtures/responses/get_document.json').read }
+    let(:document_meta) { client.send :parse_get_document_response, document_json, [] }
     let(:file_path) { '/Documents/document.docx' }
     let(:expected_content) { File.open('spec/fixtures/responses/document.docx').read }
-    before { mock_responses('document.docx') }
-    subject { client.download file_path }
-    it { is_expected.to eq expected_content }
+    before do
+      allow(client).to receive(:get_document).and_return(document_meta)
+      mock_responses('document.docx')
+    end
+    subject { client.download file_path: file_path }
+    it 'returns expected hash' do
+      is_expected.to have_key :file_contents
+      is_expected.to have_key :link_url
+      expect(subject[:file_contents]).to eq expected_content
+    end
   end
 
   describe '#upload' do

@@ -223,21 +223,51 @@ module Sharepoint
       }
     end
 
-    # Get a document's file contents
+    # Get a document's file contents. If it's a link to another document, it's followed.
     #
     # @param file_path [String] the file path, without the site path if any
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @param link_credentials [Hash] credentials to access the link's destination repo.
+    # Accepted keys: `:username` and `:password`
     #
-    # @return [String] with the file contents
-    def download(file_path, site_path=nil)
+    # @return [Hash] with the following keys:
+    #  - `:file_contents` [String] with the file contents
+    #  - `:link_url` [String] if the requested file is a link, this returns the destination file url
+    def download(file_path: nil, site_path: nil, link_credentials: {})
+      meta = get_document(file_path, site_path)
+      if meta.url.nil?
+        api_url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
+        server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
+        download_url "#{api_url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/$value"
+      else   # requested file is a link
+        paths = extract_paths(meta.url)
+        link_config = { uri: paths[:root] }
+        if link_credentials.empty?
+          link_config = config.to_h.merge(link_config)
+        else
+          link_config.merge!(link_credentials)
+        end
+        link_client = self.class.new(link_config)
+        link_client.download_url uri_escape(meta.url)
+      end
+    end
+
+    # Downloads a file provided its full URL. Follows redirects.
+    #
+    # @param url [String] the URL of the file to download
+
+    # @return [Hash] with the following keys:
+    #  - `:file_contents` [String] with the file contents
+    #  - `:link_url` [String] if some redirect is followed, returns the last `Location:` header value
+    def download_url(url)
       ethon = ethon_easy_requester
-      url = site_path.nil? ? @base_api_web_url : "#{@base_url}#{site_path}/_api/web/"
-      server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
-      ethon = ethon_easy_requester
-      ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/$value"
+      ethon.url = url
       ethon.perform
       check_and_raise_failure(ethon)
-      ethon.response_body
+      {
+        file_contents: ethon.response_body,
+        link_url: last_location_header(ethon)
+      }
     end
 
     # Upload a file
@@ -329,6 +359,14 @@ module Sharepoint
       JSON.parse(easy.response_body)['d']["GetContextWebInformation"]["FormDigestValue"]
     end
 
+    def last_location_header(ethon)
+      last_redirect_idx = ethon.response_headers.rindex('HTTP/1.1 302')
+      return if last_redirect_idx.nil?
+      last_response_headers = ethon.response_headers[last_redirect_idx..-1]
+      location = last_response_headers.match(/\r\n(Location:)(.+)\r\n/)[2].strip
+      utf8_encode uri_unescape(location)
+    end
+
     def check_and_raise_failure(ethon)
       unless (200..299).include? ethon.response_code
         raise "Request failed, received #{ethon.response_code}:\n#{ethon.url}\n#{ethon.response_body}"
@@ -359,6 +397,22 @@ module Sharepoint
       }
     end
 
+    def extract_paths(url)
+      unescaped_url = string_unescape(url)
+      uri = URI(uri_escape unescaped_url)
+      path = utf8_encode uri_unescape(uri.path)
+      sites_match = /\/sites\/[^\/]+/.match(path)
+      site_path = sites_match[0] unless sites_match.nil?
+      file_path = site_path.nil? ? path : path.sub(site_path, '')
+      uri.path = ''
+      root_url = uri.to_s
+      {
+        root: root_url,
+        site: site_path,
+        file: file_path
+      }
+    end
+
     def validate_config!
       raise Errors::UsernameConfigurationError.new unless string_not_blank?(@config.username)
       raise Errors::PasswordConfigurationError.new unless string_not_blank?(@config.password)
@@ -381,6 +435,19 @@ module Sharepoint
     # Waiting for RFC 3986 to be implemented, we need to escape square brackets
     def uri_escape(uri)
       URI.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
+    end
+    def uri_unescape(uri)
+      URI.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
+    end
+
+    def string_unescape(s)
+      s.gsub!(/\\(?:[abfnrtv])/, '')  # remove control chars
+      s.gsub!('"', '\"')  # escape double quotes
+      eval %Q{"#{s}"}
+    end
+
+    def utf8_encode(s)
+      s.force_encoding('UTF-8') unless s.nil?
     end
 
     def sanitize_filename(filename)

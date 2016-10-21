@@ -248,7 +248,7 @@ module Sharepoint
           link_config.merge!(link_credentials)
         end
         link_client = self.class.new(link_config)
-        link_client.download_url uri_escape(meta.url)
+        link_client.download_url meta.url
       end
     end
 

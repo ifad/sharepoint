@@ -470,7 +470,7 @@ module Sharepoint
     def build_search_kql_conditions(options)
       conditions = []
       conditions << "IsContainer<>true"
-      conditions << "contentclass<>STS_List_DocumentLibrary"
+      conditions << "contentclass:STS_ListItem"
       conditions << "WebId=#{options[:web_id]}" unless options[:web_id].nil?
       conditions << "ListId:#{options[:list_id]}" unless options[:list_id].nil?
       "'#{conditions.join('+')}'"

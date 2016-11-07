@@ -261,7 +261,7 @@ module Sharepoint
     #  - `:link_url` [String] if some redirect is followed, returns the last `Location:` header value
     def download_url(url)
       ethon = ethon_easy_requester
-      ethon.url = url
+      ethon.url = uri_escape(url)
       ethon.perform
       check_and_raise_failure(ethon)
       {

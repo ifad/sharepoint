@@ -248,7 +248,9 @@ module Sharepoint
           link_config.merge!(link_credentials)
         end
         link_client = self.class.new(link_config)
-        link_client.download_url meta.url
+        result = link_client.download_url meta.url
+        result[:link_url] = meta.url if result[:link_url].nil?
+        result
       end
     end
 

@@ -238,7 +238,7 @@ module Sharepoint
       if meta.url.nil?
         api_url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
         server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
-        download_url "#{api_url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/$value"
+        download_url "#{api_url}GetFileByServerRelativeUrl('#{server_relative_url}')/$value"
       else   # requested file is a link
         paths = extract_paths(meta.url)
         link_config = { uri: paths[:root] }

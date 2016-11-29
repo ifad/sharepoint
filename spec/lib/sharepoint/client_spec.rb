@@ -36,6 +36,17 @@ describe Sharepoint::Client do
       end
     end
 
+    context 'ethon easy options' do
+      let(:config_ethon) { config.merge({ ethon_easy_options: ssl_verifypeer }) }
+      let(:ssl_verifypeer) { { ssl_verifypeer: false } }
+
+      subject { described_class.new(config_ethon) }
+
+      it "sets ethon easy options in the client" do
+        expect(subject.send :ethon_easy_options).to eql(ssl_verifypeer)
+      end
+    end
+
     context 'failure' do
 
       context "bad username" do

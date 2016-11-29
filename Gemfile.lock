@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     sharepoint (0.1.0)
-      activesupport (~> 5.0)
+      activesupport (>= 4.0)
       ethon
 
 GEM
@@ -63,4 +63,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.11.2
+   1.13.6

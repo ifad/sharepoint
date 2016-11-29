@@ -347,7 +347,7 @@ module Sharepoint
     end
 
     def ethon_easy_requester
-      easy = Ethon::Easy.new(httpauth: :ntlm, followlocation: 1, maxredirs: 3)
+      easy = Ethon::Easy.new(httpauth: :ntlm, followlocation: 1, maxredirs: 5)
       easy.username = config.username
       easy.password = config.password
       easy
@@ -370,6 +370,9 @@ module Sharepoint
     end
 
     def check_and_raise_failure(ethon)
+      puts ethon.url
+      puts ethon.response_code
+      puts ethon.response_body
       unless (200..299).include? ethon.response_code
         raise "Request failed, received #{ethon.response_code}:\n#{ethon.url}\n#{ethon.response_body}"
       end

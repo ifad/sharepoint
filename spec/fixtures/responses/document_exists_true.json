@@ -1,0 +1,56 @@
+{
+  "d": {
+    "__metadata": {
+      "id": "https://xdesk.ifad.org/sites/APRop/_api/Web/GetFileByServerRelativeUrl('/sites/APRop/Lists/AFG/1100001460/Design Report/design_completion_part_1 without map.doc')",
+      "uri": "https://xdesk.ifad.org/sites/APRop/_api/Web/GetFileByServerRelativeUrl('/sites/APRop/Lists/AFG/1100001460/Design%20Report/design_completion_part_1%20without%20map.doc')",
+      "type": "SP.File"
+    },
+    "Author": {
+      "__deferred": {
+        "uri": "https://xdesk.ifad.org/sites/APRop/_api/Web/GetFileByServerRelativeUrl('/sites/APRop/Lists/AFG/1100001460/Design%20Report/design_completion_part_1%20without%20map.doc')/Author"
+      }
+    },
+    "CheckedOutByUser": {
+      "__deferred": {
+        "uri": "https://xdesk.ifad.org/sites/APRop/_api/Web/GetFileByServerRelativeUrl('/sites/APRop/Lists/AFG/1100001460/Design%20Report/design_completion_part_1%20without%20map.doc')/CheckedOutByUser"
+      }
+    },
+    "ListItemAllFields": {
+      "__deferred": {
+        "uri": "https://xdesk.ifad.org/sites/APRop/_api/Web/GetFileByServerRelativeUrl('/sites/APRop/Lists/AFG/1100001460/Design%20Report/design_completion_part_1%20without%20map.doc')/ListItemAllFields"
+      }
+    },
+    "LockedByUser": {
+      "__deferred": {
+        "uri": "https://xdesk.ifad.org/sites/APRop/_api/Web/GetFileByServerRelativeUrl('/sites/APRop/Lists/AFG/1100001460/Design%20Report/design_completion_part_1%20without%20map.doc')/LockedByUser"
+      }
+    },
+    "ModifiedBy": {
+      "__deferred": {
+        "uri": "https://xdesk.ifad.org/sites/APRop/_api/Web/GetFileByServerRelativeUrl('/sites/APRop/Lists/AFG/1100001460/Design%20Report/design_completion_part_1%20without%20map.doc')/ModifiedBy"
+      }
+    },
+    "Versions": {
+      "__deferred": {
+        "uri": "https://xdesk.ifad.org/sites/APRop/_api/Web/GetFileByServerRelativeUrl('/sites/APRop/Lists/AFG/1100001460/Design%20Report/design_completion_part_1%20without%20map.doc')/Versions"
+      }
+    },
+    "CheckInComment": "",
+    "CheckOutType": 2,
+    "ContentTag": "{CB2D2EFE-6686-4C0B-A96A-106872ECCA0B},6,7",
+    "CustomizedPageStatus": 0,
+    "ETag": "\"{CB2D2EFE-6686-4C0B-A96A-106872ECCA0B},6\"",
+    "Exists": true,
+    "Length": "9889280",
+    "Level": 1,
+    "MajorVersion": 6,
+    "MinorVersion": 0,
+    "Name": "design_completion_part_1 without map.doc",
+    "ServerRelativeUrl": "/sites/APRop/Lists/AFG/1100001460/Design Report/design_completion_part_1 without map.doc",
+    "TimeCreated": "2013-03-04T14:00:43Z",
+    "TimeLastModified": "2013-03-04T14:00:50Z",
+    "Title": "Appraisal Report final 31 March 2009",
+    "UIVersion": 3072,
+    "UIVersionLabel": "6.0"
+  }
+}

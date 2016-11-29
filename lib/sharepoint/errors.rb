@@ -15,6 +15,10 @@ module Sharepoint
         super "Invalid Uri configuration"
       end
     end
-
+    class EthonOptionsConfigurationError < StandardError
+      def initialize
+        super "Invalid ethon easy options"
+      end
+    end
   end
 end

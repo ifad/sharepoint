@@ -346,8 +346,12 @@ module Sharepoint
       easy
     end
 
+    def ethon_easy_options
+      config.ethon_easy_options || {}
+    end
+
     def ethon_easy_requester
-      easy = Ethon::Easy.new(httpauth: :ntlm, followlocation: 1, maxredirs: 5)
+      easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
       easy.username = config.username
       easy.password = config.password
       easy
@@ -419,9 +423,10 @@ module Sharepoint
     end
 
     def validate_config!
-      raise Errors::UsernameConfigurationError.new unless string_not_blank?(@config.username)
-      raise Errors::PasswordConfigurationError.new unless string_not_blank?(@config.password)
-      raise Errors::UriConfigurationError.new      unless valid_config_uri?
+      raise Errors::UsernameConfigurationError.new      unless string_not_blank?(@config.username)
+      raise Errors::PasswordConfigurationError.new      unless string_not_blank?(@config.password)
+      raise Errors::UriConfigurationError.new           unless valid_config_uri?
+      raise Errors::EthonOptionsConfigurationError.new  unless ethon_easy_options.is_a?(Hash)
     end
 
     def string_not_blank?(object)

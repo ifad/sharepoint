@@ -347,7 +347,7 @@ module Sharepoint
     end
 
     def ethon_easy_options
-      config.ethon_easy_options ||= {}
+      config.ethon_easy_options || {}
     end
 
     def ethon_easy_requester

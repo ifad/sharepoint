@@ -374,9 +374,6 @@ module Sharepoint
     end
 
     def check_and_raise_failure(ethon)
-      puts ethon.url
-      puts ethon.response_code
-      puts ethon.response_body
       unless (200..299).include? ethon.response_code
         raise "Request failed, received #{ethon.response_code}:\n#{ethon.url}\n#{ethon.response_body}"
       end

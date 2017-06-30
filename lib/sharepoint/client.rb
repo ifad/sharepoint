@@ -211,16 +211,32 @@ module Sharepoint
       select_param = "$select=#{all_properties.join(',')}"
       url = "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Items?#{expand_param}&#{select_param}"
       url += "&#{filter_param}" unless conditions.nil?
+
+      records = []
+      page_url = uri_escape url
+      loop do
+        body = list_documents_page(page_url)
+        records += parse_list_response(body, all_properties)
+        page_url = body['d']['__next']
+        break if page_url.blank?
+      end
+
+      server_responded_at = Time.now
+
+      {
+        requested_url: url,
+        server_responded_at: server_responded_at,
+        results: records
+      }
+    end
+
+    def list_documents_page(url)
       ethon = ethon_easy_json_requester
-      ethon.url = uri_escape url
+      ethon.url = url
       ethon.perform
       check_and_raise_failure(ethon)
-      server_responded_at = Time.now
-      {
-        requested_url: ethon.url,
-        server_responded_at: server_responded_at,
-        results: parse_list_response(ethon.response_body, all_properties)
-      }
+
+      return JSON.parse(ethon.response_body)
     end
 
     # Get a document's file contents. If it's a link to another document, it's followed.
@@ -524,8 +540,7 @@ module Sharepoint
       records
     end
 
-    def parse_list_response(response_body, all_properties)
-      json_response = JSON.parse(response_body)
+    def parse_list_response(json_response, all_properties)
       results = json_response['d']['results']
       records = []
       results.each do |result|

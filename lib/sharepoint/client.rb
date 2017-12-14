@@ -28,9 +28,10 @@ module Sharepoint
     # Get all the documents from path
     #
     # @param path [String] the path to request the content
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return [Array] of OpenStructs with the info of the files in the path
-    def documents_for(path)
+    def documents_for(path, site_path = '')
       ethon = ethon_easy_json_requester
       ethon.url = "#{base_api_web_url}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
       ethon.perform
@@ -53,7 +54,7 @@ module Sharepoint
 
         threads << Thread.new {
           ethon2 = ethon_easy_json_requester
-          server_relative_url = "#{path}/#{file['Name']}"
+          server_relative_url = "#{site_path}#{path}/#{file['Name']}"
           ethon2.url = "#{base_api_web_url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
           ethon2.perform
           rs = JSON.parse(ethon2.response_body)['d']

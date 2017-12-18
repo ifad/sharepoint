@@ -5,6 +5,7 @@ require "json"
 require "time"
 
 require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/object/blank'
 
 module Sharepoint
   class Client

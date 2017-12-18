@@ -290,6 +290,52 @@ module Sharepoint
       }
     end
 
+    # Creates a folder
+    #
+    # @param name [String] the name of the folder
+    # @param path [String] the path where to create the folder
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
+    # @return [Fixnum] HTTP response code
+    def create_folder(name, path, site_path=nil)
+      sanitized_name = sanitize_filename(name)
+      url = base_api_web_url
+      path = path[1..-1] if path[0].eql?('/')
+      url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Folders"
+      easy = ethon_easy_json_requester
+      easy.headers = { 'accept' => 'application/json;odata=verbose',
+                       'content-type' => 'application/json;odata=verbose',
+                       'X-RequestDigest' => xrequest_digest(site_path) }
+      payload = {
+          '__metadata' => {
+          'type' => 'SP.Folder'
+        },
+        'ServerRelativeUrl' => "#{path}/#{name}"
+      }
+      easy.http_request(url, :post, body: payload.to_json)
+      easy.perform
+      check_and_raise_failure(easy)
+      easy.response_code
+    end
+
+    # Checks if a folder exists
+    #
+    # @param path [String] the folder path
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
+    # @return [Fixnum] HTTP response code
+    def folder_exists?(path, site_path=nil)
+      url = base_api_web_url
+      path = path[1..-1] if path[0].eql?('/')
+      url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')"
+      easy = ethon_easy_json_requester
+      easy.headers = { 'accept' => 'application/json;odata=verbose',
+                       'X-RequestDigest' => xrequest_digest(site_path) }
+      easy.http_request(url, :get)
+      easy.perform
+      easy.response_code == 200
+    end
+
     # Upload a file
     #
     # @param filename [String] the name of the file uploaded

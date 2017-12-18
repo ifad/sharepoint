@@ -329,8 +329,6 @@ module Sharepoint
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')"
       easy = ethon_easy_json_requester
-      easy.headers = { 'accept' => 'application/json;odata=verbose',
-                       'X-RequestDigest' => xrequest_digest(site_path) }
       easy.http_request(url, :get)
       easy.perform
       easy.response_code == 200
@@ -421,6 +419,8 @@ module Sharepoint
       easy
     end
 
+    # When you send a POST request, the request must include the form digest
+    # value in the X-RequestDigest header
     def xrequest_digest(site_path=nil)
       easy = ethon_easy_json_requester
       url = site_path.nil? ? base_api_url : "#{base_url}#{site_path}/_api"

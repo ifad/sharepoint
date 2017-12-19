@@ -263,4 +263,23 @@ describe Sharepoint::Client do
     it "should update the metadata correctly"
   end
 
+  describe '#folder_exists?' do
+    specify do
+      allow_any_instance_of(Ethon::Easy).to receive(:response_code).and_return(200)
+      expect(client.folder_exists?('foo')).to eq(true)
+    end
+
+    specify do
+      allow_any_instance_of(Ethon::Easy).to receive(:response_code).and_return(404)
+      expect(client.folder_exists?('bar')).to eq(false)
+    end
+  end
+
+  describe '#create_folder' do
+    specify do
+      mock_responses('request_digest.json')
+      expect(client.create_folder('foo', 'bar')).to eq(200)
+    end
+  end
+
 end

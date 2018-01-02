@@ -34,7 +34,7 @@ module Sharepoint
     # @return [Array] of OpenStructs with the info of the files in the path
     def documents_for(path, site_path = '')
       ethon = ethon_easy_json_requester
-      ethon.url = "#{base_api_web_url}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
+      ethon.url = "#{computed_web_api_url(site_path)}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
       ethon.perform
       check_and_raise_failure(ethon)
 
@@ -56,7 +56,7 @@ module Sharepoint
         threads << Thread.new {
           ethon2 = ethon_easy_json_requester
           server_relative_url = "#{site_path}#{path}/#{file['Name']}"
-          ethon2.url = "#{base_api_web_url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
+          ethon2.url = "#{computed_web_api_url(site_path)}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
           ethon2.perform
           rs = JSON.parse(ethon2.response_body)['d']
           file_struct.record_type = rs['Record_Type']
@@ -79,7 +79,7 @@ module Sharepoint
       file = split_path(file_path)
       sanitized_filename = sanitize_filename(file[:name])
       server_relative_url = "#{site_path}#{file[:path]}/#{sanitized_filename}"
-      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
+      url = computed_web_api_url(site_path)
       ethon = ethon_easy_json_requester
       ethon.url = uri_escape "#{url}GetFileByServerRelativeUrl('#{odata_escape_single_quote server_relative_url}')"
       ethon.perform
@@ -102,7 +102,7 @@ module Sharepoint
     #
     # @return [OpenStruct] with both default and custom metadata
     def get_document(file_path, site_path=nil, custom_properties=[])
-      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
+      url = computed_web_api_url(site_path)
       server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
       ethon = ethon_easy_json_requester
       ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
@@ -205,7 +205,7 @@ module Sharepoint
     #   * `:results` [Array] of OpenStructs with all properties of search results
     def list_documents(list_name, conditions, site_path=nil, properties=[])
       raise ArgumentError.new('One condition should be passed at least') if conditions.nil? || conditions.empty?
-      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
+      url = computed_web_api_url(site_path)
       filter_param = "$filter=#{conditions}"
       expand_param = '$expand=Folder,File'
       default_properties = %w( FileSystemObjectType UniqueId Title Created Modified File )
@@ -254,9 +254,9 @@ module Sharepoint
     def download(file_path: nil, site_path: nil, link_credentials: {})
       meta = get_document(file_path, site_path)
       if meta.url.nil?
-        api_url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
+        url = computed_web_api_url(site_path)
         server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
-        download_url "#{api_url}GetFileByServerRelativeUrl('#{server_relative_url}')/$value"
+        download_url "#{url}GetFileByServerRelativeUrl('#{server_relative_url}')/$value"
       else   # requested file is a link
         paths = extract_paths(meta.url)
         link_config = { uri: paths[:root] }
@@ -299,7 +299,7 @@ module Sharepoint
     # @return [Fixnum] HTTP response code
     def create_folder(name, path, site_path=nil)
       sanitized_name = sanitize_filename(name)
-      url = base_api_web_url
+      url = computed_web_api_url(site_path)
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Folders"
       easy = ethon_easy_json_requester
@@ -325,8 +325,8 @@ module Sharepoint
     #
     # @return [Fixnum] HTTP response code
     def folder_exists?(path, site_path=nil)
-      url = base_api_web_url
-      path = path[1..-1] if path[0].eql?('/')
+      url = computed_web_api_url(site_path)
+      path = [site_path, path].compact.join('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')"
       easy = ethon_easy_json_requester
       easy.http_request(url, :get)
@@ -344,7 +344,7 @@ module Sharepoint
     # @return [Fixnum] HTTP response code
     def upload(filename, content, path, site_path=nil)
       sanitized_filename = sanitize_filename(filename)
-      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
+      url = computed_web_api_url(site_path)
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
@@ -366,7 +366,7 @@ module Sharepoint
     # @return [Fixnum] HTTP response code
     def update_metadata(filename, metadata, path, site_path=nil)
       sanitized_filename = sanitize_filename(filename)
-      url = site_path.nil? ? base_api_web_url : "#{base_url}#{site_path}/_api/web/"
+      url = computed_web_api_url(site_path)
       server_relative_url = "#{site_path}#{path}/#{sanitized_filename}"
       easy = ethon_easy_json_requester
       easy.url = uri_escape "#{url}GetFileByServerRelativeUrl('#{server_relative_url}')/ListItemAllFields"
@@ -395,11 +395,25 @@ module Sharepoint
     def base_url
       config.uri
     end
+
     def base_api_url
       "#{base_url}/_api/"
     end
+
     def base_api_web_url
       "#{base_api_url}web/"
+    end
+
+    def computed_api_url(site)
+      if site.present?
+        "#{base_url}/#{site}/_api/"
+      else
+        "#{base_url}/_api/"
+      end
+    end
+
+    def computed_web_api_url(site)
+      "#{computed_api_url(site)}/web/".gsub('//', '/')
     end
 
     def ethon_easy_json_requester
@@ -423,8 +437,8 @@ module Sharepoint
     # value in the X-RequestDigest header
     def xrequest_digest(site_path=nil)
       easy = ethon_easy_json_requester
-      url = site_path.nil? ? base_api_url : "#{base_url}#{site_path}/_api"
-      easy.http_request("#{url}/contextinfo", :post, { body: '' })
+      url = "#{computed_api_url(site_path)}/contextinfo".gsub('//', '/')
+      easy.http_request(url, :post, { body: '' })
       easy.perform
       JSON.parse(easy.response_body)['d']["GetContextWebInformation"]["FormDigestValue"]
     end
@@ -507,6 +521,7 @@ module Sharepoint
     def uri_escape(uri)
       URI.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
     end
+
     def uri_unescape(uri)
       URI.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
     end

@@ -204,15 +204,14 @@ module Sharepoint
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
     def list_documents(list_name, conditions, site_path=nil, properties=[])
-      raise ArgumentError.new('One condition should be passed at least') if conditions.nil? || conditions.empty?
       url = computed_web_api_url(site_path)
-      filter_param = "$filter=#{conditions}"
+      filter_param = "$filter=#{conditions}" if conditions.present?
       expand_param = '$expand=Folder,File'
       default_properties = %w( FileSystemObjectType UniqueId Title Created Modified File )
       all_properties = default_properties + properties
       select_param = "$select=#{all_properties.join(',')}"
       url = "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Items?#{expand_param}&#{select_param}"
-      url += "&#{filter_param}" unless conditions.nil?
+      url += "&#{filter_param}"
 
       records = []
       page_url = uri_escape url

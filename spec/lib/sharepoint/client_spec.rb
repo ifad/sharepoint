@@ -115,4 +115,20 @@ describe Sharepoint::Client do
 
   end
 
+  describe '#remove_double_slashes' do
+    PAIRS = {
+      'foobar'             => 'foobar',
+      'foo/bar'            => 'foo/bar',
+      'foo/bar/'           => 'foo/bar/',
+      'http://foo/bar//'   => 'http://foo/bar/',
+      'https://foo/bar//'  => 'https://foo/bar/',
+      'https://foo/bar'    => 'https://foo/bar',
+      'https://foo//bar//' => 'https://foo/bar/'
+    }.each do |input, output|
+      specify do
+        expect(described_class.new(config).send :remove_double_slashes, input).to eq(output)
+      end
+    end
+  end
+
 end

@@ -412,7 +412,7 @@ module Sharepoint
     end
 
     def computed_web_api_url(site)
-      "#{computed_api_url(site)}/web/".gsub('//', '/')
+      remove_double_slashes("#{computed_api_url(site)}/web/")
     end
 
     def ethon_easy_json_requester
@@ -436,7 +436,7 @@ module Sharepoint
     # value in the X-RequestDigest header
     def xrequest_digest(site_path=nil)
       easy = ethon_easy_json_requester
-      url = "#{computed_api_url(site_path)}/contextinfo".gsub('//', '/')
+      url = remove_double_slashes("#{computed_api_url(site_path)}/contextinfo")
       easy.http_request(url, :post, { body: '' })
       easy.perform
       JSON.parse(easy.response_body)['d']["GetContextWebInformation"]["FormDigestValue"]
@@ -632,6 +632,12 @@ module Sharepoint
       end
       props[:url] = all_props['URL'].nil? ? nil : all_props['URL']['Url']
       OpenStruct.new(props)
+    end
+
+    def remove_double_slashes(str)
+      str.to_s.gsub('//', '/')
+              .gsub('http:/', 'http://')
+              .gsub('https:/', 'https://')
     end
 
   end

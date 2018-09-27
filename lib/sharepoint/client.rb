@@ -297,6 +297,7 @@ module Sharepoint
     #
     # @return [Fixnum] HTTP response code
     def create_folder(name, path, site_path=nil)
+      return unless name
       sanitized_name = sanitize_filename(name)
       url = computed_web_api_url(site_path)
       path = path[1..-1] if path[0].eql?('/')
@@ -309,7 +310,7 @@ module Sharepoint
           '__metadata' => {
           'type' => 'SP.Folder'
         },
-        'ServerRelativeUrl' => "#{path}/#{name}"
+        'ServerRelativeUrl' => "#{path}/#{sanitized_name}"
       }
       easy.http_request(url, :post, body: payload.to_json)
       easy.perform

@@ -276,6 +276,10 @@ describe Sharepoint::Client do
   end
 
   describe '#create_folder' do
+    it 'does nothing if the folder name is nil' do
+      expect(Ethon::Easy).to_not receive(:new)
+      expect(client.create_folder(nil, 'bar')).to eq(nil)
+    end
     specify do
       mock_responses('request_digest.json')
       expect(client.create_folder('foo', 'bar')).to eq(200)

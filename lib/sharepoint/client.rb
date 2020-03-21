@@ -390,6 +390,31 @@ module Sharepoint
       easy.response_code
     end
 
+    # Search for all lists in the SP instance
+    #
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @param query [Hash] Hash with OData query operations, e.g. `{ select: 'Id,Title', filter: 'ItemCount gt 0 and Hidden eq false' }`.
+    #
+    # @return [Hash] with the following keys:
+    #   * `:requested_url` [String] the URL requested to the SharePoint server
+    #   * `:server_responded_at` [Time] the time when server returned its response
+    #   * `:results` [Array] of OpenStructs with all lists returned by the query
+    def lists(site_path = '', query = {})
+      url = "#{computed_web_api_url(site_path)}Lists".dup
+      url << "?#{build_query_params(query)}" if query.present?
+
+      ethon = ethon_easy_json_requester
+      ethon.url = uri_escape(url)
+      ethon.perform
+      check_and_raise_failure(ethon)
+
+      {
+        requested_url: ethon.url,
+        server_responded_at: Time.now,
+        results: parse_lists_in_site_response(ethon.response_body)
+      }
+    end
+
     private
 
     def base_url
@@ -639,6 +664,25 @@ module Sharepoint
       str.to_s.gsub('//', '/')
               .gsub('http:/', 'http://')
               .gsub('https:/', 'https://')
+    end
+
+    def build_query_params(query)
+      query_params = []
+
+      query.each do |field, value|
+        query_params << "$#{field}=#{value}"
+      end
+
+      query_params.join('&')
+    end
+
+    def parse_lists_in_site_response(response_body)
+      json_response = JSON.parse(response_body)
+      results = json_response.dig('d', 'results')
+
+      results.map do |result|
+        OpenStruct.new(result.map { |k, v| [k.underscore.to_sym, v] }.to_h)
+      end
     end
 
   end

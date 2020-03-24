@@ -415,6 +415,25 @@ module Sharepoint
       }
     end
 
+    # Index a list field. Requires admin permissions
+    #
+    # @param list_name [String] the name of the list
+    # @param field_name [String] the name of the field to index
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
+    # @return [Fixnum] HTTP response code
+    def index_field(list_name, field_name, site_path = '')
+      url = computed_web_api_url(site_path)
+      easy = ethon_easy_json_requester
+      easy.url = uri_escape "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Fields/getByTitle('#{field_name}')"
+      easy.perform
+
+      parsed_response_body = JSON.parse(easy.response_body)
+      return 304 if parsed_response_body['d']['Indexed']
+
+      update_object_metadata parsed_response_body['d']['__metadata'], { 'Indexed' => true }, site_path
+    end
+
     private
 
     def base_url
@@ -685,5 +704,23 @@ module Sharepoint
       end
     end
 
+    def update_object_metadata(metadata, new_metadata, site_path = '')
+      update_metadata_url = metadata['uri']
+      prepared_metadata = prepare_metadata(new_metadata, metadata['type'])
+
+      easy = ethon_easy_json_requester
+      easy.headers = { 'accept' =>  'application/json;odata=verbose',
+                       'content-type' =>  'application/json;odata=verbose',
+                       'X-RequestDigest' =>  xrequest_digest(site_path),
+                       'X-Http-Method' =>  'PATCH',
+                       'If-Match' => "*" }
+
+      easy.http_request(update_metadata_url,
+                        :post,
+                        { body: prepared_metadata })
+      easy.perform
+      check_and_raise_failure(easy)
+      easy.response_code
+    end
   end
 end

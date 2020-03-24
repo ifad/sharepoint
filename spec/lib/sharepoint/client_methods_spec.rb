@@ -318,4 +318,36 @@ describe Sharepoint::Client do
     end
   end
 
+  describe '#index_field' do
+    subject { client.index_field('My List', 'Modified', site_path) }
+
+    let(:site_path) { '/sites/APRop' }
+    let(:response) { response_file }
+    let(:response_file) { File.open('spec/fixtures/responses/index_field.json').read }
+
+    before do
+      allow(client).to receive(:xrequest_digest).and_return('digest')
+
+      allow_any_instance_of(Ethon::Easy)
+        .to receive(:response_body)
+        .and_return(response)
+
+      allow_any_instance_of(Ethon::Easy)
+        .to receive(:response_code)
+        .and_return(204)
+    end
+
+    it 'updates the indexed field' do
+      expect(subject).to eq(204)
+    end
+
+    context 'when the field is already indexed' do
+      let(:response) { JSON.parse(response_file).deep_merge('d' => { 'Indexed' => true }).to_json }
+
+      it 'returns 304' do
+        expect(subject).to eq(304)
+      end
+    end
+  end
+
 end

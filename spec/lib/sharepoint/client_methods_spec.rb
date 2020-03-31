@@ -286,4 +286,68 @@ describe Sharepoint::Client do
     end
   end
 
+  describe '#lists' do
+    before { mock_responses('lists.json') }
+    subject { client.lists(site_path, query) }
+
+    let(:site_path) { '/sites/APRop' }
+    let(:query) { { select: 'Title,Id,Hidden,ItemCount', filter: 'Hidden eq false' } }
+
+    it 'returns Hash with expected keys' do
+      expect(subject).to be_a Hash
+      expect(subject[:server_responded_at]).to be_a Time
+      expect(subject[:results]).to be_a Array
+    end
+    context 'results' do
+      let(:results) { subject[:results] }
+
+      it 'is not empty' do
+        expect(results).not_to be_empty
+      end
+
+      it 'returns lists with filled properties' do
+        is_expected.not_to be_empty
+        sample = results.sample
+        %w(
+          hidden id item_count title
+        ).each do |property|
+          expect(sample).to respond_to property
+          expect(sample.send(property)).not_to be_nil
+        end
+      end
+    end
+  end
+
+  describe '#index_field' do
+    subject { client.index_field('My List', 'Modified', site_path) }
+
+    let(:site_path) { '/sites/APRop' }
+    let(:response) { response_file }
+    let(:response_file) { File.open('spec/fixtures/responses/index_field.json').read }
+
+    before do
+      allow(client).to receive(:xrequest_digest).and_return('digest')
+
+      allow_any_instance_of(Ethon::Easy)
+        .to receive(:response_body)
+        .and_return(response)
+
+      allow_any_instance_of(Ethon::Easy)
+        .to receive(:response_code)
+        .and_return(204)
+    end
+
+    it 'updates the indexed field' do
+      expect(subject).to eq(204)
+    end
+
+    context 'when the field is already indexed' do
+      let(:response) { JSON.parse(response_file).deep_merge('d' => { 'Indexed' => true }).to_json }
+
+      it 'returns 304' do
+        expect(subject).to eq(304)
+      end
+    end
+  end
+
 end

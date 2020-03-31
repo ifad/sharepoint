@@ -390,6 +390,50 @@ module Sharepoint
       easy.response_code
     end
 
+    # Search for all lists in the SP instance
+    #
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    # @param query [Hash] Hash with OData query operations, e.g. `{ select: 'Id,Title', filter: 'ItemCount gt 0 and Hidden eq false' }`.
+    #
+    # @return [Hash] with the following keys:
+    #   * `:requested_url` [String] the URL requested to the SharePoint server
+    #   * `:server_responded_at` [Time] the time when server returned its response
+    #   * `:results` [Array] of OpenStructs with all lists returned by the query
+    def lists(site_path = '', query = {})
+      url = "#{computed_web_api_url(site_path)}Lists".dup
+      url << "?#{build_query_params(query)}" if query.present?
+
+      ethon = ethon_easy_json_requester
+      ethon.url = uri_escape(url)
+      ethon.perform
+      check_and_raise_failure(ethon)
+
+      {
+        requested_url: ethon.url,
+        server_responded_at: Time.now,
+        results: parse_lists_in_site_response(ethon.response_body)
+      }
+    end
+
+    # Index a list field. Requires admin permissions
+    #
+    # @param list_name [String] the name of the list
+    # @param field_name [String] the name of the field to index
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
+    # @return [Fixnum] HTTP response code
+    def index_field(list_name, field_name, site_path = '')
+      url = computed_web_api_url(site_path)
+      easy = ethon_easy_json_requester
+      easy.url = uri_escape "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Fields/getByTitle('#{field_name}')"
+      easy.perform
+
+      parsed_response_body = JSON.parse(easy.response_body)
+      return 304 if parsed_response_body['d']['Indexed']
+
+      update_object_metadata parsed_response_body['d']['__metadata'], { 'Indexed' => true }, site_path
+    end
+
     private
 
     def base_url
@@ -641,5 +685,42 @@ module Sharepoint
               .gsub('https:/', 'https://')
     end
 
+    def build_query_params(query)
+      query_params = []
+
+      query.each do |field, value|
+        query_params << "$#{field}=#{value}"
+      end
+
+      query_params.join('&')
+    end
+
+    def parse_lists_in_site_response(response_body)
+      json_response = JSON.parse(response_body)
+      results = json_response.dig('d', 'results')
+
+      results.map do |result|
+        OpenStruct.new(result.map { |k, v| [k.underscore.to_sym, v] }.to_h)
+      end
+    end
+
+    def update_object_metadata(metadata, new_metadata, site_path = '')
+      update_metadata_url = metadata['uri']
+      prepared_metadata = prepare_metadata(new_metadata, metadata['type'])
+
+      easy = ethon_easy_json_requester
+      easy.headers = { 'accept' =>  'application/json;odata=verbose',
+                       'content-type' =>  'application/json;odata=verbose',
+                       'X-RequestDigest' =>  xrequest_digest(site_path),
+                       'X-Http-Method' =>  'PATCH',
+                       'If-Match' => "*" }
+
+      easy.http_request(update_metadata_url,
+                        :post,
+                        { body: prepared_metadata })
+      easy.perform
+      check_and_raise_failure(easy)
+      easy.response_code
+    end
   end
 end

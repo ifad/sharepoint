@@ -1,0 +1,30 @@
+{
+  "d": {
+    "results": [
+      {
+        "__metadata": {
+          "id": "http://win-jamsdpuujgc/sites/APRop/_api/Web/Lists(guid'5739e2e0-82e9-434f-8f61-867bd3aaadda')",
+          "uri": "http://win-jamsdpuujgc/sites/APRop/_api/Web/Lists(guid'5739e2e0-82e9-434f-8f61-867bd3aaadda')",
+          "etag": "\"7\"",
+          "type": "SP.List"
+        },
+        "Hidden": false,
+        "Id": "5739e2e0-82e9-434f-8f61-867bd3aaadda",
+        "ItemCount": 3,
+        "Title": "A List"
+      },
+      {
+        "__metadata": {
+          "id": "http://win-jamsdpuujgc/sites/APRop/_api/Web/Lists(guid'2a283dc9-6d81-4db6-a90d-5aff20e21c6e')",
+          "uri": "http://win-jamsdpuujgc/sites/APRop/_api/Web/Lists(guid'2a283dc9-6d81-4db6-a90d-5aff20e21c6e')",
+          "etag": "\"4\"",
+          "type": "SP.List"
+        },
+        "Hidden": false,
+        "Id": "2a283dc9-6d81-4db6-a90d-5aff20e21c6e",
+        "ItemCount": 2,
+        "Title": "Another List"
+      }
+    ]
+  }
+}

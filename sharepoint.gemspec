@@ -10,6 +10,8 @@ Gem::Specification.new do |gem|
   gem.files             = `git ls-files`.split("\n")
   gem.require_paths     = ["lib"]
 
+  gem.required_ruby_version = '>= 2.3'
+
   gem.add_dependency 'ethon'
   gem.add_dependency 'activesupport', '>= 4.0'
 

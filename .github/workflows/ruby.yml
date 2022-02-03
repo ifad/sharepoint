@@ -1,0 +1,48 @@
+name: Ruby specs
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: Ruby specs
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        ruby-version: ['2.6.9', '2.7.5']
+        experimental: [false]
+
+        include:
+          - ruby-version: '2.3.8'
+            experimental: false
+
+          - ruby-version: '2.4.10'
+            experimental: false
+
+          - ruby-version: '2.5.9'
+            experimental: false
+
+    continue-on-error: ${{ matrix.experimental }}
+
+    env:
+      SP_USERNAME: test
+      SP_PASSWORD: test
+      SP_URL: http://localhost:1234/
+
+    steps:
+    - name: Install libmagic-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get -yq --no-install-suggests --no-install-recommends install libmagic-dev
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
+    - name: Run specs
+      run: bundle exec rspec

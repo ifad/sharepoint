@@ -1,4 +1,7 @@
 # sharepoint
+
+[![Build Status](https://github.com/ifad/sharepoint/actions/workflows/ruby.yml/badge.svg)](https://github.com/ifad/sharepoint/actions)
+
 Sharepoint 2013 REST API client. Work in progress, not for the faint hearted.
 
 ## Installation

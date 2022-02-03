@@ -131,4 +131,21 @@ describe Sharepoint::Client do
     end
   end
 
+  {
+    '?id[]&'             => '?id%5B%5D&',
+    "https://example.org/sites/GetFileByServerRelativeUrl('/file+name .pdf')" => "https://example.org/sites/GetFileByServerRelativeUrl('/file+name%20.pdf')"
+  }.each do |input, output|
+    describe '#uri_escape' do
+      specify do
+        expect(described_class.new(config).send :uri_escape, input).to eq(output)
+      end
+    end
+
+    describe '#uri_unescape' do
+      specify do
+        expect(described_class.new(config).send :uri_unescape, output).to eq(input)
+      end
+    end
+  end
+
 end

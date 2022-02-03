@@ -7,6 +7,8 @@ require "time"
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
 
+require 'addressable/uri'
+
 module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
@@ -34,7 +36,7 @@ module Sharepoint
     # @return [Array] of OpenStructs with the info of the files in the path
     def documents_for(path, site_path = '')
       ethon = ethon_easy_json_requester
-      ethon.url = "#{computed_web_api_url(site_path)}GetFolderByServerRelativeUrl('#{uri_escape path}')/Files"
+      ethon.url = "#{computed_web_api_url(site_path)}GetFolderByServerRelativeUrl('#{uri_escape_component path}')/Files"
       ethon.perform
       check_and_raise_failure(ethon)
 
@@ -56,7 +58,7 @@ module Sharepoint
         threads << Thread.new {
           ethon2 = ethon_easy_json_requester
           server_relative_url = "#{site_path}#{path}/#{file['Name']}"
-          ethon2.url = "#{computed_web_api_url(site_path)}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
+          ethon2.url = "#{computed_web_api_url(site_path)}GetFileByServerRelativeUrl('#{uri_escape_component server_relative_url}')/ListItemAllFields"
           ethon2.perform
           rs = JSON.parse(ethon2.response_body)['d']
           file_struct.record_type = rs['Record_Type']
@@ -105,7 +107,7 @@ module Sharepoint
       url = computed_web_api_url(site_path)
       server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
       ethon = ethon_easy_json_requester
-      ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
+      ethon.url = "#{url}GetFileByServerRelativeUrl('#{uri_escape_component server_relative_url}')/ListItemAllFields"
       ethon.perform
       check_and_raise_failure(ethon)
       parse_get_document_response(ethon.response_body, custom_properties)
@@ -139,7 +141,7 @@ module Sharepoint
     #      sorted by last modified date (`write`)
     def search_modified_documents(options={})
       ethon = ethon_easy_json_requester
-      query = uri_escape build_search_kql_conditions(options)
+      query = uri_escape_component build_search_kql_conditions(options)
       properties = build_search_properties(options)
       filters = build_search_fql_conditions(options)
       sorting = "sortlist='write:ascending'"
@@ -528,7 +530,7 @@ module Sharepoint
     def extract_paths(url)
       unescaped_url = string_unescape(url)
       uri = URI(uri_escape unescaped_url)
-      path = utf8_encode uri_unescape(uri.path)
+      path = utf8_encode uri_unescape_component(uri.path)
       sites_match = /\/sites\/[^\/]+/.match(path)
       site_path = sites_match[0] unless sites_match.nil?
       file_path = site_path.nil? ? path : path.sub(site_path, '')
@@ -561,13 +563,20 @@ module Sharepoint
       end
     end
 
-    # Waiting for RFC 3986 to be implemented, we need to escape square brackets
     def uri_escape(uri)
-      URI.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
+      Addressable::URI.escape(uri)
+    end
+
+    def uri_escape_component(uri_component)
+      Addressable::URI.escape_component(uri_component)
     end
 
     def uri_unescape(uri)
-      URI.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
+      Addressable::URI.unescape(uri)
+    end
+
+    def uri_unescape_component(uri_component)
+      Addressable::URI.unescape_component(uri_component)
     end
 
     def string_unescape(s)

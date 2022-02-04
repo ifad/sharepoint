@@ -563,11 +563,11 @@ module Sharepoint
 
     # Waiting for RFC 3986 to be implemented, we need to escape square brackets
     def uri_escape(uri)
-       URI::DEFAULT_PARSER.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
+      URI::DEFAULT_PARSER.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
     end
 
     def uri_unescape(uri)
-       URI::DEFAULT_PARSER.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
+      URI::DEFAULT_PARSER.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
     end
 
     def string_unescape(s)

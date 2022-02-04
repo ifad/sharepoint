@@ -567,7 +567,7 @@ module Sharepoint
     end
 
     def uri_unescape(uri)
-      URI::Parser.new..unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
+      URI::Parser.new.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
     end
 
     def string_unescape(s)

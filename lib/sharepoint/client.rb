@@ -11,6 +11,10 @@ module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
+    DEFAULT_CONFIGURATION = {
+      httpauth: 'ntlm'
+    }.freeze
+
     # @return [OpenStruct] The current configuration.
     attr_reader :config
 
@@ -20,9 +24,10 @@ module Sharepoint
     #  - `:uri` The SharePoint server's root url
     #  - `:username` self-explanatory
     #  - `:password` self-explanatory
+    #  - `:httpauth` one of the authentication methods supported by curl. Defaults to `ntlm`
     # @return [Sharepoint::Client] client object
     def initialize(config = {})
-      @config = OpenStruct.new(config)
+      @config = OpenStruct.new(DEFAULT_CONFIGURATION.merge(config))
       validate_config!
     end
 
@@ -471,7 +476,8 @@ module Sharepoint
     end
 
     def ethon_easy_requester
-      easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+      easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+      easy.httpauth = config.httpauth.to_sym
       easy.username = config.username
       easy.password = config.password
       easy
@@ -545,6 +551,7 @@ module Sharepoint
       raise Errors::UsernameConfigurationError.new      unless string_not_blank?(@config.username)
       raise Errors::PasswordConfigurationError.new      unless string_not_blank?(@config.password)
       raise Errors::UriConfigurationError.new           unless valid_config_uri?
+      raise Errors::HttpauthConfigurationError.new      unless string_not_blank?(@config.httpauth)
       raise Errors::EthonOptionsConfigurationError.new  unless ethon_easy_options.is_a?(Hash)
     end
 

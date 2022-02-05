@@ -111,6 +111,21 @@ describe Sharepoint::Client do
 
       end
 
+      context "bad httpauth" do
+        [{ value:                  nil, name:         'nil' },
+         { value:                :ntlm, name:      'symbol' }].each do |ocurrence|
+
+          it "should raise authentication configuration error for #{ocurrence[:name]} authentication" do
+            wrong_config = config
+            wrong_config[:httpauth] = ocurrence[:value]
+
+            expect {
+              described_class.new(wrong_config)
+            }.to raise_error(Sharepoint::Errors::HttpauthConfigurationError)
+          end
+        end
+      end
+
     end
 
   end

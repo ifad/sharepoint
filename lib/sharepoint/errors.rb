@@ -1,5 +1,10 @@
 module Sharepoint
   module Errors
+    class HttpauthConfigurationError < StandardError
+      def initialize
+        super "Invalid Authentication configuration"
+      end
+    end
     class UsernameConfigurationError < StandardError
       def initialize
         super "Invalid Username Configuration"

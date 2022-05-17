@@ -13,17 +13,17 @@ jobs:
 
     strategy:
       matrix:
-        ruby-version: ['2.6.9', '2.7.5', '3.0.3', '3.1.0']
+        ruby-version: ['2.6', '2.7', '3.0', '3.1']
         experimental: [false]
 
         include:
-          - ruby-version: '2.3.8'
+          - ruby-version: '2.3'
             experimental: false
 
-          - ruby-version: '2.4.10'
+          - ruby-version: '2.4'
             experimental: false
 
-          - ruby-version: '2.5.9'
+          - ruby-version: '2.5'
             experimental: false
 
           - ruby-version: 'head'

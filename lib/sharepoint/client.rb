@@ -415,6 +415,22 @@ module Sharepoint
       }
     end
 
+    # Returns a list of resource
+    #
+    # @param list_name [String] the name of the list
+    # @param fields [Array][String] fields to narrow down the list content
+    # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
+    #
+    # @return [Fixnum] HTTP response code
+    def index(list_name, site_path = '', fields = [])
+      url = computed_web_api_url(site_path)
+      url = "#{url}lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/items"
+      url += "?$select=#{fields.join(",")}" if fields
+
+      process_url( uri_escape(url), fields )
+    end
+
+
     # Index a list field. Requires admin permissions
     #
     # @param list_name [String] the name of the list
@@ -435,6 +451,26 @@ module Sharepoint
     end
 
     private
+
+    def process_url(url, fields)
+      easy = ethon_easy_json_requester
+      easy.url = url
+      easy.perform
+
+      parsed_response_body = JSON.parse(easy.response_body)
+
+      page_content = if fields 
+        parsed_response_body['d']['results'].map{|v|v.fetch_values(*fields)}
+      else
+        parsed_response_body['d']['results']
+      end
+
+      if next_url = parsed_response_body['d']['__next']
+        page_content + process_url(next_url, fields)
+      else
+        page_content
+      end
+    end
 
     def base_url
       config.uri

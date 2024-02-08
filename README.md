@@ -8,7 +8,9 @@ Sharepoint 2013 REST API client. Work in progress, not for the faint hearted.
 
 Add this line to your application's Gemfile:
 
-    gem 'sharepoint', git: 'git@github.com:ifad/sharepoint'
+```rb
+gem 'sharepoint', git: 'https://github.com/ifad/sharepoint.git'
+```
 
 And then execute:
 
@@ -20,20 +22,28 @@ And then execute:
 
 You can instantiate a number of SharePoint clients in your application:
 
-    client = Sharepoint::Client.new({
-      username: "username",
-      password: "password",
-      uri: "http://sharepoint_url"
-    })
+```rb
+client = Sharepoint::Client.new({
+  username: 'username',
+  password: 'password',
+  uri: 'https://sharepoint_url'
+})
+```
 
 ### Get documents of a folder
 
-    client.documents_for path
+```rb
+client.documents_for path
+```
 
 ### Upload a document
 
-    client.upload filename, content, path
+```rb
+client.upload filename, content, path
+```
 
 ### Update document metadata
 
-    client.update_metadata filename, metadata, path
+```rb
+client.update_metadata filename, metadata, path
+```

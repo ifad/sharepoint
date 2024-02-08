@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Ruby specs
@@ -13,14 +16,14 @@ jobs:
 
     strategy:
       matrix:
-        ruby-version: ['2.3', '2.4', '2.5', '2.6', '2.7', '3.0', '3.1', '3.2']
-        experimental: [false]
+        ruby-version: ['2.3', '2.4', '2.5', '2.6', '2.7', '3.0', '3.1', '3.2', '3.3']
+        channel: [stable]
 
         include:
           - ruby-version: 'head'
-            experimental: true
+            channel: experimental
 
-    continue-on-error: ${{ matrix.experimental }}
+    continue-on-error: ${{ matrix.channel != 'stable' }}
 
     env:
       SP_USERNAME: test
@@ -32,7 +35,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get -yq --no-install-suggests --no-install-recommends install libmagic-dev
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:

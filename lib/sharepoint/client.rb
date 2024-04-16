@@ -11,8 +11,80 @@ module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
+    attr_accessor :token
+
+    class InvalidTokenError < StandardError
+    end
+
+    class Token
+      attr_accessor :expires_in
+      attr_accessor :access_token
+      attr_accessor :fetched_at
+      attr_reader :config
+
+      def initialize(config)
+        @config = config
+      end
+
+      def ensure
+        return access_token unless access_token.nil? || expired?
+        fetch
+      end
+
+      def to_s
+        access_token
+      end
+
+      def fetch
+        auth_request = {
+          client_id: config.client_id,
+          client_secret: config.client_secret,
+          tenant_id: config.tenant_id,
+          cert_name: config.cert_name,
+          auth_scope: config.auth_scope
+        }.to_json
+
+        headers = headers = {'Content-Type' => 'application/json'}
+
+        ethon = Ethon::Easy.new(followlocation: true)
+        ethon.http_request(config.token_url, :post, body: auth_request, headers: headers)
+        ethon.perform
+
+        raise InvalidTokenError.new(ethon.response_body.to_s) unless ethon.response_code == 200
+
+        response = JSON.parse(ethon.response_body)
+
+        details = response["Token"]
+        self.fetched_at = Time.now.utc.to_i
+        self.expires_in = details["expires_in"]
+        self.access_token = details["access_token"]
+      end
+
+      private
+
+      def expired?
+        return true unless fetched_at && expires_in
+
+        (fetched_at + expires_in) < Time.now.utc.to_i
+      end
+    end  # endof Token
+
+    def authenticating(&block)
+      ensure_token
+      yield
+    end
+
+    def ensure_token
+      token.ensure
+    end
+
+    def bearer_auth
+      "Bearer #{token.to_s}"
+    end
+
     # @return [OpenStruct] The current configuration.
     attr_reader :config
+    attr_reader :token
 
     # Initializes a new client with given options.
     #
@@ -23,6 +95,7 @@ module Sharepoint
     # @return [Sharepoint::Client] client object
     def initialize(config = {})
       @config = OpenStruct.new(config)
+      @token = Token.new(@config)
       validate_config!
     end
 
@@ -503,9 +576,11 @@ module Sharepoint
     end
 
     def ethon_easy_json_requester
-      easy = ethon_easy_requester
-      easy.headers = { 'accept' => 'application/json;odata=verbose' }
-      easy
+      authenticating do
+        easy = ethon_easy_requester
+        easy.headers  = { 'accept'=> 'application/json;odata=verbose', 'authentication' => bearer_auth }
+        easy
+      end
     end
 
     def ethon_easy_options
@@ -584,9 +659,16 @@ module Sharepoint
       }
     end
 
+    def validate_ouath_config
+      [:client_id, :client_secret, :tenant_id, :cert_name, :auth_scope].map do |opt|
+        next if config.send(opt).present?
+        opt
+      end.compact
+    end
+
     def validate_config!
-      raise Errors::UsernameConfigurationError.new      unless string_not_blank?(@config.username)
-      raise Errors::PasswordConfigurationError.new      unless string_not_blank?(@config.password)
+      invalid_oauth_opts = validate_ouath_config
+      raise Errors::InvalidOauthConfigError.new(invalid_oauth_opts)      unless invalid_oauth_opts.empty?
       raise Errors::UriConfigurationError.new           unless valid_config_uri?
       raise Errors::EthonOptionsConfigurationError.new  unless ethon_easy_options.is_a?(Hash)
     end

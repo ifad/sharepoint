@@ -44,7 +44,7 @@ module Sharepoint
           auth_scope: config.auth_scope
         }.to_json
 
-        headers = headers = {'Content-Type' => 'application/json'}
+        headers = {'Content-Type' => 'application/json'}
 
         ethon = Ethon::Easy.new(followlocation: true)
         ethon.http_request(config.token_url, :post, body: auth_request, headers: headers)
@@ -424,10 +424,8 @@ module Sharepoint
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
-      easy.headers = {
-        'accept' => 'application/json;odata=verbose',
-        'X-RequestDigest' => xrequest_digest(site_path)
-      }
+      easy.headers = with_authentication_header({ 'accept' => 'application/json;odata=verbose',
+                       'X-RequestDigest' => xrequest_digest(site_path) })
       easy.http_request(url, :post, { body: content })
       easy.perform
       check_and_raise_failure(easy)
@@ -455,13 +453,11 @@ module Sharepoint
       prepared_metadata = prepare_metadata(metadata, __metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = {
-        'accept' => 'application/json;odata=verbose',
-        'content-type' => 'application/json;odata=verbose',
-        'X-RequestDigest' => xrequest_digest(site_path),
-        'X-Http-Method' => 'PATCH',
-        'If-Match' => '*'
-      }
+      easy.headers = with_authentication_header({ 'accept' =>  'application/json;odata=verbose',
+                       'content-type' =>  'application/json;odata=verbose',
+                       'X-RequestDigest' =>  xrequest_digest(site_path),
+                       'X-Http-Method' =>  'PATCH',
+                       'If-Match' => "*" })
       easy.http_request(update_metadata_url,
                         :post,
                         { body: prepared_metadata })
@@ -539,16 +535,24 @@ module Sharepoint
       parsed_response_body = JSON.parse(easy.response_body)
 
       page_content = if fields
-                       parsed_response_body['d']['results'].map { |v| v.fetch_values(*fields) }
-                     else
-                       parsed_response_body['d']['results']
-                     end
+        parsed_response_body['d']['results'].map{|v|v.fetch_values(*fields)}
+      else
+        parsed_response_body['d']['results']
+      end
 
       if next_url = parsed_response_body['d']['__next']
         page_content + process_url(next_url, fields)
       else
         page_content
       end
+    end
+
+    def with_authentication_header(h)
+      h.merge(auth_header)
+    end
+
+    def auth_header
+      {"Authorization" => bearer_auth }
     end
 
     def base_url
@@ -576,11 +580,9 @@ module Sharepoint
     end
 
     def ethon_easy_json_requester
-      authenticating do
-        easy = ethon_easy_requester
-        easy.headers  = { 'accept'=> 'application/json;odata=verbose', 'authentication' => bearer_auth }
-        easy
-      end
+      easy = ethon_easy_requester
+      easy.headers = with_authentication_header({ 'accept'=> 'application/json;odata=verbose'})
+      easy
     end
 
     def ethon_easy_options
@@ -588,10 +590,11 @@ module Sharepoint
     end
 
     def ethon_easy_requester
-      easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
-      easy.username = config.username
-      easy.password = config.password
-      easy
+      authenticating do
+        easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+        easy.headers = auth_header
+        easy
+      end
     end
 
     # When you send a POST request, the request must include the form digest
@@ -838,13 +841,11 @@ module Sharepoint
       prepared_metadata = prepare_metadata(new_metadata, metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = {
-        'accept' => 'application/json;odata=verbose',
-        'content-type' => 'application/json;odata=verbose',
-        'X-RequestDigest' => xrequest_digest(site_path),
-        'X-Http-Method' => 'PATCH',
-        'If-Match' => '*'
-      }
+      easy.headers = with_authentication_header({ 'accept' =>  'application/json;odata=verbose',
+                       'content-type' =>  'application/json;odata=verbose',
+                       'X-RequestDigest' =>  xrequest_digest(site_path),
+                       'X-Http-Method' =>  'PATCH',
+                       'If-Match' => "*" })
 
       easy.http_request(update_metadata_url,
                         :post,

@@ -3,15 +3,13 @@
 require 'spec_helper'
 
 describe Sharepoint::Client do
-  before { mock_requests }
-
-  let(:config) do
-    {
-      username: ENV.fetch('SP_USERNAME', nil),
-      password: ENV.fetch('SP_PASSWORD', nil),
-      uri: ENV.fetch('SP_URL', nil)
-    }
+  before do
+    mock_requests
+    mock_token_responses
   end
+
+  let(:config) { sp_config }
+
   let(:client) { described_class.new(config) }
 
   describe '#documents_for' do

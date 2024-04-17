@@ -36,6 +36,23 @@ module Sharepoint
       end
 
       def fetch
+        response = request_new_token
+
+        details = response["Token"]
+        self.fetched_at = Time.now.utc.to_i
+        self.expires_in = details["expires_in"]
+        self.access_token = details["access_token"]
+      end
+
+      private
+
+      def expired?
+        return true unless fetched_at && expires_in
+
+        (fetched_at + expires_in) < Time.now.utc.to_i
+      end
+
+      def request_new_token
         auth_request = {
           client_id: config.client_id,
           client_secret: config.client_secret,
@@ -52,20 +69,7 @@ module Sharepoint
 
         raise InvalidTokenError.new(ethon.response_body.to_s) unless ethon.response_code == 200
 
-        response = JSON.parse(ethon.response_body)
-
-        details = response["Token"]
-        self.fetched_at = Time.now.utc.to_i
-        self.expires_in = details["expires_in"]
-        self.access_token = details["access_token"]
-      end
-
-      private
-
-      def expired?
-        return true unless fetched_at && expires_in
-
-        (fetched_at + expires_in) < Time.now.utc.to_i
+        JSON.parse(ethon.response_body)
       end
     end  # endof Token
 
@@ -90,8 +94,11 @@ module Sharepoint
     #
     # @param [Hash] config The client options:
     #  - `:uri` The SharePoint server's root url
-    #  - `:username` self-explanatory
-    #  - `:password` self-explanatory
+    #  - `:client_id` self-explanatory
+    #  - `:client_secret` self-explanatory
+    #  - `:tenant_id` self-explanatory
+    #  - `:cert_name` self-explanatory
+    #  - `:auth_scope` self-explanatory
     # @return [Sharepoint::Client] client object
     def initialize(config = {})
       @config = OpenStruct.new(config)
@@ -664,26 +671,30 @@ module Sharepoint
 
     def validate_ouath_config
       [:client_id, :client_secret, :tenant_id, :cert_name, :auth_scope].map do |opt|
-        next if config.send(opt).present?
+        c = config.send(opt)
+
+        next if c.present? && string_not_blank?(c)
         opt
       end.compact
     end
 
     def validate_config!
       invalid_oauth_opts = validate_ouath_config
-      raise Errors::InvalidOauthConfigError.new(invalid_oauth_opts)      unless invalid_oauth_opts.empty?
-      raise Errors::UriConfigurationError.new           unless valid_config_uri?
-      raise Errors::EthonOptionsConfigurationError.new  unless ethon_easy_options.is_a?(Hash)
+
+      raise Errors::InvalidOauthConfigError.new(invalid_oauth_opts) unless invalid_oauth_opts.empty?
+      raise Errors::UriConfigurationError.new                       unless valid_uri?(config.auth_scope)
+      raise Errors::UriConfigurationError.new                       unless valid_uri?(config.uri)
+      raise Errors::EthonOptionsConfigurationError.new              unless ethon_easy_options.is_a?(Hash)
     end
 
     def string_not_blank?(object)
       !object.nil? && object != '' && object.is_a?(String)
     end
 
-    def valid_config_uri?
-      if @config.uri and @config.uri.is_a? String
-        uri = URI.parse(@config.uri)
-        uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+    def valid_uri?(which)
+      if which and which.is_a? String
+        uri = URI.parse(which)
+        uri.kind_of?(URI::HTTP) || uri.kind_of?(URI::HTTPS)
       else
         false
       end

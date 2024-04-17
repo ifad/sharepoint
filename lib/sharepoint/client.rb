@@ -26,7 +26,7 @@ module Sharepoint
         @config = config
       end
 
-      def ensure
+      def get_or_fetch
         return access_token unless access_token.nil? || expired?
         fetch
       end
@@ -70,12 +70,12 @@ module Sharepoint
     end  # endof Token
 
     def authenticating(&block)
-      ensure_token
+      get_token
       yield
     end
 
-    def ensure_token
-      token.ensure
+    def get_token
+      token.get_or_fetch
     end
 
     def bearer_auth

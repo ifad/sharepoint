@@ -1,8 +1,8 @@
 # SharePoint Access
-
-SP_CLIENT_ID= foo
-SP_CLIENT_SECRET= foo
-SP_TENANT_ID= foo
-SP_CERT_NAME= foo
-SP_AUTH_SCOPE= https://foobar.ifad.org
-SP_URL= https://foobar.ifad.org
+SP_AUTHENTICATION=token
+SP_CLIENT_ID=foo
+SP_CLIENT_SECRET=foo
+SP_TENANT_ID=foo
+SP_CERT_NAME=foo
+SP_AUTH_SCOPE=https://foobar.ifad.org
+SP_URL=https://foobar.ifad.org

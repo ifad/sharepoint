@@ -37,15 +37,28 @@ describe Sharepoint::Client do
       end
     end
 
-    context 'with ethon easy options' do
-      context 'with success' do
-        subject(:client) { described_class.new(config_ethon) }
+    context "correct authentication" do
+      [{ value: "ntlm",  name:   'ntlm' },
+       { value: "token", name:   'token' } ].each do |ocurrence|
 
+        it "should not raise authentication configuration error for #{ ocurrence[:name]} authentication" do
+          correct_config = config
+          correct_config[:authentication] = ocurrence[:value]
+
+          expect {
+           described_class.new(correct_config)
+          }.not_to raise_error(Sharepoint::Errors::InvalidAuthenticationError)
+        end
+      end
+    end
+
+    context 'ethon easy options' do
+      context 'success' do
         let(:config_ethon) { config.merge({ ethon_easy_options: ssl_verifypeer }) }
         let(:ssl_verifypeer) { { ssl_verifypeer: false } }
 
         it 'sets ethon easy options in the client' do
-          expect(client.send(:ethon_easy_options)).to eql(ssl_verifypeer)
+          expect(described_class.new(config_ethon).send(:ethon_easy_options)).to eql(ssl_verifypeer)
         end
       end
 
@@ -62,115 +75,172 @@ describe Sharepoint::Client do
 
     context 'failure' do
 
-      context "bad client_id" do
+      context "bad authentication" do
         [{ value: nil, name:   'nil' },
          { value:  '', name: 'blank' },
          { value: 344, name:     344 } ].each do |ocurrence|
 
-          it "should raise client_id configuration error for #{ ocurrence[:name]} client_id" do
+          it "should raise authentication configuration error for #{ ocurrence[:name]} authentication" do
             wrong_config = config
-            wrong_config[:client_id] = ocurrence[:value]
+            wrong_config[:authentication] = ocurrence[:value]
 
             expect {
              described_class.new(wrong_config)
-            }.to raise_error(Sharepoint::Errors::InvalidOauthConfigError)
+            }.to raise_error(Sharepoint::Errors::InvalidAuthenticationError)
           end
         end
       end
+      
+      context "token" do
+        before { ENV['SP_AUTHENTICATION'] = 'token' }
 
-      context "bad client_secret" do
-        [{ value: nil, name:   'nil' },
-         { value:  '', name: 'blank' },
-         { value: 344, name:     344 } ].each do |ocurrence|
+        context "bad client_id" do
+          [{ value: nil, name:   'nil' },
+          { value:  '', name: 'blank' },
+          { value: 344, name:     344 } ].each do |ocurrence|
 
-          it "should raise client_secret configuration error for #{ocurrence[:name]} client_secret" do
-            wrong_config = config
-            wrong_config[:client_secret] = ocurrence[:value]
+            it "should raise client_id configuration error for #{ ocurrence[:name]} client_id" do
+              wrong_config = config
+              wrong_config[:client_id] = ocurrence[:value]
 
-            expect{
-              described_class.new(wrong_config)
-            }.to raise_error(Sharepoint::Errors::InvalidOauthConfigError)
-          end
-        end
-      end
-
-      context "bad tenant_id" do
-        [{ value: nil, name:   'nil' },
-         { value:  '', name: 'blank' },
-         { value: 344, name:     344 } ].each do |ocurrence|
-
-          it "should raise tenant_id configuration error for #{ocurrence[:name]} tenant_id" do
-            wrong_config = config
-            wrong_config[:tenant_id] = ocurrence[:value]
-
-            expect {
-              described_class.new(wrong_config)
-            }.to raise_error(Sharepoint::Errors::InvalidOauthConfigError)
-          end
-        end
-      end
-
-      context "bad cert_name" do
-        [{ value: nil, name:   'nil' },
-         { value:  '', name: 'blank' },
-         { value: 344, name:     344 } ].each do |ocurrence|
-
-          it "should raise cert_name configuration error for #{ocurrence[:name]} cert_name" do
-            wrong_config = config
-            wrong_config[:cert_name] = ocurrence[:value]
-
-            expect {
-              described_class.new(wrong_config)
-            }.to raise_error(Sharepoint::Errors::InvalidOauthConfigError)
-          end
-        end
-      end
-
-      context "bad auth_scope" do
-        [{ value:                  nil, name:         'nil' },
-         { value:                   '', name:       'blank' },
-         { value:                  344, name:           344 }].each do |ocurrence|
-
-          it "should raise auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
-            wrong_config = config
-            wrong_config[:auth_scope] = ocurrence[:value]
-
-            expect {
-              described_class.new(wrong_config)
-            }.to raise_error(Sharepoint::Errors::InvalidOauthConfigError)
+              expect {
+                described_class.new(wrong_config)
+              }.to raise_error(Sharepoint::Errors::InvalidTokenConfigError)
+            end
           end
         end
 
-      end
+        context "bad client_secret" do
+          [{ value: nil, name:   'nil' },
+          { value:  '', name: 'blank' },
+          { value: 344, name:     344 } ].each do |ocurrence|
 
-      context "bad auth_scope" do
-        [{ value: 'ftp://www.test.com', name: "invalid auth_scope" }].each do |ocurrence|
+            it "should raise client_secret configuration error for #{ocurrence[:name]} client_secret" do
+              wrong_config = config
+              wrong_config[:client_secret] = ocurrence[:value]
 
-          it "should raise auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
-            wrong_config = config
-            wrong_config[:auth_scope] = ocurrence[:value]
-
-            expect {
-              described_class.new(wrong_config)
-            }.to raise_error(Sharepoint::Errors::UriConfigurationError)
+              expect {
+                described_class.new(wrong_config)
+              }.to raise_error(Sharepoint::Errors::InvalidTokenConfigError)
+            end
           end
         end
 
+        context "bad tenant_id" do
+          [{ value: nil, name:   'nil' },
+          { value:  '', name: 'blank' },
+          { value: 344, name:     344 } ].each do |ocurrence|
+
+            it "should raise tenant_id configuration error for #{ocurrence[:name]} tenant_id" do
+              wrong_config = config
+              wrong_config[:tenant_id] = ocurrence[:value]
+
+              expect {
+                described_class.new(wrong_config)
+              }.to raise_error(Sharepoint::Errors::InvalidTokenConfigError)
+            end
+          end
+        end
+
+        context "bad cert_name" do
+          [{ value: nil, name:   'nil' },
+          { value:  '', name: 'blank' },
+          { value: 344, name:     344 } ].each do |ocurrence|
+
+            it "should raise cert_name configuration error for #{ocurrence[:name]} cert_name" do
+              wrong_config = config
+              wrong_config[:cert_name] = ocurrence[:value]
+
+              expect {
+                described_class.new(wrong_config)
+              }.to raise_error(Sharepoint::Errors::InvalidTokenConfigError)
+            end
+          end
+        end
+
+        context "bad auth_scope" do
+          [{ value:                  nil, name:         'nil' },
+          { value:                   '', name:       'blank' },
+          { value:                  344, name:           344 }].each do |ocurrence|
+
+            it "should raise auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
+              wrong_config = config
+              wrong_config[:auth_scope] = ocurrence[:value]
+
+              expect {
+                described_class.new(wrong_config)
+              }.to raise_error(Sharepoint::Errors::InvalidTokenConfigError)
+            end
+          end
+
+        end
+
+        context "bad auth_scope" do
+          [{ value: 'ftp://www.test.com', name: "invalid auth_scope" }].each do |ocurrence|
+
+            it "should raise auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
+              wrong_config = config
+              wrong_config[:auth_scope] = ocurrence[:value]
+
+              expect {
+                described_class.new(wrong_config)
+              }.to raise_error(Sharepoint::Errors::UriConfigurationError)
+            end
+          end
+
+        end
+
+        context "bad uri" do
+          [{ value:                  nil, name:         'nil' },
+          { value:                   '', name:       'blank' },
+          { value:                  344, name:           344 },
+          { value: 'ftp://www.test.com', name: "invalid uri" }].each do |ocurrence|
+
+            it "should raise uri configuration error for #{ocurrence[:name]} uri" do
+              wrong_config = config
+              wrong_config[:uri] = ocurrence[:value]
+
+              expect {
+                described_class.new(wrong_config)
+              }.to raise_error(Sharepoint::Errors::UriConfigurationError)
+            end
+          end
+
+        end
       end
 
-      context "bad uri" do
-        [{ value:                  nil, name:         'nil' },
-         { value:                   '', name:       'blank' },
-         { value:                  344, name:           344 },
-         { value: 'ftp://www.test.com', name: "invalid uri" }].each do |ocurrence|
+      context "ntlm" do
+        before { ENV['SP_AUTHENTICATION'] = 'ntlm' }
 
-          it "should raise uri configuration error for #{ocurrence[:name]} uri" do
-            wrong_config = config
-            wrong_config[:uri] = ocurrence[:value]
+        context "bad username" do
+          [{ value: nil, name:   'nil' },
+          { value:  '', name: 'blank' },
+          { value: 344, name:     344 } ].each do |ocurrence|
 
-            expect do
+            it "should raise username configuration error for #{ ocurrence[:name]} username" do
+              wrong_config = config
+              wrong_config[:username] = ocurrence[:value]
+
+              expect {
               described_class.new(wrong_config)
-            end.to raise_error(Sharepoint::Errors::UriConfigurationError)
+              }.to raise_error(Sharepoint::Errors::InvalidNTLMConfigError)
+            end
+          end
+        end
+
+        context "bad password" do
+          [{ value: nil, name:   'nil' },
+          { value:  '', name: 'blank' },
+          { value: 344, name:     344 } ].each do |ocurrence|
+
+            it "should raise password configuration error for #{ocurrence[:name]} password" do
+              wrong_config = config
+              wrong_config[:password] = ocurrence[:value]
+
+              expect {
+                described_class.new(wrong_config)
+              }.to raise_error(Sharepoint::Errors::InvalidNTLMConfigError)
+            end
           end
         end
       end

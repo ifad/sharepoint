@@ -14,11 +14,14 @@ module Sharepoint
     def sp_config
       {
         uri: ENV['SP_URL'],
+        authentication: ENV['SP_AUTHENTICATION'],
         client_id: ENV['SP_CLIENT_ID'],
         client_secret: ENV['SP_CLIENT_SECRET'],
         tenant_id: ENV['SP_TENANT_ID'],
         cert_name: ENV['SP_CERT_NAME'],
-        auth_scope: ENV['SP_AUTH_SCOPE']
+        auth_scope: ENV['SP_AUTH_SCOPE'],
+        username: ENV['SP_USERNAME'],
+        password: ENV['SP_PASSWORD']
       }
     end
 

@@ -6,72 +6,13 @@ require 'time'
 
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
+require 'sharepoint/client/token'
 
 module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
-    attr_accessor :token
-
-    class InvalidTokenError < StandardError
-    end
-
-    class Token
-      attr_accessor :expires_in
-      attr_accessor :access_token
-      attr_accessor :fetched_at
-      attr_reader :config
-
-      def initialize(config)
-        @config = config
-      end
-
-      def get_or_fetch
-        return access_token unless access_token.nil? || expired?
-        fetch
-      end
-
-      def to_s
-        access_token
-      end
-
-      def fetch
-        response = request_new_token
-
-        details = response["Token"]
-        self.fetched_at = Time.now.utc.to_i
-        self.expires_in = details["expires_in"]
-        self.access_token = details["access_token"]
-      end
-
-      private
-
-      def expired?
-        return true unless fetched_at && expires_in
-
-        (fetched_at + expires_in) < Time.now.utc.to_i
-      end
-
-      def request_new_token
-        auth_request = {
-          client_id: config.client_id,
-          client_secret: config.client_secret,
-          tenant_id: config.tenant_id,
-          cert_name: config.cert_name,
-          auth_scope: config.auth_scope
-        }.to_json
-
-        headers = {'Content-Type' => 'application/json'}
-
-        ethon = Ethon::Easy.new(followlocation: true)
-        ethon.http_request(config.token_url, :post, body: auth_request, headers: headers)
-        ethon.perform
-
-        raise InvalidTokenError.new(ethon.response_body.to_s) unless ethon.response_code == 200
-
-        JSON.parse(ethon.response_body)
-      end
-    end  # endof Token
+    attr_accessor :token  
 
     def authenticating(&block)
       get_token
@@ -94,6 +35,9 @@ module Sharepoint
     #
     # @param [Hash] config The client options:
     #  - `:uri` The SharePoint server's root url
+    #  - `:authentication` The authentication method to use [:ntlm, :token]
+    #  - `:username` self-explanatory
+    #  - `:password` self-explanatory
     #  - `:client_id` self-explanatory
     #  - `:client_secret` self-explanatory
     #  - `:tenant_id` self-explanatory
@@ -597,10 +541,16 @@ module Sharepoint
     end
 
     def ethon_easy_requester
-      authenticating do
-        easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
-        easy.headers = auth_header
-        easy
+      case config.authentication
+        when "token"
+          easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+          easy.headers = auth_header
+          easy
+        when "ntlm"
+          easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+          easy.username = config.username
+          easy.password = config.password
+          easy
       end
     end
 
@@ -669,20 +619,39 @@ module Sharepoint
       }
     end
 
-    def validate_ouath_config
-      [:client_id, :client_secret, :tenant_id, :cert_name, :auth_scope].map do |opt|
-        c = config.send(opt)
+    def validate_token_config
+      valid_config_options( %i(client_id client_secret tenant_id cert_name auth_scope) )
+    end
 
+    def validate_ntlm_config
+      valid_config_options( %i(username password) )
+    end
+    
+    def valid_config_options(options = [])
+      options.map do |opt|
+        c = config.send(opt)
+  
         next if c.present? && string_not_blank?(c)
         opt
       end.compact
     end
 
     def validate_config!
-      invalid_oauth_opts = validate_ouath_config
+      raise Errors::InvalidAuthenticationError.new                    unless valid_authentication?(config.authentication)
 
-      raise Errors::InvalidOauthConfigError.new(invalid_oauth_opts) unless invalid_oauth_opts.empty?
-      raise Errors::UriConfigurationError.new                       unless valid_uri?(config.auth_scope)
+      if config.authentication == "token"
+        invalid_token_opts = validate_token_config
+
+        raise Errors::InvalidTokenConfigError.new(invalid_token_opts) unless invalid_token_opts.empty?
+        raise Errors::UriConfigurationError.new                       unless valid_uri?(config.auth_scope)
+      end
+
+      if config.authentication == "ntlm"
+        invalid_ntlm_opts = validate_ntlm_config
+
+        raise Errors::InvalidNTLMConfigError.new(invalid_ntlm_opts) unless invalid_ntlm_opts.empty?
+      end
+      
       raise Errors::UriConfigurationError.new                       unless valid_uri?(config.uri)
       raise Errors::EthonOptionsConfigurationError.new              unless ethon_easy_options.is_a?(Hash)
     end
@@ -698,6 +667,10 @@ module Sharepoint
       else
         false
       end
+    end
+
+    def valid_authentication?(which)
+      %w(ntlm token).include?(which)
     end
 
     # Waiting for RFC 3986 to be implemented, we need to escape square brackets

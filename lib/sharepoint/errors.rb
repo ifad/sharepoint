@@ -12,10 +12,26 @@ module Sharepoint
       end
     end
 
-    class InvalidOauthConfigError < StandardError
+    class InvalidAuthenticationError < StandardError
+      def initialize
+        super "Invalid authentication mechanism"
+      end
+    end
+
+    class InvalidTokenConfigError < StandardError
       def initialize(invalid_entries)
         error_messages = invalid_entries.map do |e|
-          "Invalid #{e} in OAUTH configuration"
+          "Invalid #{e} in Token configuration"
+        end
+
+        super error_messages.join(',')
+      end
+    end
+
+    class InvalidNTLMConfigError < StandardError
+      def initialize(invalid_entries)
+        error_messages = invalid_entries.map do |e|
+          "Invalid #{e} in NTLM configuration"
         end
 
         super error_messages.join(',')

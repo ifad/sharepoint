@@ -12,7 +12,7 @@ module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
-    attr_accessor :token  
+    attr_accessor :token
 
     def authenticating(&block)
       get_token
@@ -375,7 +375,7 @@ module Sharepoint
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
-      easy.headers = with_authentication_header({ 'accept' => 'application/json;odata=verbose',
+      easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose',
                        'X-RequestDigest' => xrequest_digest(site_path) })
       easy.http_request(url, :post, { body: content })
       easy.perform
@@ -404,7 +404,7 @@ module Sharepoint
       prepared_metadata = prepare_metadata(metadata, __metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = with_authentication_header({ 'accept' =>  'application/json;odata=verbose',
+      easy.headers = with_bearer_authentication_header({ 'accept' =>  'application/json;odata=verbose',
                        'content-type' =>  'application/json;odata=verbose',
                        'X-RequestDigest' =>  xrequest_digest(site_path),
                        'X-Http-Method' =>  'PATCH',
@@ -498,11 +498,21 @@ module Sharepoint
       end
     end
 
-    def with_authentication_header(h)
-      h.merge(auth_header)
+    def token_auth?
+      config.authentication == 'token'
     end
 
-    def auth_header
+    def ntlm_auth?
+      config.authentication == 'ntlm'
+    end
+
+    def with_bearer_authentication_header(h)
+      return h if ntlm_auth?
+
+      h.merge(bearer_auth_header)
+    end
+
+    def bearer_auth_header
       {"Authorization" => bearer_auth }
     end
 
@@ -532,7 +542,7 @@ module Sharepoint
 
     def ethon_easy_json_requester
       easy = ethon_easy_requester
-      easy.headers = with_authentication_header({ 'accept'=> 'application/json;odata=verbose'})
+      easy.headers = with_bearer_authentication_header({ 'accept'=> 'application/json;odata=verbose'})
       easy
     end
 
@@ -541,16 +551,15 @@ module Sharepoint
     end
 
     def ethon_easy_requester
-      case config.authentication
-        when "token"
-          easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
-          easy.headers = auth_header
-          easy
-        when "ntlm"
-          easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
-          easy.username = config.username
-          easy.password = config.password
-          easy
+      if token_auth?
+        easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+        easy.headers = with_bearer_authentication_header({})
+        easy
+      elsif ntlm_auth?
+        easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+        easy.username = config.username
+        easy.password = config.password
+        easy
       end
     end
 
@@ -626,11 +635,11 @@ module Sharepoint
     def validate_ntlm_config
       valid_config_options( %i(username password) )
     end
-    
+
     def valid_config_options(options = [])
       options.map do |opt|
         c = config.send(opt)
-  
+
         next if c.present? && string_not_blank?(c)
         opt
       end.compact
@@ -651,7 +660,7 @@ module Sharepoint
 
         raise Errors::InvalidNTLMConfigError.new(invalid_ntlm_opts) unless invalid_ntlm_opts.empty?
       end
-      
+
       raise Errors::UriConfigurationError.new                       unless valid_uri?(config.uri)
       raise Errors::EthonOptionsConfigurationError.new              unless ethon_easy_options.is_a?(Hash)
     end
@@ -825,7 +834,7 @@ module Sharepoint
       prepared_metadata = prepare_metadata(new_metadata, metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = with_authentication_header({ 'accept' =>  'application/json;odata=verbose',
+      easy.headers = with_bearer_authentication_header({ 'accept' =>  'application/json;odata=verbose',
                        'content-type' =>  'application/json;odata=verbose',
                        'X-RequestDigest' =>  xrequest_digest(site_path),
                        'X-Http-Method' =>  'PATCH',

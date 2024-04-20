@@ -21,4 +21,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'webmock'
   gem.add_development_dependency 'byebug'
   gem.add_development_dependency 'ruby-filemagic'
+  gem.add_development_dependency 'simplecov'
 end

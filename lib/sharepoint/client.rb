@@ -16,7 +16,7 @@ module Sharepoint
 
     # Initializes a new client with given options.
     #
-    # @param [Hash] options The client options:
+    # @param [Hash] config The client options:
     #  - `:uri` The SharePoint server's root url
     #  - `:username` self-explanatory
     #  - `:password` self-explanatory

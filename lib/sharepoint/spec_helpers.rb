@@ -1,6 +1,5 @@
 module Sharepoint
   module SpecHelpers
-
     def value_to_string(value)
       case value
         when nil
@@ -28,6 +27,5 @@ module Sharepoint
           File.open("spec/fixtures/responses/#{fixture_file}").read
         )
     end
-
   end
 end

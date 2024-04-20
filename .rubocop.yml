@@ -20,7 +20,6 @@ AllCops:
     - node_modules/**/*
     - tmp/**/*
     - vendor/**/*
-    - lib/**/*
 
 Layout/LineLength:
   Enabled: false

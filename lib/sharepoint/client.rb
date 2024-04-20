@@ -40,7 +40,7 @@ module Sharepoint
 
       threads = []
       rv = []
-      result = JSON.parse( ethon.response_body )
+      result = JSON.parse(ethon.response_body)
       result['d']['results'].each do |file|
         file_struct = OpenStruct.new(
           title: file['Title'],
@@ -75,7 +75,7 @@ module Sharepoint
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return `true` if document exists, false otherwise.
-    def document_exists?(file_path, site_path=nil)
+    def document_exists?(file_path, site_path = nil)
       file = split_path(file_path)
       sanitized_filename = sanitize_filename(file[:name])
       server_relative_url = "#{site_path}#{file[:path]}/#{sanitized_filename}"
@@ -101,7 +101,7 @@ module Sharepoint
     # @param custom_properties [Array] of String with names of custom properties to be returned
     #
     # @return [OpenStruct] with both default and custom metadata
-    def get_document(file_path, site_path=nil, custom_properties=[])
+    def get_document(file_path, site_path = nil, custom_properties = [])
       url = computed_web_api_url(site_path)
       server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
       ethon = ethon_easy_json_requester
@@ -137,7 +137,7 @@ module Sharepoint
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results,
     #      sorted by last modified date (`write`)
-    def search_modified_documents(options={})
+    def search_modified_documents(options = {})
       ethon = ethon_easy_json_requester
       query = uri_escape build_search_kql_conditions(options)
       properties = build_search_properties(options)
@@ -171,7 +171,7 @@ module Sharepoint
     #   * `:requested_url` [String] the URL requested to the SharePoint server
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
-    def search(options={})
+    def search(options = {})
       params = []
       options.each do |key, value|
         params << "#{key}=#{value}"
@@ -203,11 +203,11 @@ module Sharepoint
     #   * `:requested_url` [String] the URL requested to the SharePoint server
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all properties of search results
-    def list_documents(list_name, conditions, site_path=nil, properties=[])
+    def list_documents(list_name, conditions, site_path = nil, properties = [])
       url = computed_web_api_url(site_path)
       filter_param = "$filter=#{conditions}" if conditions.present?
       expand_param = '$expand=Folder,File'
-      default_properties = %w( FileSystemObjectType UniqueId Title Created Modified File )
+      default_properties = %w(FileSystemObjectType UniqueId Title Created Modified File)
       all_properties = default_properties + properties
       select_param = "$select=#{all_properties.join(',')}"
       url = "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Items?#{expand_param}&#{select_param}"
@@ -256,7 +256,7 @@ module Sharepoint
         url = computed_web_api_url(site_path)
         server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
         download_url "#{url}GetFileByServerRelativeUrl('#{server_relative_url}')/$value"
-      else   # requested file is a link
+      else # requested file is a link
         paths = extract_paths(meta.url)
         link_config = { uri: paths[:root] }
         if link_credentials.empty?
@@ -296,8 +296,9 @@ module Sharepoint
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return [Fixnum] HTTP response code
-    def create_folder(name, path, site_path=nil)
+    def create_folder(name, path, site_path = nil)
       return unless name
+
       sanitized_name = sanitize_filename(name)
       url = computed_web_api_url(site_path)
       path = path[1..-1] if path[0].eql?('/')
@@ -324,7 +325,7 @@ module Sharepoint
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return [Fixnum] HTTP response code
-    def folder_exists?(path, site_path=nil)
+    def folder_exists?(path, site_path = nil)
       url = computed_web_api_url(site_path)
       path = [site_path, path].compact.join('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')"
@@ -342,7 +343,7 @@ module Sharepoint
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return [Fixnum] HTTP response code
-    def upload(filename, content, path, site_path=nil)
+    def upload(filename, content, path, site_path = nil)
       sanitized_filename = sanitize_filename(filename)
       url = computed_web_api_url(site_path)
       path = path[1..-1] if path[0].eql?('/')
@@ -364,7 +365,7 @@ module Sharepoint
     # @param site_path [String] if the SP instance contains sites, the site path, e.g. "/sites/my-site"
     #
     # @return [Fixnum] HTTP response code
-    def update_metadata(filename, metadata, path, site_path=nil)
+    def update_metadata(filename, metadata, path, site_path = nil)
       sanitized_filename = sanitize_filename(filename)
       url = computed_web_api_url(site_path)
       server_relative_url = "#{site_path}#{path}/#{sanitized_filename}"
@@ -427,9 +428,8 @@ module Sharepoint
       url = "#{url}lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/items"
       url += "?$select=#{fields.join(",")}" if fields
 
-      process_url( uri_escape(url), fields )
+      process_url(uri_escape(url), fields)
     end
-
 
     # Index a list field. Requires admin permissions
     #
@@ -459,8 +459,8 @@ module Sharepoint
 
       parsed_response_body = JSON.parse(easy.response_body)
 
-      page_content = if fields 
-        parsed_response_body['d']['results'].map{|v|v.fetch_values(*fields)}
+      page_content = if fields
+        parsed_response_body['d']['results'].map { |v| v.fetch_values(*fields) }
       else
         parsed_response_body['d']['results']
       end
@@ -498,7 +498,7 @@ module Sharepoint
 
     def ethon_easy_json_requester
       easy = ethon_easy_requester
-      easy.headers  = { 'accept'=> 'application/json;odata=verbose' }
+      easy.headers = { 'accept' => 'application/json;odata=verbose' }
       easy
     end
 
@@ -515,7 +515,7 @@ module Sharepoint
 
     # When you send a POST request, the request must include the form digest
     # value in the X-RequestDigest header
-    def xrequest_digest(site_path=nil)
+    def xrequest_digest(site_path = nil)
       easy = ethon_easy_json_requester
       url = remove_double_slashes("#{computed_api_url(site_path)}/contextinfo")
       easy.http_request(url, :post, { body: '' })
@@ -526,6 +526,7 @@ module Sharepoint
     def last_location_header(ethon)
       last_redirect_idx = ethon.response_headers.rindex('HTTP/1.1 302')
       return if last_redirect_idx.nil?
+
       last_response_headers = ethon.response_headers[last_redirect_idx..-1]
       location = last_response_headers.match(/\r\n(Location:)(.+)\r\n/)[2].strip
       utf8_encode uri_unescape(location)
@@ -538,7 +539,7 @@ module Sharepoint
     end
 
     def prepare_metadata(metadata, type)
-      metadata.inject("{ '__metadata': { 'type': '#{type}' }"){ |result, element|
+      metadata.inject("{ '__metadata': { 'type': '#{type}' }") { |result, element|
         key = element[0]
         value = element[1]
         result += ", '#{json_escape_single_quote(key.to_s)}': '#{json_escape_single_quote(value.to_s)}'"
@@ -550,14 +551,14 @@ module Sharepoint
     end
 
     def odata_escape_single_quote(s)
-      s.gsub("'","''")
+      s.gsub("'", "''")
     end
 
     def split_path(file_path)
       last_slash_pos = file_path.rindex('/')
       {
-        path: file_path[0..last_slash_pos-1],
-        name: file_path[last_slash_pos+1..-1]
+        path: file_path[0..last_slash_pos - 1],
+        name: file_path[last_slash_pos + 1..-1]
       }
     end
 
@@ -607,8 +608,8 @@ module Sharepoint
     end
 
     def string_unescape(s)
-      s.gsub!(/\\(?:[abfnrtv])/, '')  # remove control chars
-      s.gsub!('"', '\"')  # escape double quotes
+      s.gsub!(/\\(?:[abfnrtv])/, '') # remove control chars
+      s.gsub!('"', '\"') # escape double quotes
       eval %Q{"#{s}"}
     end
 
@@ -627,7 +628,7 @@ module Sharepoint
         else
           extension_length = sanitized_filename.length - dot_index
           upper_bound = 127 - extension_length
-          sanitized_filename = sanitized_filename[0..upper_bound] + sanitized_filename[dot_index..sanitized_filename.length-1]
+          sanitized_filename = sanitized_filename[0..upper_bound] + sanitized_filename[dot_index..sanitized_filename.length - 1]
         end
       end
       odata_escape_single_quote(sanitized_filename)
@@ -689,12 +690,13 @@ module Sharepoint
       results.each do |result|
         # Skip folders
         next unless result['FileSystemObjectType'].eql? 0
+
         record = {}
         (all_properties - ['File', 'URL']).each do |key|
           record[key.underscore.to_sym] = result[key]
         end
         file = result['File']
-        %w( Name ServerRelativeUrl Length).each do |key|
+        %w(Name ServerRelativeUrl Length).each do |key|
           record[key.underscore.to_sym] = file[key]
         end
         record[:url] = result['URL'].nil? ? nil : result['URL']['Url']
@@ -705,7 +707,7 @@ module Sharepoint
 
     def parse_get_document_response(response_body, custom_properties)
       all_props = JSON.parse(response_body)['d']
-      default_properties = %w( GUID Title Created Modified )
+      default_properties = %w(GUID Title Created Modified)
       keys = default_properties + custom_properties
       props = {}
       keys.each do |key|

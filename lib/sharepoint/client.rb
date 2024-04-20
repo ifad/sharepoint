@@ -592,7 +592,7 @@ module Sharepoint
     def valid_config_uri?
       if @config.uri and @config.uri.is_a? String
         uri = URI.parse(@config.uri)
-        uri.kind_of?(URI::HTTP) || uri.kind_of?(URI::HTTPS)
+        uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
       else
         false
       end

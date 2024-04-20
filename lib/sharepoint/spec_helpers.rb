@@ -2,12 +2,12 @@ module Sharepoint
   module SpecHelpers
     def value_to_string(value)
       case value
-        when nil
-          "nil"
-        when ""
-          "blank"
-        else
-          value
+      when nil
+        'nil'
+      when ''
+        'blank'
+      else
+        value
       end
     end
 
@@ -24,7 +24,7 @@ module Sharepoint
       allow_any_instance_of(Ethon::Easy)
         .to receive(:response_body)
         .and_return(
-          File.open("spec/fixtures/responses/#{fixture_file}").read
+          File.read("spec/fixtures/responses/#{fixture_file}")
         )
     end
   end

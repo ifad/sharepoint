@@ -6,6 +6,280 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, IndentOneStep, IndentationWidth.
+# SupportedStyles: case, end
+Layout/CaseIndentation:
+  Exclude:
+    - 'lib/sharepoint/spec_helpers.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+Layout/ElseAlignment:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyleAlignWith, Severity.
+# SupportedStylesAlignWith: keyword, variable, start_of_line
+Layout/EndAlignment:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: special_inside_parentheses, consistent, align_braces
+Layout/FirstHashElementIndentation:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowMultipleStyles, EnforcedHashRocketStyle, EnforcedColonStyle, EnforcedLastArgumentHashStyle.
+# SupportedHashRocketStyles: key, separator, table
+# SupportedColonStyles: key, separator, table
+# SupportedLastArgumentHashStyles: always_inspect, always_ignore, ignore_implicit, ignore_explicit
+Layout/HashAlignment:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: Width, AllowedPatterns.
+Layout/IndentationWidth:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: aligned, indented, indented_relative_to_receiver
+Layout/MultilineMethodCallIndentation:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: AllowSafeAssignment.
+Lint/AssignmentInCondition:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# Configuration parameters: AllowKeywordBlockArguments.
+Lint/UnderscorePrefixedVariableName:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: AutoCorrect.
+Lint/UselessAssignment:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
+Metrics/AbcSize:
+  Max: 42
+
+# Configuration parameters: CountComments, CountAsOne.
+Metrics/ClassLength:
+  Max: 514
+
+# Configuration parameters: CountComments, CountAsOne, AllowedMethods, AllowedPatterns.
+Metrics/MethodLength:
+  Max: 31
+
+# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
+# AllowedNames: as, at, by, cc, db, id, if, in, io, ip, of, on, os, pp, to
+Naming/MethodParameterName:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# Configuration parameters: MinSize.
+Performance/CollectionLiteralInLoop:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+Performance/RangeInclude:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+Performance/UnfreezeString:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
 RSpec/AnyInstance:
   Exclude:
     - 'spec/lib/sharepoint/client_methods_spec.rb'
+
+Security/Eval:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: always, conditionals
+Style/AndOr:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: percent_q, bare_percent
+Style/BarePercentLiterals:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, AllowedMethods, AllowedPatterns, AllowBracesOnProceduralOneLiners, BracesRequiredMethods.
+# SupportedStyles: line_count_based, semantic, braces_for_chaining, always_braces
+# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
+# FunctionalMethods: let, let!, subject, watch
+# AllowedMethods: lambda, proc, it
+Style/BlockDelimiters:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: is_a?, kind_of?
+Style/ClassCheck:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+Style/DocumentDynamicEvalDefinition:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# Configuration parameters: AllowedConstants.
+Style/Documentation:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+    - 'lib/sharepoint/errors.rb'
+    - 'lib/sharepoint/spec_helpers.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+Style/EvalWithLocation:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+Style/FileRead:
+  Exclude:
+    - 'lib/sharepoint/spec_helpers.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: always, always_true, never
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - 'lib/sharepoint.rb'
+    - 'lib/sharepoint/client.rb'
+    - 'lib/sharepoint/errors.rb'
+    - 'lib/sharepoint/spec_helpers.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: MinBodyLength, AllowConsecutiveConditionals.
+Style/GuardClause:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+Style/IfUnlessModifier:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+Style/MapIntoArray:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: literals, strict
+Style/MutableConstant:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowedMethods.
+# AllowedMethods: be, be_a, be_an, be_between, be_falsey, be_kind_of, be_instance_of, be_truthy, be_within, eq, eql, end_with, include, match, raise_error, respond_to, start_with
+Style/NestedParenthesizedCalls:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: PreferredDelimiters.
+Style/PercentLiteralDelimiters:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: AllowedCompactTypes.
+# SupportedStyles: compact, exploded
+Style/RaiseArgs:
+  EnforcedStyle: compact
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowMultipleReturnValues.
+Style/RedundantReturn:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, AllowInnerSlashes.
+# SupportedStyles: slashes, percent_r, mixed
+Style/RegexpLiteral:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods, MaxChainLength.
+# AllowedMethods: present?, blank?, presence, try, try!
+Style/SafeNavigation:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: Mode.
+Style/StringConcatenation:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
+# SupportedStyles: single_quotes, double_quotes
+Style/StringLiterals:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+    - 'lib/sharepoint/errors.rb'
+    - 'lib/sharepoint/spec_helpers.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: single_quotes, double_quotes
+Style/StringLiteralsInInterpolation:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+Style/SuperWithArgsParentheses:
+  Exclude:
+    - 'lib/sharepoint/errors.rb'
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: AllowMethodsWithArguments, AllowedMethods, AllowedPatterns, AllowComments.
+# AllowedMethods: define_method, mail, respond_to
+Style/SymbolProc:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: EnforcedStyleForMultiline.
+# SupportedStylesForMultiline: comma, consistent_comma, no_comma
+Style/TrailingCommaInArguments:
+  Exclude:
+    - 'lib/sharepoint/client.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: WordRegex.
+# SupportedStyles: percent, brackets
+Style/WordArray:
+  EnforcedStyle: percent
+  MinSize: 3

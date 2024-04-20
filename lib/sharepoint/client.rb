@@ -1,8 +1,8 @@
-require "ostruct"
-require "ethon"
-require "uri"
-require "json"
-require "time"
+require 'ostruct'
+require 'ethon'
+require 'uri'
+require 'json'
+require 'time'
 
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
@@ -50,7 +50,7 @@ module Sharepoint
           created_at: Time.parse(file['TimeCreated']),
           updated_at: Time.parse(file['TimeLastModified']),
           record_type: nil,
-          date_of_issue: nil,
+          date_of_issue: nil
         )
 
         threads << Thread.new {
@@ -91,7 +91,7 @@ module Sharepoint
           exists = true
         end
       end
-      return exists
+      exists
     end
 
     # Get a document's metadata
@@ -237,7 +237,7 @@ module Sharepoint
       ethon.perform
       check_and_raise_failure(ethon)
 
-      return JSON.parse(ethon.response_body)
+      JSON.parse(ethon.response_body)
     end
 
     # Get a document's file contents. If it's a link to another document, it's followed.
@@ -382,7 +382,7 @@ module Sharepoint
                        'content-type' =>  'application/json;odata=verbose',
                        'X-RequestDigest' =>  xrequest_digest(site_path),
                        'X-Http-Method' =>  'PATCH',
-                       'If-Match' => "*" }
+                       'If-Match' => '*' }
       easy.http_request(update_metadata_url,
                         :post,
                         { body: prepared_metadata })
@@ -426,7 +426,7 @@ module Sharepoint
     def index(list_name, site_path = '', fields = [])
       url = computed_web_api_url(site_path)
       url = "#{url}lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/items"
-      url += "?$select=#{fields.join(",")}" if fields
+      url += "?$select=#{fields.join(',')}" if fields
 
       process_url(uri_escape(url), fields)
     end
@@ -460,10 +460,10 @@ module Sharepoint
       parsed_response_body = JSON.parse(easy.response_body)
 
       page_content = if fields
-        parsed_response_body['d']['results'].map { |v| v.fetch_values(*fields) }
-      else
-        parsed_response_body['d']['results']
-      end
+                       parsed_response_body['d']['results'].map { |v| v.fetch_values(*fields) }
+                     else
+                       parsed_response_body['d']['results']
+                     end
 
       if next_url = parsed_response_body['d']['__next']
         page_content + process_url(next_url, fields)
@@ -520,7 +520,7 @@ module Sharepoint
       url = remove_double_slashes("#{computed_api_url(site_path)}/contextinfo")
       easy.http_request(url, :post, { body: '' })
       easy.perform
-      JSON.parse(easy.response_body)['d']["GetContextWebInformation"]["FormDigestValue"]
+      JSON.parse(easy.response_body)['d']['GetContextWebInformation']['FormDigestValue']
     end
 
     def last_location_header(ethon)
@@ -543,7 +543,7 @@ module Sharepoint
         key = element[0]
         value = element[1]
         result += ", '#{json_escape_single_quote(key.to_s)}': '#{json_escape_single_quote(value.to_s)}'"
-      } + " }"
+      } + ' }'
     end
 
     def json_escape_single_quote(s)
@@ -564,7 +564,7 @@ module Sharepoint
 
     def extract_paths(url)
       unescaped_url = string_unescape(url)
-      uri = URI(uri_escape unescaped_url)
+      uri = URI(uri_escape(unescaped_url))
       path = utf8_encode uri_unescape(uri.path)
       sites_match = /\/sites\/[^\/]+/.match(path)
       site_path = sites_match[0] unless sites_match.nil?
@@ -586,7 +586,7 @@ module Sharepoint
     end
 
     def string_not_blank?(object)
-      !object.nil? && object != "" && object.is_a?(String)
+      !object.nil? && object != '' && object.is_a?(String)
     end
 
     def valid_config_uri?
@@ -636,8 +636,8 @@ module Sharepoint
 
     def build_search_kql_conditions(options)
       conditions = []
-      conditions << "IsContainer<>true"
-      conditions << "contentclass:STS_ListItem"
+      conditions << 'IsContainer<>true'
+      conditions << 'contentclass:STS_ListItem'
       conditions << "WebId=#{options[:web_id]}" unless options[:web_id].nil?
       conditions << "ListId:#{options[:list_id]}" unless options[:list_id].nil?
       "'#{conditions.join('+')}'"
@@ -751,7 +751,7 @@ module Sharepoint
                        'content-type' =>  'application/json;odata=verbose',
                        'X-RequestDigest' =>  xrequest_digest(site_path),
                        'X-Http-Method' =>  'PATCH',
-                       'If-Match' => "*" }
+                       'If-Match' => '*' }
 
       easy.http_request(update_metadata_url,
                         :post,

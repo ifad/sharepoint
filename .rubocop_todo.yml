@@ -111,13 +111,6 @@ Style/BlockDelimiters:
   Exclude:
     - 'lib/sharepoint/client.rb'
 
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: is_a?, kind_of?
-Style/ClassCheck:
-  Exclude:
-    - 'lib/sharepoint/client.rb'
-
 Style/DocumentDynamicEvalDefinition:
   Exclude:
     - 'lib/sharepoint/client.rb'

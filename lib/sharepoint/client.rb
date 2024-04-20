@@ -533,9 +533,9 @@ module Sharepoint
     end
 
     def check_and_raise_failure(ethon)
-      unless (200..299).include? ethon.response_code
-        raise "Request failed, received #{ethon.response_code}:\n#{ethon.url}\n#{ethon.response_body}"
-      end
+      return if (200..299).cover? ethon.response_code
+
+      raise "Request failed, received #{ethon.response_code}:\n#{ethon.url}\n#{ethon.response_body}"
     end
 
     def prepare_metadata(metadata, type)

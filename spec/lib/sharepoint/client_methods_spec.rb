@@ -253,7 +253,7 @@ describe Sharepoint::Client do
   end
 
   describe '#search' do
-    subject { client.search(options) }
+    subject(:search) { client.search(options) }
 
     before { mock_responses('search_modified_documents.json') }
 
@@ -267,6 +267,18 @@ describe Sharepoint::Client do
     end
 
     it { is_expected.not_to be_empty }
+
+    context 'when request fails' do
+      before do
+        allow_any_instance_of(Ethon::Easy)
+          .to receive(:response_code)
+          .and_return(401)
+      end
+
+      it 'raises an error' do
+        expect { search }.to raise_error(/\ARequest failed, received 401.+/)
+      end
+    end
   end
 
   describe '#download' do

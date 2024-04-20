@@ -52,7 +52,7 @@ Metrics/AbcSize:
 
 # Configuration parameters: CountComments, CountAsOne.
 Metrics/ClassLength:
-  Max: 514
+  Max: 513
 
 # Configuration parameters: CountComments, CountAsOne, AllowedMethods, AllowedPatterns.
 Metrics/MethodLength:
@@ -66,11 +66,6 @@ Naming/MethodParameterName:
 
 # Configuration parameters: MinSize.
 Performance/CollectionLiteralInLoop:
-  Exclude:
-    - 'lib/sharepoint/client.rb'
-
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Performance/RangeInclude:
   Exclude:
     - 'lib/sharepoint/client.rb'
 
@@ -136,17 +131,6 @@ Style/FrozenStringLiteralComment:
     - 'lib/sharepoint/client.rb'
     - 'lib/sharepoint/errors.rb'
     - 'lib/sharepoint/spec_helpers.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: MinBodyLength, AllowConsecutiveConditionals.
-Style/GuardClause:
-  Exclude:
-    - 'lib/sharepoint/client.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
-Style/IfUnlessModifier:
-  Exclude:
-    - 'lib/sharepoint/client.rb'
 
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/MapIntoArray:

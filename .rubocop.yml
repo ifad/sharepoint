@@ -1,0 +1,47 @@
+inherit_from: .rubocop_todo.yml
+
+# inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-packaging
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rake
+  - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.3
+  Exclude:
+    - .git/**/*
+    - .github/**/*
+    - bin/**/*
+    - gemfiles/**/*
+    - node_modules/**/*
+    - tmp/**/*
+    - vendor/**/*
+    - lib/**/*
+
+Layout/LineLength:
+  Enabled: false
+
+Rails/TimeZone:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+
+RSpec/NestedGroups:
+  Enabled: false
+
+Style/ArgumentsForwarding:
+  Enabled: false
+
+Style/OpenStructUse:
+  Enabled: false

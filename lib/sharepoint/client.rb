@@ -304,11 +304,13 @@ module Sharepoint
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Folders"
       easy = ethon_easy_json_requester
-      easy.headers = { 'accept' => 'application/json;odata=verbose',
-                       'content-type' => 'application/json;odata=verbose',
-                       'X-RequestDigest' => xrequest_digest(site_path) }
+      easy.headers = {
+        'accept' => 'application/json;odata=verbose',
+        'content-type' => 'application/json;odata=verbose',
+        'X-RequestDigest' => xrequest_digest(site_path)
+      }
       payload = {
-          '__metadata' => {
+        '__metadata' => {
           'type' => 'SP.Folder'
         },
         'ServerRelativeUrl' => "#{path}/#{sanitized_name}"
@@ -349,8 +351,10 @@ module Sharepoint
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
-      easy.headers = { 'accept' => 'application/json;odata=verbose',
-                       'X-RequestDigest' => xrequest_digest(site_path) }
+      easy.headers = {
+        'accept' => 'application/json;odata=verbose',
+        'X-RequestDigest' => xrequest_digest(site_path)
+      }
       easy.http_request(url, :post, { body: content })
       easy.perform
       check_and_raise_failure(easy)
@@ -378,11 +382,13 @@ module Sharepoint
       prepared_metadata = prepare_metadata(metadata, __metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = { 'accept' =>  'application/json;odata=verbose',
-                       'content-type' =>  'application/json;odata=verbose',
-                       'X-RequestDigest' =>  xrequest_digest(site_path),
-                       'X-Http-Method' =>  'PATCH',
-                       'If-Match' => '*' }
+      easy.headers = {
+        'accept' => 'application/json;odata=verbose',
+        'content-type' => 'application/json;odata=verbose',
+        'X-RequestDigest' => xrequest_digest(site_path),
+        'X-Http-Method' => 'PATCH',
+        'If-Match' => '*'
+      }
       easy.http_request(update_metadata_url,
                         :post,
                         { body: prepared_metadata })
@@ -750,11 +756,13 @@ module Sharepoint
       prepared_metadata = prepare_metadata(new_metadata, metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = { 'accept' =>  'application/json;odata=verbose',
-                       'content-type' =>  'application/json;odata=verbose',
-                       'X-RequestDigest' =>  xrequest_digest(site_path),
-                       'X-Http-Method' =>  'PATCH',
-                       'If-Match' => '*' }
+      easy.headers = {
+        'accept' => 'application/json;odata=verbose',
+        'content-type' => 'application/json;odata=verbose',
+        'X-RequestDigest' => xrequest_digest(site_path),
+        'X-Http-Method' => 'PATCH',
+        'If-Match' => '*'
+      }
 
       easy.http_request(update_metadata_url,
                         :post,

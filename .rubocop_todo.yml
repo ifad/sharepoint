@@ -78,10 +78,6 @@ RSpec/AnyInstance:
   Exclude:
     - 'spec/lib/sharepoint/client_methods_spec.rb'
 
-Security/Eval:
-  Exclude:
-    - 'lib/sharepoint/client.rb'
-
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: always, conditionals
@@ -96,21 +92,12 @@ Style/BarePercentLiterals:
   Exclude:
     - 'lib/sharepoint/client.rb'
 
-Style/DocumentDynamicEvalDefinition:
-  Exclude:
-    - 'lib/sharepoint/client.rb'
-
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
   Exclude:
     - 'lib/sharepoint/client.rb'
     - 'lib/sharepoint/errors.rb'
     - 'lib/sharepoint/spec_helpers.rb'
-
-# This cop supports safe autocorrection (--autocorrect).
-Style/EvalWithLocation:
-  Exclude:
-    - 'lib/sharepoint/client.rb'
 
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.

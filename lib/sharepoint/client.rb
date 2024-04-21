@@ -207,7 +207,7 @@ module Sharepoint
       url = computed_web_api_url(site_path)
       filter_param = "$filter=#{conditions}" if conditions.present?
       expand_param = '$expand=Folder,File'
-      default_properties = %w(FileSystemObjectType UniqueId Title Created Modified File)
+      default_properties = %w[FileSystemObjectType UniqueId Title Created Modified File]
       all_properties = default_properties + properties
       select_param = "$select=#{all_properties.join(',')}"
       url = "#{url}Lists/GetByTitle('#{odata_escape_single_quote(list_name)}')/Items?#{expand_param}&#{select_param}"
@@ -654,10 +654,10 @@ module Sharepoint
     end
 
     def build_search_properties(options)
-      default_properties = %w(
+      default_properties = %w[
         Write IsDocument IsContainer ListId WebId URL
         Created Title Author Size Path UniqueId contentclass
-      )
+      ]
       properties = options[:properties] || []
       properties += default_properties
       "selectproperties='#{properties.join(',')}'"
@@ -696,7 +696,7 @@ module Sharepoint
           record[key.underscore.to_sym] = result[key]
         end
         file = result['File']
-        %w(Name ServerRelativeUrl Length).each do |key|
+        %w[Name ServerRelativeUrl Length].each do |key|
           record[key.underscore.to_sym] = file[key]
         end
         record[:url] = result['URL'].nil? ? nil : result['URL']['Url']
@@ -707,7 +707,7 @@ module Sharepoint
 
     def parse_get_document_response(response_body, custom_properties)
       all_props = JSON.parse(response_body)['d']
-      default_properties = %w(GUID Title Created Modified)
+      default_properties = %w[GUID Title Created Modified]
       keys = default_properties + custom_properties
       props = {}
       keys.each do |key|

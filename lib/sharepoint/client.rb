@@ -695,7 +695,7 @@ module Sharepoint
         next unless result['FileSystemObjectType'].eql? 0
 
         record = {}
-        (all_properties - ['File', 'URL']).each do |key|
+        (all_properties - %w[File URL]).each do |key|
           record[key.underscore.to_sym] = result[key]
         end
         file = result['File']

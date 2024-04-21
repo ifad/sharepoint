@@ -53,7 +53,7 @@ module Sharepoint
           date_of_issue: nil
         )
 
-        threads << Thread.new {
+        threads << Thread.new do
           ethon2 = ethon_easy_json_requester
           server_relative_url = "#{site_path}#{path}/#{file['Name']}"
           ethon2.url = "#{computed_web_api_url(site_path)}GetFileByServerRelativeUrl('#{uri_escape server_relative_url}')/ListItemAllFields"
@@ -63,7 +63,7 @@ module Sharepoint
           file_struct.date_of_issue = rs['Date_of_issue']
 
           rv << file_struct
-        }
+        end
       end
       threads.each { |t| t.join }
       rv

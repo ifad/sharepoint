@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Sharepoint
   class Client
-    class Token
+    class Token # rubocop:disable Style/Documentation
       class InvalidTokenError < StandardError
       end
 
@@ -11,7 +13,7 @@ module Sharepoint
         @config = config
       end
 
-      def get_or_fetch
+      def retrieve
         return access_token unless access_token.nil? || expired?
 
         fetch

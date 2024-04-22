@@ -9,18 +9,16 @@ require 'active_support/core_ext/object/blank'
 require 'sharepoint/client/token'
 
 module Sharepoint
-  class Client
+  class Client # rubocop:disable Metrics/ClassLength
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
-    attr_accessor :token
-
     def authenticating
-      get_token
+      generate_new_token
       yield
     end
 
-    def get_token
-      token.get_or_fetch
+    def generate_new_token
+      token.retrieve
     end
 
     def bearer_auth
@@ -649,21 +647,24 @@ module Sharepoint
     def validate_config!
       raise Errors::InvalidAuthenticationError.new unless valid_authentication?(config.authentication)
 
-      if config.authentication == 'token'
-        invalid_token_opts = validate_token_config
-
-        raise Errors::InvalidTokenConfigError.new(invalid_token_opts) unless invalid_token_opts.empty?
-        raise Errors::UriConfigurationError.new                       unless valid_uri?(config.auth_scope)
-      end
-
-      if config.authentication == 'ntlm'
-        invalid_ntlm_opts = validate_ntlm_config
-
-        raise Errors::InvalidNTLMConfigError.new(invalid_ntlm_opts) unless invalid_ntlm_opts.empty?
-      end
+      validate_token_config! if config.authentication == 'token'
+      validate_ntlm_config! if config.authentication == 'ntlm'
 
       raise Errors::UriConfigurationError.new                       unless valid_uri?(config.uri)
       raise Errors::EthonOptionsConfigurationError.new              unless ethon_easy_options.is_a?(Hash)
+    end
+
+    def validate_token_config!
+      invalid_token_opts = validate_token_config
+
+      raise Errors::InvalidTokenConfigError.new(invalid_token_opts) unless invalid_token_opts.empty?
+      raise Errors::UriConfigurationError.new                       unless valid_uri?(config.auth_scope)
+    end
+
+    def validate_ntlm_config!
+      invalid_ntlm_opts = validate_ntlm_config
+
+      raise Errors::InvalidNTLMConfigError.new(invalid_ntlm_opts) unless invalid_ntlm_opts.empty?
     end
 
     def string_not_blank?(object)

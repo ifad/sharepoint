@@ -29,15 +29,15 @@ describe Sharepoint::Client do
       end
 
       it 'sets base_api_url in the client' do
-        expect(subject.send(:base_api_url)).to eql("#{ENV.fetch('SP_URL', nil)}/_api/")
+        expect(client.send(:base_api_url)).to eql("#{ENV.fetch('SP_URL', nil)}/_api/")
       end
 
       it 'sets base_api_web_url in the client' do
-        expect(subject.send(:base_api_web_url)).to eql("#{ENV.fetch('SP_URL', nil)}/_api/web/")
+        expect(client.send(:base_api_web_url)).to eql("#{ENV.fetch('SP_URL', nil)}/_api/web/")
       end
     end
 
-    context 'correct authentication' do
+    context 'with authentication' do
       [{ value: 'ntlm',  name:   'ntlm' },
        { value: 'token', name:   'token' }].each do |ocurrence|
         it "does not raise authentication configuration error for #{ocurrence[:name]} authentication" do
@@ -51,8 +51,8 @@ describe Sharepoint::Client do
       end
     end
 
-    context 'ethon easy options' do
-      context 'success' do
+    context 'with ethon easy options' do
+      context 'with success' do
         let(:config_ethon) { config.merge({ ethon_easy_options: ssl_verifypeer }) }
         let(:ssl_verifypeer) { { ssl_verifypeer: false } }
 
@@ -72,8 +72,8 @@ describe Sharepoint::Client do
       end
     end
 
-    context 'failure' do
-      context 'bad authentication' do
+    context 'with failure' do
+      context 'with bad authentication' do
         [{ value: nil, name: 'nil' },
          { value: '', name: 'blank' },
          { value: 344, name: 344 }].each do |ocurrence|
@@ -88,10 +88,10 @@ describe Sharepoint::Client do
         end
       end
 
-      context 'token' do
+      context 'with token' do
         before { ENV['SP_AUTHENTICATION'] = 'token' }
 
-        context 'bad client_id' do
+        context 'with bad client_id' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 }].each do |ocurrence|
@@ -106,7 +106,7 @@ describe Sharepoint::Client do
           end
         end
 
-        context 'bad client_secret' do
+        context 'with bad client_secret' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 }].each do |ocurrence|
@@ -121,7 +121,7 @@ describe Sharepoint::Client do
           end
         end
 
-        context 'bad tenant_id' do
+        context 'with bad tenant_id' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 }].each do |ocurrence|
@@ -136,7 +136,7 @@ describe Sharepoint::Client do
           end
         end
 
-        context 'bad cert_name' do
+        context 'with bad cert_name' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 }].each do |ocurrence|
@@ -151,7 +151,7 @@ describe Sharepoint::Client do
           end
         end
 
-        context 'bad auth_scope' do
+        context 'with bad auth_scope' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 }].each do |ocurrence|
@@ -166,7 +166,7 @@ describe Sharepoint::Client do
           end
         end
 
-        context 'bad auth_scope' do
+        context 'with bad auth_scope uri format' do
           [{ value: 'ftp://www.test.com', name: 'invalid auth_scope' }].each do |ocurrence|
             it "raises auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
               wrong_config = config
@@ -179,7 +179,7 @@ describe Sharepoint::Client do
           end
         end
 
-        context 'bad uri' do
+        context 'with bad uri' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 },
@@ -196,10 +196,10 @@ describe Sharepoint::Client do
         end
       end
 
-      context 'ntlm' do
+      context 'when ntlm' do
         before { ENV['SP_AUTHENTICATION'] = 'ntlm' }
 
-        context 'bad username' do
+        context 'with bad username' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 }].each do |ocurrence|
@@ -214,7 +214,7 @@ describe Sharepoint::Client do
           end
         end
 
-        context 'bad password' do
+        context 'with bad password' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 }].each do |ocurrence|

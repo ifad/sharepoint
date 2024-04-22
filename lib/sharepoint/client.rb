@@ -14,7 +14,7 @@ module Sharepoint
 
     attr_accessor :token
 
-    def authenticating(&block)
+    def authenticating
       get_token
       yield
     end
@@ -24,7 +24,7 @@ module Sharepoint
     end
 
     def bearer_auth
-      "Bearer #{token.to_s}"
+      "Bearer #{token}"
     end
 
     # @return [OpenStruct] The current configuration.
@@ -376,7 +376,7 @@ module Sharepoint
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
       easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose',
-                       'X-RequestDigest' => xrequest_digest(site_path) })
+                                                         'X-RequestDigest' => xrequest_digest(site_path) })
       easy.http_request(url, :post, { body: content })
       easy.perform
       check_and_raise_failure(easy)
@@ -404,11 +404,11 @@ module Sharepoint
       prepared_metadata = prepare_metadata(metadata, __metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = with_bearer_authentication_header({ 'accept' =>  'application/json;odata=verbose',
-                       'content-type' =>  'application/json;odata=verbose',
-                       'X-RequestDigest' =>  xrequest_digest(site_path),
-                       'X-Http-Method' =>  'PATCH',
-                       'If-Match' => "*" })
+      easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose',
+                                                         'content-type' => 'application/json;odata=verbose',
+                                                         'X-RequestDigest' => xrequest_digest(site_path),
+                                                         'X-Http-Method' => 'PATCH',
+                                                         'If-Match' => '*' })
       easy.http_request(update_metadata_url,
                         :post,
                         { body: prepared_metadata })
@@ -486,10 +486,10 @@ module Sharepoint
       parsed_response_body = JSON.parse(easy.response_body)
 
       page_content = if fields
-        parsed_response_body['d']['results'].map{|v|v.fetch_values(*fields)}
-      else
-        parsed_response_body['d']['results']
-      end
+                       parsed_response_body['d']['results'].map { |v| v.fetch_values(*fields) }
+                     else
+                       parsed_response_body['d']['results']
+                     end
 
       if next_url = parsed_response_body['d']['__next']
         page_content + process_url(next_url, fields)
@@ -513,7 +513,7 @@ module Sharepoint
     end
 
     def bearer_auth_header
-      {"Authorization" => bearer_auth }
+      { 'Authorization' => bearer_auth }
     end
 
     def base_url
@@ -542,7 +542,7 @@ module Sharepoint
 
     def ethon_easy_json_requester
       easy = ethon_easy_requester
-      easy.headers = with_bearer_authentication_header({ 'accept'=> 'application/json;odata=verbose'})
+      easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose' })
       easy
     end
 
@@ -629,11 +629,11 @@ module Sharepoint
     end
 
     def validate_token_config
-      valid_config_options( %i(client_id client_secret tenant_id cert_name auth_scope) )
+      valid_config_options(%i[client_id client_secret tenant_id cert_name auth_scope])
     end
 
     def validate_ntlm_config
-      valid_config_options( %i(username password) )
+      valid_config_options(%i[username password])
     end
 
     def valid_config_options(options = [])
@@ -641,21 +641,22 @@ module Sharepoint
         c = config.send(opt)
 
         next if c.present? && string_not_blank?(c)
+
         opt
       end.compact
     end
 
     def validate_config!
-      raise Errors::InvalidAuthenticationError.new                    unless valid_authentication?(config.authentication)
+      raise Errors::InvalidAuthenticationError.new unless valid_authentication?(config.authentication)
 
-      if config.authentication == "token"
+      if config.authentication == 'token'
         invalid_token_opts = validate_token_config
 
         raise Errors::InvalidTokenConfigError.new(invalid_token_opts) unless invalid_token_opts.empty?
         raise Errors::UriConfigurationError.new                       unless valid_uri?(config.auth_scope)
       end
 
-      if config.authentication == "ntlm"
+      if config.authentication == 'ntlm'
         invalid_ntlm_opts = validate_ntlm_config
 
         raise Errors::InvalidNTLMConfigError.new(invalid_ntlm_opts) unless invalid_ntlm_opts.empty?
@@ -672,14 +673,14 @@ module Sharepoint
     def valid_uri?(which)
       if which and which.is_a? String
         uri = URI.parse(which)
-        uri.kind_of?(URI::HTTP) || uri.kind_of?(URI::HTTPS)
+        uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
       else
         false
       end
     end
 
     def valid_authentication?(which)
-      %w(ntlm token).include?(which)
+      %w[ntlm token].include?(which)
     end
 
     # Waiting for RFC 3986 to be implemented, we need to escape square brackets
@@ -834,11 +835,11 @@ module Sharepoint
       prepared_metadata = prepare_metadata(new_metadata, metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = with_bearer_authentication_header({ 'accept' =>  'application/json;odata=verbose',
-                       'content-type' =>  'application/json;odata=verbose',
-                       'X-RequestDigest' =>  xrequest_digest(site_path),
-                       'X-Http-Method' =>  'PATCH',
-                       'If-Match' => "*" })
+      easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose',
+                                                         'content-type' => 'application/json;odata=verbose',
+                                                         'X-RequestDigest' => xrequest_digest(site_path),
+                                                         'X-Http-Method' => 'PATCH',
+                                                         'If-Match' => '*' })
 
       easy.http_request(update_metadata_url,
                         :post,

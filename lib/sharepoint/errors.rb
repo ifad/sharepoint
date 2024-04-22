@@ -14,7 +14,7 @@ module Sharepoint
 
     class InvalidAuthenticationError < StandardError
       def initialize
-        super "Invalid authentication mechanism"
+        super('Invalid authentication mechanism')
       end
     end
 
@@ -24,7 +24,7 @@ module Sharepoint
           "Invalid #{e} in Token configuration"
         end
 
-        super error_messages.join(',')
+        super(error_messages.join(','))
       end
     end
 
@@ -34,7 +34,7 @@ module Sharepoint
           "Invalid #{e} in NTLM configuration"
         end
 
-        super error_messages.join(',')
+        super(error_messages.join(','))
       end
     end
   end

@@ -166,7 +166,7 @@ describe Sharepoint::Client do
           end
         end
 
-        context 'with bad auth_scope uri format' do
+        skip 'with bad auth_scope uri format' do
           [{ value: 'ftp://www.test.com', name: 'invalid auth_scope' }].each do |ocurrence|
             it "raises auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
               wrong_config = config

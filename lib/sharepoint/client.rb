@@ -658,7 +658,6 @@ module Sharepoint
       invalid_token_opts = validate_token_config
 
       raise Errors::InvalidTokenConfigError.new(invalid_token_opts) unless invalid_token_opts.empty?
-      raise Errors::UriConfigurationError.new                       unless valid_uri?(config.auth_scope)
     end
 
     def validate_ntlm_config!

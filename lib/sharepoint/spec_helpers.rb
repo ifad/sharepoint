@@ -11,10 +11,10 @@ module Sharepoint
       end
     end
 
-    def sp_config
+    def sp_config(authentication: nil)
       {
         uri: ENV.fetch('SP_URL', nil),
-        authentication: ENV.fetch('SP_AUTHENTICATION', nil),
+        authentication: authentication || ENV.fetch('SP_AUTHENTICATION', nil),
         client_id: ENV.fetch('SP_CLIENT_ID', nil),
         client_secret: ENV.fetch('SP_CLIENT_SECRET', nil),
         tenant_id: ENV.fetch('SP_TENANT_ID', nil),

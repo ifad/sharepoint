@@ -327,10 +327,10 @@ module Sharepoint
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Folders"
       easy = ethon_easy_json_requester
       easy.headers = with_bearer_authentication_header({
-        'accept' => 'application/json;odata=verbose',
-        'content-type' => 'application/json;odata=verbose',
-        'X-RequestDigest' => xrequest_digest(site_path)
-      })
+                                                         'accept' => 'application/json;odata=verbose',
+                                                         'content-type' => 'application/json;odata=verbose',
+                                                         'X-RequestDigest' => xrequest_digest(site_path)
+                                                       })
       payload = {
         '__metadata' => {
           'type' => 'SP.Folder'
@@ -539,7 +539,6 @@ module Sharepoint
     end
 
     def ethon_easy_json_requester
-
       easy = ethon_easy_requester
       easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose' })
       easy

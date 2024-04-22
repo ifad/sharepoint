@@ -40,8 +40,7 @@ module Sharepoint
         (fetched_at + expires_in) < Time.now.utc.to_i
       end
 
-      def
-      def(_request_new_token)
+      def request_new_token
         auth_request = {
           client_id: config.client_id,
           client_secret: config.client_secret,

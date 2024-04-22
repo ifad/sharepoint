@@ -12,7 +12,7 @@ module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
-    def authenticating
+    def authenticating_with_token
       generate_new_token
       yield
     end
@@ -326,11 +326,11 @@ module Sharepoint
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Folders"
       easy = ethon_easy_json_requester
-      easy.headers = {
+      easy.headers = with_bearer_authentication_header({
         'accept' => 'application/json;odata=verbose',
         'content-type' => 'application/json;odata=verbose',
         'X-RequestDigest' => xrequest_digest(site_path)
-      }
+      })
       payload = {
         '__metadata' => {
           'type' => 'SP.Folder'
@@ -539,6 +539,7 @@ module Sharepoint
     end
 
     def ethon_easy_json_requester
+
       easy = ethon_easy_requester
       easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose' })
       easy
@@ -550,9 +551,11 @@ module Sharepoint
 
     def ethon_easy_requester
       if token_auth?
-        easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
-        easy.headers = with_bearer_authentication_header({})
-        easy
+        authenticating_with_token do
+          easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+          easy.headers = with_bearer_authentication_header({})
+          easy
+        end
       elsif ntlm_auth?
         easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
         easy.username = config.username

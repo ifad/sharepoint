@@ -26,13 +26,13 @@ You can instantiate a number of SharePoint clients in your application:
 
 ```rb
 client = Sharepoint::Client.new({
-    authentication: "token",
-    client_id: "client_id",
-    client_secret: "client_secret",
-    tenant_id: "tenant_id",
-    cert_name: "cert_name",
-    auth_scope: "auth_scope",
-    uri: "http://sharepoint_url"
+  authentication: "token",
+  client_id: "client_id",
+  client_secret: "client_secret",
+  tenant_id: "tenant_id",
+  cert_name: "cert_name",
+  auth_scope: "auth_scope",
+  uri: "http://sharepoint_url"
 })
 ```
 
@@ -40,10 +40,10 @@ client = Sharepoint::Client.new({
 
 ```rb
 client = Sharepoint::Client.new({
-    authentication: "mtlm",
-    username: "username",
-    password: "password",
-    uri: "http://sharepoint_url"
+  authentication: "mtlm",
+  username: "username",
+  password: "password",
+  uri: "http://sharepoint_url"
 })
 ```
 

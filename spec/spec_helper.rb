@@ -21,6 +21,7 @@ SPEC_BASE = Pathname.new(__FILE__).realpath.parent
 
 $LOAD_PATH << ("#{SPEC_BASE.parent}lib")
 require 'sharepoint'
+require 'sharepoint/spec_helpers'
 
 def fixture(name)
   "#{SPEC_BASE}fixtures#{name}"

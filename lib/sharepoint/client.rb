@@ -9,7 +9,7 @@ require 'active_support/core_ext/object/blank'
 require 'sharepoint/client/token'
 
 module Sharepoint
-  class Client # rubocop:disable Metrics/ClassLength
+  class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
     def authenticating

@@ -34,10 +34,6 @@ Lint/UselessAssignment:
 Metrics/AbcSize:
   Max: 42
 
-# Configuration parameters: CountComments, CountAsOne.
-Metrics/ClassLength:
-  Max: 521
-
 # Configuration parameters: CountComments, CountAsOne, AllowedMethods, AllowedPatterns.
 Metrics/MethodLength:
   Max: 31

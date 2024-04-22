@@ -24,6 +24,10 @@ AllCops:
 Layout/LineLength:
   Enabled: false
 
+Metrics/ClassLength:
+  Exclude:
+    - lib/sharepoint/client.rb
+
 Rails/TimeZone:
   Enabled: false
 

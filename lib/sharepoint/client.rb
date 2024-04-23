@@ -474,6 +474,10 @@ module Sharepoint
       update_object_metadata parsed_response_body['d']['__metadata'], { 'Indexed' => true }, site_path
     end
 
+    def requester
+      ethon_easy_requester
+    end
+
     private
 
     def process_url(url, fields)

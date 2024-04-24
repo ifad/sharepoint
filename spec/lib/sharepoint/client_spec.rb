@@ -232,6 +232,47 @@ describe Sharepoint::Client do
     end
   end
 
+  describe '#ethon_requester' do
+    subject { client.send(:ethon_easy_requester) }
+
+    let(:client) { described_class.new(client_config) }
+    let(:token) { double('Token', access_token: 'footoken') }
+
+    before do
+      mock_token_responses
+      allow(client).to receive(:authenticating_with_token).and_call_original
+    end
+
+    context 'when has token authentication' do
+      let(:client_config) { sp_config(authentication: 'token') }
+
+      it 'calls authenticating_with_token' do
+        subject
+        expect(client).to have_received(:authenticating_with_token)
+      end
+
+      it 'client token is set' do
+        subject
+        expect(client.token.access_token).not_to be_nil
+      end
+    end
+
+    context 'when has ntlm authentication' do
+      subject { client.send(:ethon_easy_requester) }
+
+      let(:client_config) { sp_config(authentication: 'ntlm') }
+
+      it 'does not call authenticating_with_token' do
+        subject
+        expect(client).not_to have_received(:authenticating_with_token)
+      end
+
+      it 'token is null' do
+        expect(client.token.access_token).to be_nil
+      end
+    end
+  end
+
   describe '#remove_double_slashes' do
     {
       'foobar' => 'foobar',

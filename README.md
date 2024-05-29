@@ -40,7 +40,7 @@ client = Sharepoint::Client.new({
 
 ```rb
 client = Sharepoint::Client.new({
-  authentication: "mtlm",
+  authentication: "ntlm",
   username: "username",
   password: "password",
   uri: "http://sharepoint_url"

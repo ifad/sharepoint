@@ -166,7 +166,8 @@ describe Sharepoint::Client do
           end
         end
 
-        skip 'with bad auth_scope uri format' do
+        it 'with bad auth_scope uri format' do
+          skip 'Uri is not formatted'
           [{ value: 'ftp://www.test.com', name: 'invalid auth_scope' }].each do |ocurrence|
             it "raises auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
               wrong_config = config
@@ -233,10 +234,10 @@ describe Sharepoint::Client do
   end
 
   describe '#ethon_requester' do
-    subject { client.send(:ethon_easy_requester) }
+    subject(:requester) { client.send(:ethon_easy_requester) }
 
     let(:client) { described_class.new(client_config) }
-    let(:token) { double('Token', access_token: 'footoken') }
+    let(:token) { instance_double(Token, access_token: 'footoken') }
 
     before do
       mock_token_responses
@@ -247,12 +248,12 @@ describe Sharepoint::Client do
       let(:client_config) { sp_config(authentication: 'token') }
 
       it 'calls authenticating_with_token' do
-        subject
+        requester
         expect(client).to have_received(:authenticating_with_token)
       end
 
       it 'client token is set' do
-        subject
+        requester
         expect(client.token.access_token).not_to be_nil
       end
     end
@@ -263,7 +264,7 @@ describe Sharepoint::Client do
       let(:client_config) { sp_config(authentication: 'ntlm') }
 
       it 'does not call authenticating_with_token' do
-        subject
+        requester
         expect(client).not_to have_received(:authenticating_with_token)
       end
 

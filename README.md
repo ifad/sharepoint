@@ -36,7 +36,7 @@ client = Sharepoint::Client.new({
 })
 ```
 
-#### NTLN authentication
+#### NTLM authentication
 
 ```rb
 client = Sharepoint::Client.new({

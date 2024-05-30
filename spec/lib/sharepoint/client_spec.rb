@@ -46,7 +46,7 @@ describe Sharepoint::Client do
 
           expect do
             described_class.new(correct_config)
-          end.not_to raise_error(Sharepoint::Errors::InvalidAuthenticationError)
+          end.not_to raise_error
         end
       end
     end

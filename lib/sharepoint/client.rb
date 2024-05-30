@@ -12,6 +12,12 @@ module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
+    DEFAULT_TOKEN_ETHON_OPTIONS = { followlocation: 1, maxredirs: 5 }.freeze
+    VALID_TOKEN_CONFIG_OPTIONS = %i[client_id client_secret tenant_id cert_name auth_scope].freeze
+
+    DEFAULT_NTLM_ETHON_OPTIONS = { httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.freeze
+    VALID_NTLM_CONFIG_OPTIONS = %i[username password].freeze
+
     def authenticating_with_token
       generate_new_token
       yield
@@ -555,12 +561,12 @@ module Sharepoint
     def ethon_easy_requester
       if token_auth?
         authenticating_with_token do
-          easy = Ethon::Easy.new({ followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+          easy = Ethon::Easy.new(DEFAULT_TOKEN_ETHON_OPTIONS.merge(ethon_easy_options))
           easy.headers = with_bearer_authentication_header({})
           easy
         end
       elsif ntlm_auth?
-        easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
+        easy = Ethon::Easy.new(DEFAULT_NTLM_ETHON_OPTIONS.merge(ethon_easy_options))
         easy.username = config.username
         easy.password = config.password
         easy
@@ -633,11 +639,11 @@ module Sharepoint
     end
 
     def validate_token_config
-      valid_config_options(%i[client_id client_secret tenant_id cert_name auth_scope])
+      valid_config_options(VALID_TOKEN_CONFIG_OPTIONS)
     end
 
     def validate_ntlm_config
-      valid_config_options(%i[username password])
+      valid_config_options(VALID_NTLM_CONFIG_OPTIONS)
     end
 
     def valid_config_options(options = [])

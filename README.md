@@ -22,11 +22,28 @@ And then execute:
 
 You can instantiate a number of SharePoint clients in your application:
 
+#### Token authentication
+
 ```rb
 client = Sharepoint::Client.new({
-  username: 'username',
-  password: 'password',
-  uri: 'https://sharepoint_url'
+  authentication: "token",
+  client_id: "client_id",
+  client_secret: "client_secret",
+  tenant_id: "tenant_id",
+  cert_name: "cert_name",
+  auth_scope: "auth_scope",
+  uri: "http://sharepoint_url"
+})
+```
+
+#### NTLM authentication
+
+```rb
+client = Sharepoint::Client.new({
+  authentication: "ntlm",
+  username: "username",
+  password: "password",
+  uri: "http://sharepoint_url"
 })
 ```
 
@@ -46,4 +63,12 @@ client.upload filename, content, path
 
 ```rb
 client.update_metadata filename, metadata, path
+```
+
+## Testing
+
+Create a .env file based on the `env-example` and run
+
+```bash
+$ bundle exec rake
 ```

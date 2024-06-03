@@ -26,9 +26,15 @@ jobs:
     continue-on-error: ${{ matrix.channel != 'stable' }}
 
     env:
-      SP_USERNAME: test
-      SP_PASSWORD: test
       SP_URL: http://localhost:1234/
+      SP_AUTHENTICATION: token
+      SP_CLIENT_ID: clientfoo
+      SP_CLIENT_SECRET: secretfoo
+      SP_TENANT_ID: tenantfoo
+      SP_CERT_NAME: certfoo
+      SP_AUTH_SCOPE: http://localhost:1234/
+      SP_USERNAME: userfoo
+      SP_PASSWORD: passfoo
 
     steps:
     - name: Install libmagic-dev

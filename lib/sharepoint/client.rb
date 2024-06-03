@@ -6,23 +6,51 @@ require 'time'
 
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
+require 'sharepoint/client/token'
 
 module Sharepoint
   class Client
     FILENAME_INVALID_CHARS = '~"#%&*:<>?/\{|}'
 
+    DEFAULT_TOKEN_ETHON_OPTIONS = { followlocation: 1, maxredirs: 5 }.freeze
+    VALID_TOKEN_CONFIG_OPTIONS = %i[client_id client_secret tenant_id cert_name auth_scope].freeze
+
+    DEFAULT_NTLM_ETHON_OPTIONS = { httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.freeze
+    VALID_NTLM_CONFIG_OPTIONS = %i[username password].freeze
+
+    def authenticating_with_token
+      generate_new_token
+      yield
+    end
+
+    def generate_new_token
+      token.retrieve
+    end
+
+    def bearer_auth
+      "Bearer #{token}"
+    end
+
     # @return [OpenStruct] The current configuration.
     attr_reader :config
+    attr_reader :token
 
     # Initializes a new client with given options.
     #
     # @param [Hash] config The client options:
     #  - `:uri` The SharePoint server's root url
+    #  - `:authentication` The authentication method to use [:ntlm, :token]
     #  - `:username` self-explanatory
     #  - `:password` self-explanatory
+    #  - `:client_id` self-explanatory
+    #  - `:client_secret` self-explanatory
+    #  - `:tenant_id` self-explanatory
+    #  - `:cert_name` self-explanatory
+    #  - `:auth_scope` self-explanatory
     # @return [Sharepoint::Client] client object
     def initialize(config = {})
       @config = OpenStruct.new(config)
+      @token = Token.new(@config)
       validate_config!
     end
 
@@ -304,11 +332,11 @@ module Sharepoint
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Folders"
       easy = ethon_easy_json_requester
-      easy.headers = {
-        'accept' => 'application/json;odata=verbose',
-        'content-type' => 'application/json;odata=verbose',
-        'X-RequestDigest' => xrequest_digest(site_path)
-      }
+      easy.headers = with_bearer_authentication_header({
+                                                         'accept' => 'application/json;odata=verbose',
+                                                         'content-type' => 'application/json;odata=verbose',
+                                                         'X-RequestDigest' => xrequest_digest(site_path)
+                                                       })
       payload = {
         '__metadata' => {
           'type' => 'SP.Folder'
@@ -351,10 +379,8 @@ module Sharepoint
       path = path[1..-1] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
-      easy.headers = {
-        'accept' => 'application/json;odata=verbose',
-        'X-RequestDigest' => xrequest_digest(site_path)
-      }
+      easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose',
+                                                         'X-RequestDigest' => xrequest_digest(site_path) })
       easy.http_request(url, :post, { body: content })
       easy.perform
       check_and_raise_failure(easy)
@@ -382,13 +408,11 @@ module Sharepoint
       prepared_metadata = prepare_metadata(metadata, __metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = {
-        'accept' => 'application/json;odata=verbose',
-        'content-type' => 'application/json;odata=verbose',
-        'X-RequestDigest' => xrequest_digest(site_path),
-        'X-Http-Method' => 'PATCH',
-        'If-Match' => '*'
-      }
+      easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose',
+                                                         'content-type' => 'application/json;odata=verbose',
+                                                         'X-RequestDigest' => xrequest_digest(site_path),
+                                                         'X-Http-Method' => 'PATCH',
+                                                         'If-Match' => '*' })
       easy.http_request(update_metadata_url,
                         :post,
                         { body: prepared_metadata })
@@ -456,6 +480,10 @@ module Sharepoint
       update_object_metadata parsed_response_body['d']['__metadata'], { 'Indexed' => true }, site_path
     end
 
+    def requester
+      ethon_easy_requester
+    end
+
     private
 
     def process_url(url, fields)
@@ -476,6 +504,24 @@ module Sharepoint
       else
         page_content
       end
+    end
+
+    def token_auth?
+      config.authentication == 'token'
+    end
+
+    def ntlm_auth?
+      config.authentication == 'ntlm'
+    end
+
+    def with_bearer_authentication_header(h)
+      return h if ntlm_auth?
+
+      h.merge(bearer_auth_header)
+    end
+
+    def bearer_auth_header
+      { 'Authorization' => bearer_auth }
     end
 
     def base_url
@@ -504,7 +550,7 @@ module Sharepoint
 
     def ethon_easy_json_requester
       easy = ethon_easy_requester
-      easy.headers = { 'accept' => 'application/json;odata=verbose' }
+      easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose' })
       easy
     end
 
@@ -513,10 +559,18 @@ module Sharepoint
     end
 
     def ethon_easy_requester
-      easy = Ethon::Easy.new({ httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.merge(ethon_easy_options))
-      easy.username = config.username
-      easy.password = config.password
-      easy
+      if token_auth?
+        authenticating_with_token do
+          easy = Ethon::Easy.new(DEFAULT_TOKEN_ETHON_OPTIONS.merge(ethon_easy_options))
+          easy.headers = with_bearer_authentication_header({})
+          easy
+        end
+      elsif ntlm_auth?
+        easy = Ethon::Easy.new(DEFAULT_NTLM_ETHON_OPTIONS.merge(ethon_easy_options))
+        easy.username = config.username
+        easy.password = config.password
+        easy
+      end
     end
 
     # When you send a POST request, the request must include the form digest
@@ -584,24 +638,61 @@ module Sharepoint
       }
     end
 
+    def validate_token_config
+      valid_config_options(VALID_TOKEN_CONFIG_OPTIONS)
+    end
+
+    def validate_ntlm_config
+      valid_config_options(VALID_NTLM_CONFIG_OPTIONS)
+    end
+
+    def valid_config_options(options = [])
+      options.map do |opt|
+        c = config.send(opt)
+
+        next if c.present? && string_not_blank?(c)
+
+        opt
+      end.compact
+    end
+
     def validate_config!
-      raise Errors::UsernameConfigurationError.new      unless string_not_blank?(@config.username)
-      raise Errors::PasswordConfigurationError.new      unless string_not_blank?(@config.password)
-      raise Errors::UriConfigurationError.new           unless valid_config_uri?
-      raise Errors::EthonOptionsConfigurationError.new  unless ethon_easy_options.is_a?(Hash)
+      raise Errors::InvalidAuthenticationError.new unless valid_authentication?(config.authentication)
+
+      validate_token_config! if config.authentication == 'token'
+      validate_ntlm_config! if config.authentication == 'ntlm'
+
+      raise Errors::UriConfigurationError.new                       unless valid_uri?(config.uri)
+      raise Errors::EthonOptionsConfigurationError.new              unless ethon_easy_options.is_a?(Hash)
+    end
+
+    def validate_token_config!
+      invalid_token_opts = validate_token_config
+
+      raise Errors::InvalidTokenConfigError.new(invalid_token_opts) unless invalid_token_opts.empty?
+    end
+
+    def validate_ntlm_config!
+      invalid_ntlm_opts = validate_ntlm_config
+
+      raise Errors::InvalidNTLMConfigError.new(invalid_ntlm_opts) unless invalid_ntlm_opts.empty?
     end
 
     def string_not_blank?(object)
       !object.nil? && object != '' && object.is_a?(String)
     end
 
-    def valid_config_uri?
-      if @config.uri and @config.uri.is_a? String
-        uri = URI.parse(@config.uri)
+    def valid_uri?(which)
+      if which and which.is_a? String
+        uri = URI.parse(which)
         uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
       else
         false
       end
+    end
+
+    def valid_authentication?(which)
+      %w[ntlm token].include?(which)
     end
 
     # Waiting for RFC 3986 to be implemented, we need to escape square brackets
@@ -756,13 +847,11 @@ module Sharepoint
       prepared_metadata = prepare_metadata(new_metadata, metadata['type'])
 
       easy = ethon_easy_json_requester
-      easy.headers = {
-        'accept' => 'application/json;odata=verbose',
-        'content-type' => 'application/json;odata=verbose',
-        'X-RequestDigest' => xrequest_digest(site_path),
-        'X-Http-Method' => 'PATCH',
-        'If-Match' => '*'
-      }
+      easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose',
+                                                         'content-type' => 'application/json;odata=verbose',
+                                                         'X-RequestDigest' => xrequest_digest(site_path),
+                                                         'X-Http-Method' => 'PATCH',
+                                                         'If-Match' => '*' })
 
       easy.http_request(update_metadata_url,
                         :post,

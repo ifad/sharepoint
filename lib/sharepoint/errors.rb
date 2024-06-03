@@ -1,17 +1,5 @@
 module Sharepoint
   module Errors
-    class UsernameConfigurationError < StandardError
-      def initialize
-        super('Invalid Username Configuration')
-      end
-    end
-
-    class PasswordConfigurationError < StandardError
-      def initialize
-        super('Invalid Password configuration')
-      end
-    end
-
     class UriConfigurationError < StandardError
       def initialize
         super('Invalid Uri configuration')
@@ -21,6 +9,32 @@ module Sharepoint
     class EthonOptionsConfigurationError < StandardError
       def initialize
         super('Invalid ethon easy options')
+      end
+    end
+
+    class InvalidAuthenticationError < StandardError
+      def initialize
+        super('Invalid authentication mechanism')
+      end
+    end
+
+    class InvalidTokenConfigError < StandardError
+      def initialize(invalid_entries)
+        error_messages = invalid_entries.map do |e|
+          "Invalid #{e} in Token configuration"
+        end
+
+        super(error_messages.join(','))
+      end
+    end
+
+    class InvalidNTLMConfigError < StandardError
+      def initialize(invalid_entries)
+        error_messages = invalid_entries.map do |e|
+          "Invalid #{e} in NTLM configuration"
+        end
+
+        super(error_messages.join(','))
       end
     end
   end

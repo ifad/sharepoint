@@ -1,4 +1,11 @@
 # SharePoint Access
-SP_USERNAME=
-SP_PASSWORD=
-SP_URL=
+SP_AUTHENTICATION=token
+SP_CLIENT_ID=foo
+SP_CLIENT_SECRET=foo
+SP_TENANT_ID=foo
+SP_CERT_NAME=foo
+SP_AUTH_SCOPE=https://foobar.example.org
+SP_URL=https://foobar.example.org
+SP_USERNAME=foo
+SP_PASSWORD=foo
+SP_AUTHENTICATION= token | ntlm

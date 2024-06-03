@@ -39,10 +39,10 @@ describe Sharepoint::Client do
 
     context 'with authentication' do
       [{ value: 'ntlm',  name:   'ntlm' },
-       { value: 'token', name:   'token' }].each do |ocurrence|
-        it "does not raise authentication configuration error for #{ocurrence[:name]} authentication" do
+       { value: 'token', name:   'token' }].each do |occurrence|
+        it "does not raise authentication configuration error for #{occurrence[:name]} authentication" do
           correct_config = config
-          correct_config[:authentication] = ocurrence[:value]
+          correct_config[:authentication] = occurrence[:value]
 
           expect do
             described_class.new(correct_config)
@@ -76,10 +76,10 @@ describe Sharepoint::Client do
       context 'with bad authentication' do
         [{ value: nil, name: 'nil' },
          { value: '', name: 'blank' },
-         { value: 344, name: 344 }].each do |ocurrence|
-          it "raises authentication configuration error for #{ocurrence[:name]} authentication" do
+         { value: 344, name: 344 }].each do |occurrence|
+          it "raises authentication configuration error for #{occurrence[:name]} authentication" do
             wrong_config = config
-            wrong_config[:authentication] = ocurrence[:value]
+            wrong_config[:authentication] = occurrence[:value]
 
             expect do
               described_class.new(wrong_config)
@@ -94,10 +94,10 @@ describe Sharepoint::Client do
         context 'with bad client_id' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
-           { value: 344, name: 344 }].each do |ocurrence|
-            it "raises client_id configuration error for #{ocurrence[:name]} client_id" do
+           { value: 344, name: 344 }].each do |occurrence|
+            it "raises client_id configuration error for #{occurrence[:name]} client_id" do
               wrong_config = config
-              wrong_config[:client_id] = ocurrence[:value]
+              wrong_config[:client_id] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)
@@ -109,10 +109,10 @@ describe Sharepoint::Client do
         context 'with bad client_secret' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
-           { value: 344, name: 344 }].each do |ocurrence|
-            it "raises client_secret configuration error for #{ocurrence[:name]} client_secret" do
+           { value: 344, name: 344 }].each do |occurrence|
+            it "raises client_secret configuration error for #{occurrence[:name]} client_secret" do
               wrong_config = config
-              wrong_config[:client_secret] = ocurrence[:value]
+              wrong_config[:client_secret] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)
@@ -124,10 +124,10 @@ describe Sharepoint::Client do
         context 'with bad tenant_id' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
-           { value: 344, name: 344 }].each do |ocurrence|
-            it "raises tenant_id configuration error for #{ocurrence[:name]} tenant_id" do
+           { value: 344, name: 344 }].each do |occurrence|
+            it "raises tenant_id configuration error for #{occurrence[:name]} tenant_id" do
               wrong_config = config
-              wrong_config[:tenant_id] = ocurrence[:value]
+              wrong_config[:tenant_id] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)
@@ -139,10 +139,10 @@ describe Sharepoint::Client do
         context 'with bad cert_name' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
-           { value: 344, name: 344 }].each do |ocurrence|
-            it "raises cert_name configuration error for #{ocurrence[:name]} cert_name" do
+           { value: 344, name: 344 }].each do |occurrence|
+            it "raises cert_name configuration error for #{occurrence[:name]} cert_name" do
               wrong_config = config
-              wrong_config[:cert_name] = ocurrence[:value]
+              wrong_config[:cert_name] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)
@@ -154,10 +154,10 @@ describe Sharepoint::Client do
         context 'with bad auth_scope' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
-           { value: 344, name: 344 }].each do |ocurrence|
-            it "raises auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
+           { value: 344, name: 344 }].each do |occurrence|
+            it "raises auth_scope configuration error for #{occurrence[:name]} auth_scope" do
               wrong_config = config
-              wrong_config[:auth_scope] = ocurrence[:value]
+              wrong_config[:auth_scope] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)
@@ -168,10 +168,10 @@ describe Sharepoint::Client do
 
         it 'with bad auth_scope uri format' do
           skip 'Uri is not formatted'
-          [{ value: 'ftp://www.test.com', name: 'invalid auth_scope' }].each do |ocurrence|
-            it "raises auth_scope configuration error for #{ocurrence[:name]} auth_scope" do
+          [{ value: 'ftp://www.test.com', name: 'invalid auth_scope' }].each do |occurrence|
+            it "raises auth_scope configuration error for #{occurrence[:name]} auth_scope" do
               wrong_config = config
-              wrong_config[:auth_scope] = ocurrence[:value]
+              wrong_config[:auth_scope] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)
@@ -184,10 +184,10 @@ describe Sharepoint::Client do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
            { value: 344, name: 344 },
-           { value: 'ftp://www.test.com', name: 'invalid uri' }].each do |ocurrence|
-            it "raises uri configuration error for #{ocurrence[:name]} uri" do
+           { value: 'ftp://www.test.com', name: 'invalid uri' }].each do |occurrence|
+            it "raises uri configuration error for #{occurrence[:name]} uri" do
               wrong_config = config
-              wrong_config[:uri] = ocurrence[:value]
+              wrong_config[:uri] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)
@@ -203,10 +203,10 @@ describe Sharepoint::Client do
         context 'with bad username' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
-           { value: 344, name: 344 }].each do |ocurrence|
-            it "raises username configuration error for #{ocurrence[:name]} username" do
+           { value: 344, name: 344 }].each do |occurrence|
+            it "raises username configuration error for #{occurrence[:name]} username" do
               wrong_config = config
-              wrong_config[:username] = ocurrence[:value]
+              wrong_config[:username] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)
@@ -218,10 +218,10 @@ describe Sharepoint::Client do
         context 'with bad password' do
           [{ value: nil, name: 'nil' },
            { value: '', name: 'blank' },
-           { value: 344, name: 344 }].each do |ocurrence|
-            it "raises password configuration error for #{ocurrence[:name]} password" do
+           { value: 344, name: 344 }].each do |occurrence|
+            it "raises password configuration error for #{occurrence[:name]} password" do
               wrong_config = config
-              wrong_config[:password] = ocurrence[:value]
+              wrong_config[:password] = occurrence[:value]
 
               expect do
                 described_class.new(wrong_config)

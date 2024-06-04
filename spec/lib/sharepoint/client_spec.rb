@@ -51,6 +51,18 @@ describe Sharepoint::Client do
       end
     end
 
+    context 'when authentication is not specified' do
+      subject(:client) { described_class.new(legacy_config) }
+
+      let(:legacy_config) do
+        { username: 'test', password: 'test', uri: 'http://sharepoint.example.com' }
+      end
+
+      it 'defaults to ntlm' do
+        expect(client.config.authentication).to eq 'ntlm'
+      end
+    end
+
     context 'with ethon easy options' do
       context 'with success' do
         let(:config_ethon) { config.merge({ ethon_easy_options: ssl_verifypeer }) }

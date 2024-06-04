@@ -22,6 +22,17 @@ And then execute:
 
 You can instantiate a number of SharePoint clients in your application:
 
+#### NTLM authentication (default)
+
+```rb
+client = Sharepoint::Client.new({
+  authentication: "ntlm", # default, can be omitted
+  username: "username",
+  password: "password",
+  uri: "http://sharepoint_url"
+})
+```
+
 #### Token authentication
 
 ```rb
@@ -32,17 +43,6 @@ client = Sharepoint::Client.new({
   tenant_id: "tenant_id",
   cert_name: "cert_name",
   auth_scope: "auth_scope",
-  uri: "http://sharepoint_url"
-})
-```
-
-#### NTLM authentication
-
-```rb
-client = Sharepoint::Client.new({
-  authentication: "ntlm",
-  username: "username",
-  password: "password",
   uri: "http://sharepoint_url"
 })
 ```

@@ -49,6 +49,7 @@ module Sharepoint
     #  - `:auth_scope` self-explanatory
     # @return [Sharepoint::Client] client object
     def initialize(config = {})
+      config[:authentication] = 'ntlm' unless config.key?(:authentication)
       @config = OpenStruct.new(config)
       @token = Token.new(@config)
       validate_config!

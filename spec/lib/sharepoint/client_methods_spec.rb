@@ -282,20 +282,37 @@ describe Sharepoint::Client do
   describe '#download' do
     subject(:download) { client.download file_path: file_path }
 
-    let(:document_json) { File.read('spec/fixtures/responses/get_document.json') }
-    let(:document_meta) { client.send :parse_get_document_response, document_json, [] }
     let(:file_path) { '/Documents/document.docx' }
     let(:expected_content) { File.read('spec/fixtures/responses/document.docx') }
+    let(:document_meta) { client.send :parse_get_document_response, document_json, [] }
 
-    before do
-      allow(client).to receive(:get_document).and_return(document_meta)
-      mock_responses('document.docx')
+    context "when meta contains URL" do
+      let(:document_json) { File.read('spec/fixtures/responses/get_document.json') }
+
+      before do
+        allow(client).to receive(:get_document).and_return(document_meta)
+        mock_responses('document.docx')
+      end
+
+      it 'returns expected hash' do
+        expect(download).to have_key :file_contents
+        expect(download).to have_key :link_url
+        expect(download[:file_contents]).to eq expected_content
+      end
     end
 
-    it 'returns expected hash' do
-      expect(download).to have_key :file_contents
-      expect(download).to have_key :link_url
-      expect(download[:file_contents]).to eq expected_content
+    context "when meta contains Path" do
+      let(:document_json) { File.read('spec/fixtures/responses/get_document_having_path.json') }
+      before do
+        allow(client).to receive(:get_document).and_return(document_meta)
+        mock_responses('document.docx')
+      end
+
+      it 'returns expected hash' do
+        expect(download).to have_key :file_contents
+        expect(download).to have_key :link_url
+        expect(download[:file_contents]).to eq expected_content
+      end
     end
   end
 

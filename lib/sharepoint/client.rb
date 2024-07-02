@@ -281,7 +281,7 @@ module Sharepoint
     def download(file_path: nil, site_path: nil, link_credentials: {})
       meta = get_document(file_path, site_path)
       meta_path = meta.url || meta.path
-      if meta_path
+      if meta_path.nil?
         url = computed_web_api_url(site_path)
         server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
         download_url "#{url}GetFileByServerRelativeUrl('#{server_relative_url}')/$value"

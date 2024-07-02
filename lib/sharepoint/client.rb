@@ -280,12 +280,13 @@ module Sharepoint
     #  - `:link_url` [String] if the requested file is a link, this returns the destination file url
     def download(file_path: nil, site_path: nil, link_credentials: {})
       meta = get_document(file_path, site_path)
-      if meta.url.nil?
+      meta_path = meta.url || meta.path
+      if meta_path
         url = computed_web_api_url(site_path)
         server_relative_url = odata_escape_single_quote "#{site_path}#{file_path}"
         download_url "#{url}GetFileByServerRelativeUrl('#{server_relative_url}')/$value"
       else # requested file is a link
-        paths = extract_paths(meta.url)
+        paths = extract_paths(meta_path)
         link_config = { uri: paths[:root] }
         if link_credentials.empty?
           link_config = config.to_h.merge(link_config)
@@ -293,7 +294,7 @@ module Sharepoint
           link_config.merge!(link_credentials)
         end
         link_client = self.class.new(link_config)
-        result = link_client.download_url meta.url
+        result = link_client.download_url meta_path
         result[:link_url] = meta.url if result[:link_url].nil?
         result
       end

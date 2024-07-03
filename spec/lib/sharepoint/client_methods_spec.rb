@@ -286,7 +286,7 @@ describe Sharepoint::Client do
     let(:expected_content) { File.read('spec/fixtures/responses/document.docx') }
     let(:document_meta) { client.send :parse_get_document_response, document_json, [] }
 
-    context "when meta contains URL" do
+    context 'when meta contains URL' do
       let(:document_json) { File.read('spec/fixtures/responses/get_document.json') }
 
       before do
@@ -301,8 +301,9 @@ describe Sharepoint::Client do
       end
     end
 
-    context "when meta contains Path" do
+    context 'when meta contains Path' do
       let(:document_json) { File.read('spec/fixtures/responses/get_document_having_path.json') }
+
       before do
         allow(client).to receive(:get_document).and_return(document_meta)
         mock_responses('document.docx')

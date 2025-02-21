@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Sharepoint::Client do
+RSpec.describe Sharepoint::Client do
   before do
     mock_requests
     mock_token_responses

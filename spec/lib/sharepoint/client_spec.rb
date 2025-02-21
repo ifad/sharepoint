@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Sharepoint::Client do
+RSpec.describe Sharepoint::Client do
   before { ENV['SP_URL'] = 'https://localhost:8888' }
 
   let(:config) { sp_config }

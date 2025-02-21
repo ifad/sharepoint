@@ -21,6 +21,14 @@ module Sharepoint
     DEFAULT_NTLM_ETHON_OPTIONS = { httpauth: :ntlm, followlocation: 1, maxredirs: 5 }.freeze
     VALID_NTLM_CONFIG_OPTIONS = %i[username password].freeze
 
+    URI_PARSER =
+      if defined?(URI::RFC2396_PARSER)
+        URI::RFC2396_PARSER
+      else
+        URI::DEFAULT_PARSER
+      end
+    private_constant :URI_PARSER
+
     def authenticating_with_token
       generate_new_token
       yield
@@ -701,11 +709,11 @@ module Sharepoint
 
     # Waiting for RFC 3986 to be implemented, we need to escape square brackets
     def uri_escape(uri)
-      URI::DEFAULT_PARSER.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
+      URI_PARSER.escape(uri).gsub('[', '%5B').gsub(']', '%5D')
     end
 
     def uri_unescape(uri)
-      URI::DEFAULT_PARSER.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
+      URI_PARSER.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
     end
 
     # TODO: Try to remove `eval` from this method. Otherwise, fix offenses

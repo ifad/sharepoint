@@ -1,2 +1,2 @@
-require 'sharepoint/errors'
-require 'sharepoint/client'
+require_relative 'sharepoint/errors'
+require_relative 'sharepoint/client'

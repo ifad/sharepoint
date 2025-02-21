@@ -6,7 +6,8 @@ require 'time'
 
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/object/blank'
-require 'sharepoint/client/token'
+
+require_relative 'client/token'
 
 module Sharepoint
   class Client

@@ -8,7 +8,6 @@ gem 'byebug'
 gem 'dotenv'
 gem 'rake'
 gem 'rspec'
-gem 'ruby-filemagic'
 gem 'simplecov'
 gem 'webmock'
 

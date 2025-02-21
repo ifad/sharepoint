@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Sharepoint
   module SpecHelpers
     def value_to_string(value)

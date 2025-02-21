@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Sharepoint
   module Errors
     class UriConfigurationError < StandardError

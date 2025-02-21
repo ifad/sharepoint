@@ -13,7 +13,6 @@ end
 require 'dotenv'
 require 'pathname'
 require 'byebug'
-require 'filemagic/ext'
 
 Dotenv.load('.env')
 

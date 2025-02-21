@@ -600,11 +600,11 @@ module Sharepoint
     end
 
     def prepare_metadata(metadata, type)
-      metadata.inject("{ '__metadata': { 'type': '#{type}' }") { |result, element|
+      metadata.inject("{ '__metadata': { 'type': '#{type}' }") do |result, element|
         key = element[0]
         value = element[1]
         result += ", '#{json_escape_single_quote(key.to_s)}': '#{json_escape_single_quote(value.to_s)}'"
-      } + ' }'
+      end + ' }'
     end
 
     def json_escape_single_quote(s)

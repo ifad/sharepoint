@@ -341,7 +341,7 @@ module Sharepoint
 
       sanitized_name = sanitize_filename(name)
       url = computed_web_api_url(site_path)
-      path = path[1..-1] if path[0].eql?('/')
+      path = path[1..] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Folders"
       easy = ethon_easy_json_requester
       easy.headers = with_bearer_authentication_header({
@@ -388,7 +388,7 @@ module Sharepoint
     def upload(filename, content, path, site_path = nil)
       sanitized_filename = sanitize_filename(filename)
       url = computed_web_api_url(site_path)
-      path = path[1..-1] if path[0].eql?('/')
+      path = path[1..] if path[0].eql?('/')
       url = uri_escape "#{url}GetFolderByServerRelativeUrl('#{path}')/Files/Add(url='#{sanitized_filename}',overwrite=true)"
       easy = ethon_easy_json_requester
       easy.headers = with_bearer_authentication_header({ 'accept' => 'application/json;odata=verbose',
@@ -443,7 +443,7 @@ module Sharepoint
     #   * `:server_responded_at` [Time] the time when server returned its response
     #   * `:results` [Array] of OpenStructs with all lists returned by the query
     def lists(site_path = '', query = {})
-      url = "#{computed_web_api_url(site_path)}Lists".dup
+      url = "#{computed_web_api_url(site_path)}Lists"
       url << "?#{build_query_params(query)}" if query.present?
 
       ethon = ethon_easy_json_requester
@@ -599,7 +599,7 @@ module Sharepoint
       last_redirect_idx = ethon.response_headers.rindex('HTTP/1.1 302')
       return if last_redirect_idx.nil?
 
-      last_response_headers = ethon.response_headers[last_redirect_idx..-1]
+      last_response_headers = ethon.response_headers[last_redirect_idx..]
       location = last_response_headers.match(/\r\n(Location:)(.+)\r\n/)[2].strip
       utf8_encode uri_unescape(location)
     end
@@ -630,7 +630,7 @@ module Sharepoint
       last_slash_pos = file_path.rindex('/')
       {
         path: file_path[0..last_slash_pos - 1],
-        name: file_path[last_slash_pos + 1..-1]
+        name: file_path[last_slash_pos + 1..]
       }
     end
 
@@ -659,13 +659,13 @@ module Sharepoint
     end
 
     def valid_config_options(options = [])
-      options.map do |opt|
+      options.filter_map do |opt|
         c = config.send(opt)
 
         next if c.present? && string_not_blank?(c)
 
         opt
-      end.compact
+      end
     end
 
     def validate_config!
@@ -850,7 +850,7 @@ module Sharepoint
       results = json_response.dig('d', 'results')
 
       results.map do |result|
-        OpenStruct.new(result.map { |k, v| [k.underscore.to_sym, v] }.to_h)
+        OpenStruct.new(result.transform_keys { |k| k.underscore.to_sym })
       end
     end
 

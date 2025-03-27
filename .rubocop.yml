@@ -9,7 +9,7 @@ plugins:
 
 AllCops:
   NewCops: enable
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 3.0
   Exclude:
     - .git/**/*
     - .github/**/*

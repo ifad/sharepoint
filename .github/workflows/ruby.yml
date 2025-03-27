@@ -37,10 +37,6 @@ jobs:
       SP_PASSWORD: passfoo
 
     steps:
-    - name: Install libmagic-dev
-      run: |
-        sudo apt-get update
-        sudo apt-get -yq --no-install-suggests --no-install-recommends install libmagic-dev
     - uses: actions/checkout@v4
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1

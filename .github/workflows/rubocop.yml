@@ -2,9 +2,9 @@ name: RuboCop
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 1-stable ]
   pull_request:
-    branches: [ master ]
+    branches: [ 1-stable ]
 
 permissions:
   contents: read

@@ -1,6 +1,7 @@
 # sharepoint
 
 [![Build Status](https://github.com/ifad/sharepoint/actions/workflows/ruby.yml/badge.svg)](https://github.com/ifad/sharepoint/actions)
+[![RuboCop](https://github.com/ifad/sharepoint/actions/workflows/rubocop.yml/badge.svg)](https://github.com/ifad/sharepoint/actions/workflows/rubocop.yml)
 
 Sharepoint 2013 REST API client. Work in progress, not for the faint hearted.
 

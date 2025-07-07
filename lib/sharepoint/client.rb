@@ -629,8 +629,8 @@ module Sharepoint
     def split_path(file_path)
       last_slash_pos = file_path.rindex('/')
       {
-        path: file_path[0..last_slash_pos - 1],
-        name: file_path[last_slash_pos + 1..]
+        path: file_path[0...last_slash_pos],
+        name: file_path[(last_slash_pos + 1)..]
       }
     end
 
@@ -740,7 +740,7 @@ module Sharepoint
         else
           extension_length = sanitized_filename.length - dot_index
           upper_bound = 127 - extension_length
-          sanitized_filename = sanitized_filename[0..upper_bound] + sanitized_filename[dot_index..sanitized_filename.length - 1]
+          sanitized_filename = sanitized_filename[0..upper_bound] + sanitized_filename[dot_index...sanitized_filename.length]
         end
       end
       odata_escape_single_quote(sanitized_filename)

@@ -39,5 +39,11 @@ module Sharepoint
         super(error_messages.join(','))
       end
     end
+
+    # Collaboration error classes
+    class UploadError < StandardError; end
+    class PermissionError < StandardError; end
+    class DownloadError < StandardError; end
+    class DeleteError < StandardError; end
   end
 end

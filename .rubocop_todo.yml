@@ -34,9 +34,17 @@ Lint/UselessAssignment:
 Metrics/AbcSize:
   Max: 42
 
+# Configuration parameters: CountKeywordArgs, Max.
+Metrics/CyclomaticComplexity:
+  Max: 13
+
 # Configuration parameters: CountComments, CountAsOne, AllowedMethods, AllowedPatterns.
 Metrics/MethodLength:
   Max: 31
+
+# Configuration parameters: Max.
+Metrics/PerceivedComplexity:
+  Max: 14
 
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
 # AllowedNames: as, at, by, cc, db, id, if, in, io, ip, of, on, os, pp, to
@@ -54,9 +62,27 @@ Performance/UnfreezeString:
   Exclude:
     - 'lib/sharepoint/client.rb'
 
+# Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.
+Naming/VariableNumber:
+  Exclude:
+    - 'spec/lib/sharepoint/client_collaboration_spec.rb'
+
 RSpec/AnyInstance:
   Exclude:
     - 'spec/lib/sharepoint/client_methods_spec.rb'
+    - 'spec/lib/sharepoint/client_collaboration_spec.rb'
+
+RSpec/DescribeMethod:
+  Exclude:
+    - 'spec/lib/sharepoint/client_collaboration_spec.rb'
+
+RSpec/IndexedLet:
+  Exclude:
+    - 'spec/lib/sharepoint/client_collaboration_spec.rb'
+
+RSpec/SpecFilePathFormat:
+  Exclude:
+    - 'spec/lib/sharepoint/client_collaboration_spec.rb'
 
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.

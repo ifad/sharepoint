@@ -11,11 +11,9 @@ gem 'rspec'
 gem 'simplecov'
 gem 'webmock'
 
-if RUBY_VERSION >= '2.7'
-  gem 'rubocop', require: false
-  gem 'rubocop-packaging', require: false
-  gem 'rubocop-performance', require: false
-  gem 'rubocop-rails', require: false
-  gem 'rubocop-rake', require: false
-  gem 'rubocop-rspec', require: false
-end
+gem 'rubocop', require: false
+gem 'rubocop-packaging', require: false
+gem 'rubocop-performance', require: false
+gem 'rubocop-rails', require: false
+gem 'rubocop-rake', require: false
+gem 'rubocop-rspec', require: false

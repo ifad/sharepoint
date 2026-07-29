@@ -37,7 +37,7 @@ jobs:
       SP_PASSWORD: passfoo
 
     steps:
-    - uses: actions/checkout@v7.0.0
+    - uses: actions/checkout@v7.0.1
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1.321.0
       with:

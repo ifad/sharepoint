@@ -1200,13 +1200,12 @@ module Sharepoint
     end
 
     # TODO: Try to remove `eval` from this method. Otherwise, fix offenses
-    # rubocop:disable Security/Eval, Style/DocumentDynamicEvalDefinition, Style/EvalWithLocation, Style/PercentLiteralDelimiters
+    # rubocop:disable-next Security/Eval, Style/DocumentDynamicEvalDefinition, Style/EvalWithLocation, Style/PercentLiteralDelimiters
     def string_unescape(s)
       s.gsub!(/\\(?:[abfnrtv])/, '') # remove control chars
       s.gsub!('"', '\"') # escape double quotes
       eval %Q{"#{s}"}
     end
-    # rubocop:enable Security/Eval, Style/DocumentDynamicEvalDefinition, Style/EvalWithLocation, Style/PercentLiteralDelimiters
 
     def utf8_encode(s)
       s.force_encoding('UTF-8') unless s.nil?

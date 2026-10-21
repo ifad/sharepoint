@@ -166,7 +166,7 @@ RSpec.describe Sharepoint::Client, 'Collaboration Methods' do
           Sharepoint::Errors::PermissionError,
           /Failed to ensure user user1@example.com: HTTP 400, Response: User not found/
         )
-        expect(inheritance_response).not_to have_received(:perform)
+        expect(client).to have_received(:ethon_easy_json_requester).once
       end
     end
 

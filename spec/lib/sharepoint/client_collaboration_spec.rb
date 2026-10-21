@@ -32,6 +32,12 @@ RSpec.describe Sharepoint::Client, 'Collaboration Methods' do
   let(:folder_path) { 'project-123' }
   let(:file_content) { 'test file content' }
 
+  def permission_response(status, body = '')
+    Ethon::Easy.new.tap do |response|
+      allow(response).to receive_messages(response_code: status, response_body: body, perform: :ok)
+    end
+  end
+
   describe '#collaboration_upload_document' do
     subject(:upload_document) { client.collaboration_upload_document(filename, file_content, folder_path) }
 
@@ -99,18 +105,69 @@ RSpec.describe Sharepoint::Client, 'Collaboration Methods' do
 
     let(:user_emails) { ['user1@example.com', 'user2@example.com'] }
     let(:role_id) { 1_073_741_827 } # Contribute role
-    let(:user_id_1) { 123 }
-    let(:user_id_2) { 456 }
+    let(:inheritance_response) { permission_response(200) }
+    let(:grant_response) { permission_response(200) }
 
     before do
-      allow_any_instance_of(Ethon::Easy).to receive(:response_code).and_return(200)
-      allow_any_instance_of(Ethon::Easy).to receive(:response_body).and_return(
-        { 'd' => { 'Id' => user_id_1 } }.to_json
+      allow(client).to receive(:ethon_easy_json_requester).and_return(
+        permission_response(200, { 'd' => { 'Id' => 123 } }.to_json),
+        permission_response(200, { 'd' => { 'Id' => 456 } }.to_json),
+        inheritance_response,
+        grant_response
       )
     end
 
     it 'returns true on success' do
       expect(grant_permissions).to be true
+    end
+
+    context 'when permission requests return HTTP 204' do
+      let(:inheritance_response) { permission_response(204) }
+      let(:grant_response) { permission_response(204) }
+
+      it 'returns true without parsing the empty response bodies' do
+        expect(grant_permissions).to be true
+      end
+    end
+
+    [403, 503].each do |status|
+      context "when breaking inheritance returns HTTP #{status}" do
+        let(:inheritance_response) { permission_response(status, 'Permission request failed') }
+
+        it 'raises PermissionError and does not grant permissions' do
+          expect { grant_permissions }.to raise_error(
+            Sharepoint::Errors::PermissionError,
+            /received #{status}:.*breakroleinheritance.*Permission request failed/m
+          )
+          expect(grant_response).not_to have_received(:perform)
+        end
+      end
+
+      context "when granting a role returns HTTP #{status}" do
+        let(:grant_response) { permission_response(status, 'Permission request failed') }
+
+        it 'raises PermissionError and stops granting permissions' do
+          expect { grant_permissions }.to raise_error(
+            Sharepoint::Errors::PermissionError,
+            /received #{status}:.*addroleassignment.*Permission request failed/m
+          )
+          expect(grant_response).to have_received(:perform).once
+        end
+      end
+    end
+
+    context 'when SharePoint rejects an unknown user' do
+      before do
+        allow(client).to receive(:ethon_easy_json_requester).and_return(permission_response(400, 'User not found'))
+      end
+
+      it 'preserves the user lookup error and does not break inheritance' do
+        expect { grant_permissions }.to raise_error(
+          Sharepoint::Errors::PermissionError,
+          /Failed to ensure user user1@example.com: HTTP 400, Response: User not found/
+        )
+        expect(inheritance_response).not_to have_received(:perform)
+      end
     end
 
     context 'with nil user_emails' do
@@ -164,12 +221,12 @@ RSpec.describe Sharepoint::Client, 'Collaboration Methods' do
     end
 
     let(:user_email) { 'user@example.com' }
-    let(:user_id) { 123 }
+    let(:revoke_response) { permission_response(200) }
 
     before do
-      allow_any_instance_of(Ethon::Easy).to receive(:response_code).and_return(200)
-      allow_any_instance_of(Ethon::Easy).to receive(:response_body).and_return(
-        { 'd' => { 'Id' => user_id } }.to_json
+      allow(client).to receive(:ethon_easy_json_requester).and_return(
+        permission_response(200, { 'd' => { 'Id' => 123 } }.to_json),
+        revoke_response
       )
     end
 
@@ -177,13 +234,24 @@ RSpec.describe Sharepoint::Client, 'Collaboration Methods' do
       expect(revoke_user_permission).to be true
     end
 
-    context 'when revocation fails' do
-      before do
-        allow_any_instance_of(Ethon::Easy).to receive(:response_code).and_return(500)
-      end
+    context 'when revocation returns HTTP 204' do
+      let(:revoke_response) { permission_response(204) }
 
-      it 'raises PermissionError' do
-        expect { revoke_user_permission }.to raise_error(Sharepoint::Errors::PermissionError)
+      it 'returns true without parsing the empty response body' do
+        expect(revoke_user_permission).to be true
+      end
+    end
+
+    [403, 503].each do |status|
+      context "when revocation returns HTTP #{status}" do
+        let(:revoke_response) { permission_response(status, 'Permission request failed') }
+
+        it 'raises PermissionError instead of confirming revocation' do
+          expect { revoke_user_permission }.to raise_error(
+            Sharepoint::Errors::PermissionError,
+            /received #{status}:.*getbyprincipalid\(123\).*Permission request failed/m
+          )
+        end
       end
     end
   end
@@ -193,12 +261,35 @@ RSpec.describe Sharepoint::Client, 'Collaboration Methods' do
       client.collaboration_revoke_all_permissions(filename, folder_path)
     end
 
+    let(:reset_response) { permission_response(200) }
+
     before do
-      allow_any_instance_of(Ethon::Easy).to receive(:response_code).and_return(200)
+      allow(client).to receive(:ethon_easy_json_requester).and_return(reset_response)
     end
 
     it 'returns true on success' do
       expect(revoke_all_permissions).to be true
+    end
+
+    context 'when resetting inheritance returns HTTP 204' do
+      let(:reset_response) { permission_response(204) }
+
+      it 'returns true without parsing the empty response body' do
+        expect(revoke_all_permissions).to be true
+      end
+    end
+
+    [403, 503].each do |status|
+      context "when resetting inheritance returns HTTP #{status}" do
+        let(:reset_response) { permission_response(status, 'Permission request failed') }
+
+        it 'raises PermissionError instead of confirming the reset' do
+          expect { revoke_all_permissions }.to raise_error(
+            Sharepoint::Errors::PermissionError,
+            /received #{status}:.*resetroleinheritance.*Permission request failed/m
+          )
+        end
+      end
     end
 
     context 'when reset fails' do

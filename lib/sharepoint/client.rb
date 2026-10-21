@@ -919,6 +919,7 @@ module Sharepoint
         )
         ethon.perform
       end
+      check_and_raise_failure(ethon)
     end
 
     # Resets role inheritance for a document
@@ -937,6 +938,7 @@ module Sharepoint
         )
         ethon.perform
       end
+      check_and_raise_failure(ethon)
     end
 
     # Grants permission to a specific user
@@ -957,6 +959,7 @@ module Sharepoint
         )
         ethon.perform
       end
+      check_and_raise_failure(ethon)
     end
 
     # Revokes permission from a specific user
@@ -979,6 +982,7 @@ module Sharepoint
         )
         ethon.perform
       end
+      check_and_raise_failure(ethon)
     end
 
     def process_url(url, fields)

@@ -301,6 +301,24 @@ RSpec.describe Sharepoint::Client do
       end
     end
 
+    context 'when meta contains a link URL with an interpolation payload' do
+      let(:url) { "http://example.com/\#{raise 'executed'}" }
+      let(:document_json) do
+        JSON.parse(File.read('spec/fixtures/responses/get_document.json'))
+            .tap { |json| json['d']['URL'] = { 'Url' => url } }
+            .to_json
+      end
+
+      before do
+        allow(client).to receive(:get_document).and_return(document_meta)
+        mock_responses('document.docx')
+      end
+
+      it 'follows the link without evaluating the URL' do
+        expect(download[:link_url]).to eq url
+      end
+    end
+
     context 'when meta contains Path' do
       let(:document_json) { File.read('spec/fixtures/responses/get_document_having_path.json') }
 
@@ -314,6 +332,73 @@ RSpec.describe Sharepoint::Client do
         expect(download).to have_key :link_url
         expect(download[:file_contents]).to eq expected_content
       end
+    end
+  end
+
+  describe '#string_unescape' do
+    subject(:unescape) { client.send :string_unescape, input.dup }
+
+    context 'with interpolation' do
+      let(:input) { "\#{raise 'executed'}" }
+
+      it { is_expected.to eq "\#{raise 'executed'}" }
+    end
+
+    context 'with backticks and a trailing backslash' do
+      let(:input) { '`id`\\' }
+
+      it { is_expected.to eq '`id`\\' }
+    end
+
+    context 'with escapes' do
+      let(:input) { 'a\\"b\\\\c\\u00e8\\x41\\101\\n' }
+
+      it { is_expected.to eq 'a"b\\cèAA' }
+    end
+
+    context 'with escaped bytes of a multibyte character' do
+      let(:input) { 'è\\u00e8\\xC3\\xA8\\303\\250' }
+
+      it { is_expected.to eq 'èèèè' }
+    end
+
+    context 'with a unicode escape followed by a lone non-ASCII byte' do
+      let(:input) { 'è\\u00e8\\xE8' }
+
+      it { is_expected.to eq "èè\xE8" }
+    end
+
+    context 'with an escaped double quote that would close a string literal' do
+      let(:input) { '\\"+RUBY_VERSION+?' }
+
+      it { is_expected.to eq '"+RUBY_VERSION+?' }
+    end
+
+    context 'with a double quote' do
+      let(:input) { +'http://example.com/a"b' }
+
+      it 'does not change the argument' do
+        client.send :string_unescape, input
+        expect(input).to eq 'http://example.com/a"b'
+      end
+    end
+
+    context 'with escapes that only Ruby string literals define' do
+      let(:input) { 'a\\sb\\ec' }
+
+      it { is_expected.to eq 'asbec' }
+    end
+
+    context 'with a malformed hex escape' do
+      let(:input) { 'a\\xZZ' }
+
+      it { is_expected.to eq 'axZZ' }
+    end
+
+    context 'with a surrogate unicode escape' do
+      let(:input) { '\\ud800' }
+
+      it { expect { unescape }.to raise_error RangeError }
     end
   end
 

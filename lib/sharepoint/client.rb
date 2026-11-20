@@ -1199,12 +1199,18 @@ module Sharepoint
       URI_PARSER.unescape(uri.gsub('%5B', '[').gsub('%5D', ']'))
     end
 
-    # TODO: Try to remove `eval` from this method. Otherwise, fix offenses
-    # rubocop:disable-next Security/Eval, Style/DocumentDynamicEvalDefinition, Style/EvalWithLocation, Style/PercentLiteralDelimiters
+    # Drops the `\a\b\f\n\r\t\v` escapes and resolves `\\`, `\"`, `\uXXXX`, `\xN` or `\xNN` and
+    # octal ones, on bytes so that `\x` and octal escapes can form UTF-8 characters.
     def string_unescape(s)
       s.gsub!(/\\(?:[abfnrtv])/, '') # remove control chars
-      s.gsub!('"', '\"') # escape double quotes
-      eval %Q{"#{s}"}
+      s.b.gsub(/\\(?:u(\h{4})|x(\h{1,2})|([0-7]{1,3})|(.))/m) do
+        unicode, hex, octal, char = Regexp.last_match.captures
+        if unicode then unicode.hex.chr(Encoding::UTF_8).b
+        elsif hex then hex.hex.chr
+        elsif octal then (octal.oct & 0xFF).chr
+        else char
+        end
+      end.force_encoding(s.encoding)
     end
 
     def utf8_encode(s)
